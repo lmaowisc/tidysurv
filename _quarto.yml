@@ -1,19 +1,27 @@
 project:
   type: website
+  output-dir: docs
 
 website:
   title: "Tidy Survival Analysis --- A Workshop"
+  # subtitle: "Applying R’s Tidyverse to Survival Data"
+  twitter-card: true
+  site-url: https://lmaowisc.github.io/tidysurv/
   navbar:
     left:
       - href: index.qmd
         text: Home
-      - about.qmd
+      - intro.qmd
 
+csl: apa.csl
 format:
   html:
     theme: cosmo
     css: styles.css
-    toc: true
+    linkcolor: "#C5050C"
+    backgroundcolor: "#FFFFFF"
+  pdf:
+    documentclass: scrreprt
 
 editor: visual
 
