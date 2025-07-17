@@ -11,17 +11,24 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - intro.qmd
 
+  sidebar:
+    style: "docked"
+    search: true
+    contents:
+      - intro.qmd
 csl: apa.csl
 format:
   html:
     theme: cosmo
     css: styles.css
+    toc: true
+    toc-depth: 4
+    toc-expand: true
     linkcolor: "#C5050C"
     backgroundcolor: "#FFFFFF"
-  pdf:
-    documentclass: scrreprt
+    math: mathjax
+
 
 editor: visual
 
