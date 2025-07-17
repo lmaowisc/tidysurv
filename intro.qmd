@@ -1,8 +1,8 @@
-# Introduction
+# Section 1. Introduction
 
 ## Slides 
 
-Chapter slides [here](chap1.html){target="_blank"}. (To convert html to pdf, press E $\to$ Print $\to$ Destination: Save to pdf)
+Section slides [here](chap1.html){target="_blank"}. (To convert html to pdf, press E $\to$ Print $\to$ Destination: Save to pdf)
 
 ## R code 
 
