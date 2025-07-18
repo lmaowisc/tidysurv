@@ -1,10 +1,10 @@
 # Section 1. Introduction
 
-## Slides 
+## Slides
 
-Section slides [here](chap1.html){target="_blank"}. (To convert html to pdf, press E $\to$ Print $\to$ Destination: Save to pdf)
+Section slides [here](sec1.html){target="_blank"}. (To convert html to pdf, press E $\to$ Print $\to$ Destination: Save to pdf)
 
-## R code 
+## R code
 
 ```{r}
 #| code-fold: true
@@ -143,4 +143,3 @@ legend(0, 5, col = c("red", "blue"), c("Usual care","Training"), lwd = 2)
 
 
 ```
-

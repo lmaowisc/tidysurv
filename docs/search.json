@@ -73,5 +73,12 @@
     "title": "About",
     "section": "",
     "text": "About this site\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "sec1.html#outline",
+    "href": "sec1.html#outline",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Outline",
+    "text": "Outline\n\nExamples and regulatory guidelines\nTraditional methods\n\nTime to first event\nWeighted total events (Wcompo package)\n\nWin ratio and hierarchical endpoints\n\nThe estimand issue"
   }
 ]
