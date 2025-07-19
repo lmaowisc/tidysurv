@@ -37,14 +37,6 @@ include-in-header:
 #   data-background-position: 2% 2%
 ---
 
-<!-- ## Outline -->
-
-<!-- -   Examples and regulatory guidelines -->
-<!-- -   Traditional methods -->
-<!--     -   Time to first event -->
-<!--     -   Weighted total events ([`Wcompo`](https://cran.r-project.org/package=Wcompo){target="_blank"} package) -->
-<!-- -   Win ratio and hierarchical endpoints -->
-<!--     -   The estimand issue -->
 
 # Basics of Survival Analysis
 
@@ -71,6 +63,7 @@ include-in-header:
 
 ![](images/rat_swim.png){fig-align="center" width="60%"}
 
+
 ## Basic Estimands
 
 - **Survival function**: $S(t) = \Pr(T > t)$
@@ -87,14 +80,172 @@ include-in-header:
   - **Cumulative hazard function**: $\Lambda(t) = \int_0^t \lambda(u) \mathrm{d}u$
   
 
+## Observed (Censored) Data
+
+- **Notation**: $(X, \delta)$
+    - $X=\min(T, C)$: observation time (event or censoring)
+    - $\delta = I(T\leq C)$: event indicator (1 for event, 0 for censoring)
+
+- **Data format**
+
+```r
+# time = X, status = delta (tidy format)
+    id    time status
+1     1     5     1
+2     2     3     0
+3     3     8     1
+4     4     2     0
+5     5     6     1
+# Alternatively 
+    id    time 
+1     1     5   
+2     2     3+  
+3     3     8  
+4     4     2+  
+5     5     6 
+```
+
 # German Breast Cancer Study: A Working Example
 
+## German Breast Cancer (GBC) Study
+
+-   **Study Information**
+    -   **Population**: 686 patients with node-positive breast cancer\
+    -   **Objective**: Assess if tamoxifen + chemo reduces mortality/relapse\
+    -   **Baseline info**: Age, tumor size, hormone levels, menopausal status, etc.\
+    -   **Follow-up**: Median 44 months
+        -   171 deaths $\to$ exact times known\
+        -   515 censored $\to$ survival time $>$ censoring time
+
+-  **Data sets**: 
+    -   Mortality data: [https://lmaowisc.github.io/tidysurv/data/gbc_mort.txt](https://lmaowisc.github.io/tidysurv/data/gbc_mort.txt){target="_blank"}
+    -   Mortality + relapse: [https://lmaowisc.github.io/tidysurv/data/gbc.txt](https://lmaowisc.github.io/tidysurv/data/gbc.txt){target="_blank"}
+    - Download and save in a `data` folder under your root directory
+    
+## Data Format (I)
+
+- **Death only**
+
+```{r}
+#| eval: true
+# Load mortality data
+gbc_mort <- read.table("data/gbc_mort.txt", header = TRUE)
+# Check the first few rows of the data frame
+head(gbc_mort)
+# The data frame 'gbc_mort' contains:
+#  time:   time (months) to death or censoring
+#  status: event indicator (1 = death, 0 = censoring)
+# hormone: Hormone therapy (1 = no, 2 = yes); age: Age at diagnosis (years);
+# meno: Menopausal status (1 = no, 2 = yes); size: Tumor size (mm); grade: Tumor grade (1–3);
+# nodes: Number of positive lymph nodes; prog: Progesterone receptor level (fmol/mg); estrg:
+# Estrogen receptor level (fmol/mg).
+```
+
+## Data Format (II)
+
+- **Mortality + relapse**
+```{r}
+#| eval: true
+# Load mortality + relapse data
+gbc <- read.table("data/gbc.txt", header = TRUE)
+# Check the first few rows of the data frame
+head(gbc)
+# The data frame 'gbc' contains:
+#  time:   time (months) to death, relapse, or censoring
+#  status: event indicator (1 = relapse, 2 = death, 0 = censoring)
+#  other covariates the same as in gbc_mor.
+```
+
+## Analysis Goals
+
+-  **Descriptive**
+    -   Summarize patient characteristics
+    -   Visualize survival distributions  
+
+-  **Inferential**
+    -   Compare survival curves (e.g., hormone therapy vs. no hormone therapy)
+    -   Assess impact of covariates on survival (e.g., age, tumor size, etc.)
+    -   Model competing risks (e.g., relapse vs. death)
+
+- **Predictive**
+    -   Develop risk prediction models
+    -   Evaluate model performance (e.g., concordance index, calibration)
 
 
 # Standard Analysis with `survival` Package
 
+## Survival Package Overview
+-   **Key Functions**
+    -   `Surv()`: Create survival object
+    -   `survfit()`: Fit Kaplan-Meier survival curves
+    -   `survdiff()`: Compare survival curves (log-rank test)
+    -   `coxph()`: Fit Cox proportional hazards regression models
+    -   `survreg()`: Fit parametric survival regression models
+
+## Kaplan-Meier Survival Curves
+
+- **Create dataset for relapse-free survival**
+
+```{r}
+#| eval: true
+# Sort by subject id, then time
+o <- order(gbc$id, gbc$time)
+gbc <- gbc[o,]
+# Keep only first row per subject => first event
+df <- gbc[!duplicated(gbc$id), ]
+# Convert status > 0 to 1 if it is either relapse or death
+df$status <- ifelse(df$status > 0, 1, 0)
+head(df)
+```
+
+## Kaplan-Meier Curves (I)
+
+- **Fit Kaplan-Meier survival curves**
+```{r}
+#| eval: true
+library(survival) 
+# Fit KM curves by hormone treatment group
+km_fit <- survfit(Surv(time, status) ~ hormone, data = df)
+km_fit
+```
+
+## Kaplan-Meier Curves (II)
+
+- **Summarize survival estimates at specified time points**
+    - For example, at 6, 12, 24, and 36 months
+```{r}
+#| eval: true
+summary(km_fit, times = c(6, 12, 24, 36))
+```
+    
+## Kaplan-Meier Curves (III)
+
+- **Plot Kaplan-Meier survival curves by group**
+
+```{r}
+#| eval: true
+plot(km_fit, ylim = c(0,1), xlab = "Time (months)", ylab = "Tumor-free probabilities",
+     col=c("red", "blue"), conf.int= TRUE)
+```
+
+## Log-Rank Test
+
+- **Compare survival curves between groups**
+
+```{r}
+#| eval: true
+
+survdiff(Surv(time, status) ~ hormone, data = df)
+
+```
 
 
+# Summary
 
+## Key Takeaways
 
-
+- Survival analysis is essential for time-to-event data in medical research
+- Key concepts: survival function, hazard function, censoring
+- Data format: time and event indicator
+- Standard analysis tools: `survival` package in R
+- Kaplan-Meier curves and log-rank tests for group comparisons

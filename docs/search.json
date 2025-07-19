@@ -108,5 +108,110 @@
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Basic Estimands",
     "text": "Basic Estimands\n\nSurvival function: \\(S(t) = \\Pr(T &gt; t)\\)\n\nProbability subject survives beyond time \\(t\\)\n\nHazard function:\n\\[\n\\lambda(t) = \\lim_{\\Delta t \\to 0} \\frac{\\Pr(t \\leq T &lt; t + \\Delta t \\mid T \\geq t)}{\\Delta t}\n\\]\n\nInstantaneous risk of failure at time \\(t\\)\n\nRelationship \\[\nS(t) = \\exp\\left(-\\int_0^t \\lambda(u) \\mathrm{d}u\\right)\n\\]\n\nCumulative hazard function: \\(\\Lambda(t) = \\int_0^t \\lambda(u) \\mathrm{d}u\\)"
+  },
+  {
+    "objectID": "sec1.html#observed-censored-data",
+    "href": "sec1.html#observed-censored-data",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Observed (Censored) Data",
+    "text": "Observed (Censored) Data\n\nNotation: \\((X, \\delta)\\)\n\n\\(X=\\min(T, C)\\): observation time (event or censoring)\n\\(\\delta = I(T\\leq C)\\): event indicator (1 for event, 0 for censoring)\n\nData format\n\n# time = X, status = delta (tidy format)\n    id    time status\n1     1     5     1\n2     2     3     0\n3     3     8     1\n4     4     2     0\n5     5     6     1\n# Alternatively \n    id    time \n1     1     5   \n2     2     3+  \n3     3     8  \n4     4     2+  \n5     5     6"
+  },
+  {
+    "objectID": "sec1.html#s",
+    "href": "sec1.html#s",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "s",
+    "text": "s"
+  },
+  {
+    "objectID": "sec1.html#german-breast-cancer-gbc-study",
+    "href": "sec1.html#german-breast-cancer-gbc-study",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "German Breast Cancer (GBC) Study",
+    "text": "German Breast Cancer (GBC) Study\n\nStudy Information\n\nPopulation: 686 patients with node-positive breast cancer\n\nObjective: Assess if tamoxifen + chemo reduces mortality/relapse\n\nBaseline info: Age, tumor size, hormone levels, menopausal status, etc.\n\nFollow-up: Median 44 months\n\n171 deaths \\(\\to\\) exact times known\n\n515 censored \\(\\to\\) survival time \\(&gt;\\) censoring time\n\n\nData sets:\n\nMortality data: https://lmaowisc.github.io/tidysurv/data/gbc_mort.txt\nMortality + relapse: https://lmaowisc.github.io/tidysurv/data/gbc.txt\nDownload and save in a data folder under your root directory"
+  },
+  {
+    "objectID": "sec1.html#data-format",
+    "href": "sec1.html#data-format",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Data Format",
+    "text": "Data Format\n\n# Load mortality data\ngbc_mort &lt;- read.table(\"data/gbc_mort.txt\", header = TRUE)\n# Check the first few rows of the data frame\nhead(gbc_mort)\n\n  id      time status hormone age meno size grade nodes prog estrg\n1  1 74.819672      0       1  38    1   18     3     5  141   105\n2  2 65.770492      0       1  52    1   20     1     1   78    14\n3  3 47.737705      1       1  47    1   30     2     1  422    89\n4  4  4.852459      0       1  40    1   24     1     3   25    11\n5  5 61.081967      0       2  64    2   19     2     1   19     9\n6  6 63.377049      0       2  49    2   56     1     3  356    64\n\n# The data frame 'gbc_mort' contains:\n#  time:   time (months) to death or censoring\n#  status: event indicator (1 = death, 0 = censoring)\n# hormone: Hormone therapy (1 = no, 2 = yes); age: Age at diagnosis (years);\n# meno: Menopausal status (1 = no, 2 = yes); size: Tumor size (mm); grade: Tumor grade (1–3);\n# nodes: Number of positive lymph nodes; prog: Progesterone receptor level (fmol/mg); estrg:\n# Estrogen receptor level (fmol/mg)."
+  },
+  {
+    "objectID": "sec1.html#data-format-i",
+    "href": "sec1.html#data-format-i",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Data Format (I)",
+    "text": "Data Format (I)\n\nDeath only\n\n\n# Load mortality data\ngbc_mort &lt;- read.table(\"data/gbc_mort.txt\", header = TRUE)\n# Check the first few rows of the data frame\nhead(gbc_mort)\n\n  id      time status hormone age meno size grade nodes prog estrg\n1  1 74.819672      0       1  38    1   18     3     5  141   105\n2  2 65.770492      0       1  52    1   20     1     1   78    14\n3  3 47.737705      1       1  47    1   30     2     1  422    89\n4  4  4.852459      0       1  40    1   24     1     3   25    11\n5  5 61.081967      0       2  64    2   19     2     1   19     9\n6  6 63.377049      0       2  49    2   56     1     3  356    64\n\n# The data frame 'gbc_mort' contains:\n#  time:   time (months) to death or censoring\n#  status: event indicator (1 = death, 0 = censoring)\n# hormone: Hormone therapy (1 = no, 2 = yes); age: Age at diagnosis (years);\n# meno: Menopausal status (1 = no, 2 = yes); size: Tumor size (mm); grade: Tumor grade (1–3);\n# nodes: Number of positive lymph nodes; prog: Progesterone receptor level (fmol/mg); estrg:\n# Estrogen receptor level (fmol/mg)."
+  },
+  {
+    "objectID": "sec1.html#data-format-ii",
+    "href": "sec1.html#data-format-ii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Data Format (II)",
+    "text": "Data Format (II)\n\nMortality + relapse\n\n\n# Load mortality + relapse data\ngbc &lt;- read.table(\"data/gbc.txt\", header = TRUE)\n# Check the first few rows of the data frame\nhead(gbc)\n\n  id     time status hormone age meno size grade nodes prog estrg\n1  1 43.83607      1       1  38    1   18     3     5  141   105\n2  1 74.81967      0       1  38    1   18     3     5  141   105\n3  2 46.55738      1       1  52    1   20     1     1   78    14\n4  2 65.77049      0       1  52    1   20     1     1   78    14\n5  3 41.93443      1       1  47    1   30     2     1  422    89\n6  3 47.73770      2       1  47    1   30     2     1  422    89\n\n# The data frame 'gbc' contains:\n#  time:   time (months) to death, relapse, or censoring\n#  status: event indicator (1 = relapse, 2 = death, 0 = censoring)\n#  other covariates the same as in gbc_mor."
+  },
+  {
+    "objectID": "sec1.html#analysis-goals",
+    "href": "sec1.html#analysis-goals",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Analysis Goals",
+    "text": "Analysis Goals\n\nDescriptive\n\nSummarize patient characteristics\nVisualize survival distributions\n\nInferential\n\nCompare survival curves (e.g., hormone therapy vs. no hormone therapy)\nAssess impact of covariates on survival (e.g., age, tumor size, etc.)\nModel competing risks (e.g., relapse vs. death)\n\nPredictive\n\nDevelop risk prediction models\nEvaluate model performance (e.g., concordance index, calibration)"
+  },
+  {
+    "objectID": "sec1.html#survival-package-overview",
+    "href": "sec1.html#survival-package-overview",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Survival Package Overview",
+    "text": "Survival Package Overview\n\nKey Functions\n\nSurv(): Create survival object\nsurvfit(): Fit Kaplan-Meier survival curves\nsurvdiff(): Compare survival curves (log-rank test)\ncoxph(): Fit Cox proportional hazards regression models\nsurvreg(): Fit parametric survival regression models"
+  },
+  {
+    "objectID": "sec1.html#kaplan-meier-survival-curves",
+    "href": "sec1.html#kaplan-meier-survival-curves",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Kaplan-Meier Survival Curves",
+    "text": "Kaplan-Meier Survival Curves\n\nCreate dataset for relapse-free survival\n\n\n# Sort by subject id, then time\no &lt;- order(gbc$id, gbc$time)\ngbc &lt;- gbc[o,]\n# Keep only first row per subject =&gt; first event\ndf &lt;- gbc[!duplicated(gbc$id), ]\n# Convert status &gt; 0 to 1 if it is either relapse or death\ndf$status &lt;- ifelse(df$status &gt; 0, 1, 0)\nhead(df)\n\n  id      time status hormone age meno size grade nodes prog estrg\n1  1 43.836066      1       1  38    1   18     3     5  141   105\n3  2 46.557377      1       1  52    1   20     1     1   78    14\n5  3 41.934426      1       1  47    1   30     2     1  422    89\n7  4  4.852459      0       1  40    1   24     1     3   25    11\n8  5 61.081967      0       2  64    2   19     2     1   19     9\n9  6 63.377049      0       2  49    2   56     1     3  356    64"
+  },
+  {
+    "objectID": "sec1.html#kaplan-meier-curves",
+    "href": "sec1.html#kaplan-meier-curves",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Kaplan-Meier Curves",
+    "text": "Kaplan-Meier Curves\n\nFit Kaplan-Meier survival curves\n\n\nlibrary(survival) \n# Fit KM curves by hormone treatment group\nkm_fit &lt;- survfit(Surv(time, status) ~ hormone, data = df)\nkm_fit\n\nCall: survfit(formula = Surv(time, status) ~ hormone, data = df)\n\n            n events median 0.95LCL 0.95UCL\nhormone=1 440    205   50.1    42.5    59.5\nhormone=2 246     94   66.2    62.9      NA\n\n\n- **Summarize**\n\nsummary(km_fit, times = c(6, 12, 18, 24))\n\nCall: survfit(formula = Surv(time, status) ~ hormone, data = df)\n\n                hormone=1 \n time n.risk n.event survival std.err lower 95% CI upper 95% CI\n    6    419       9    0.979 0.00691        0.966        0.993\n   12    379      35    0.897 0.01476        0.868        0.926\n   18    329      43    0.794 0.01967        0.757        0.834\n   24    280      30    0.720 0.02203        0.678        0.764\n\n                hormone=2 \n time n.risk n.event survival std.err lower 95% CI upper 95% CI\n    6    236       4    0.983 0.00826        0.967        1.000\n   12    223       8    0.950 0.01418        0.922        0.978\n   18    198      21    0.859 0.02278        0.815        0.905\n   24    177      17    0.785 0.02701        0.733        0.839"
+  },
+  {
+    "objectID": "sec1.html#kaplan-meier-curves-i",
+    "href": "sec1.html#kaplan-meier-curves-i",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Kaplan-Meier Curves (I)",
+    "text": "Kaplan-Meier Curves (I)\n\nFit Kaplan-Meier survival curves\n\n\nlibrary(survival) \n# Fit KM curves by hormone treatment group\nkm_fit &lt;- survfit(Surv(time, status) ~ hormone, data = df)\nkm_fit\n\nCall: survfit(formula = Surv(time, status) ~ hormone, data = df)\n\n            n events median 0.95LCL 0.95UCL\nhormone=1 440    205   50.1    42.5    59.5\nhormone=2 246     94   66.2    62.9      NA"
+  },
+  {
+    "objectID": "sec1.html#kaplan-meier-curves-ii",
+    "href": "sec1.html#kaplan-meier-curves-ii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Kaplan-Meier Curves (II)",
+    "text": "Kaplan-Meier Curves (II)\n\nSummarize survival estimates at specified time points\n\nFor example, at 6, 12, 24, and 36 months\n\n\n\nsummary(km_fit, times = c(6, 12, 24, 36))\n\nCall: survfit(formula = Surv(time, status) ~ hormone, data = df)\n\n                hormone=1 \n time n.risk n.event survival std.err lower 95% CI upper 95% CI\n    6    419       9    0.979 0.00691        0.966        0.993\n   12    379      35    0.897 0.01476        0.868        0.926\n   24    280      73    0.720 0.02203        0.678        0.764\n   36    195      41    0.606 0.02475        0.559        0.656\n\n                hormone=2 \n time n.risk n.event survival std.err lower 95% CI upper 95% CI\n    6    236       4    0.983 0.00826        0.967        1.000\n   12    223       8    0.950 0.01418        0.922        0.978\n   24    177      38    0.785 0.02701        0.733        0.839\n   36    136      16    0.708 0.03047        0.650        0.770"
+  },
+  {
+    "objectID": "sec1.html#kaplan-meier-curves-iii",
+    "href": "sec1.html#kaplan-meier-curves-iii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Kaplan-Meier Curves (III)",
+    "text": "Kaplan-Meier Curves (III)\n\nPlot Kaplan-Meier survival curves by group\n\n\nplot(km_fit, ylim = c(0,1), xlab = \"Time (months)\", ylab = \"Tumor-free probabilities\",\n     col=c(\"red\", \"blue\"), conf.int= TRUE)"
+  },
+  {
+    "objectID": "sec1.html#log-rank-test",
+    "href": "sec1.html#log-rank-test",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Log-Rank Test",
+    "text": "Log-Rank Test\n\nCompare survival curves between groups\n\n\nsurvdiff(Surv(time, status) ~ hormone, data = df)\n\nCall:\nsurvdiff(formula = Surv(time, status) ~ hormone, data = df)\n\n            N Observed Expected (O-E)^2/E (O-E)^2/V\nhormone=1 440      205      180      3.37      8.56\nhormone=2 246       94      119      5.12      8.56\n\n Chisq= 8.6  on 1 degrees of freedom, p= 0.003"
+  },
+  {
+    "objectID": "sec1.html#key-takeaways",
+    "href": "sec1.html#key-takeaways",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Key Takeaways",
+    "text": "Key Takeaways\n\nSurvival analysis is essential for time-to-event data in medical research\nKey concepts: survival function, hazard function, censoring\nData format: time and event indicator\nStandard analysis tools: survival package in R\nKaplan-Meier curves and log-rank tests for group comparisons"
   }
 ]

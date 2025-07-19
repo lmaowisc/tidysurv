@@ -28,6 +28,71 @@
       margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
       vertical-align: middle;
     }
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
   <link rel="stylesheet" href="site_libs/revealjs/dist/theme/quarto-423d414d36ce366a9d05f36d06304417.css">
   <link rel="stylesheet" href="style.css">
@@ -166,18 +231,9 @@ Lu Mao
 <li><a href="#/basics-of-survival-analysis" id="/toc-basics-of-survival-analysis">Basics of Survival Analysis</a></li>
 <li><a href="#/german-breast-cancer-study-a-working-example" id="/toc-german-breast-cancer-study-a-working-example">German Breast Cancer Study: A Working Example</a></li>
 <li><a href="#/standard-analysis-with-survival-package" id="/toc-standard-analysis-with-survival-package">Standard Analysis with <code>survival</code> Package</a></li>
+<li><a href="#/summary" id="/toc-summary">Summary</a></li>
 </ul>
 </nav>
-</section>
-<section class="slide level2">
-
-<!-- ## Outline -->
-<!-- -   Examples and regulatory guidelines -->
-<!-- -   Traditional methods -->
-<!--     -   Time to first event -->
-<!--     -   Weighted total events ([`Wcompo`](https://cran.r-project.org/package=Wcompo){target="_blank"} package) -->
-<!-- -   Win ratio and hierarchical endpoints -->
-<!--     -   The estimand issue -->
 </section>
 <section>
 <section id="basics-of-survival-analysis" class="title-slide slide level1 center">
@@ -236,17 +292,275 @@ S(t) = \exp\left(-\int_0^t \lambda(u) \mathrm{d}u\right)
 <li><strong>Cumulative hazard function</strong>: <span class="math inline">\(\Lambda(t) = \int_0^t \lambda(u) \mathrm{d}u\)</span></li>
 </ul></li>
 </ul>
+</section>
+<section id="observed-censored-data" class="slide level2">
+<h2>Observed (Censored) Data</h2>
+<ul>
+<li><strong>Notation</strong>: <span class="math inline">\((X, \delta)\)</span>
+<ul>
+<li><span class="math inline">\(X=\min(T, C)\)</span>: observation time (event or censoring)</li>
+<li><span class="math inline">\(\delta = I(T\leq C)\)</span>: event indicator (1 for event, 0 for censoring)</li>
+</ul></li>
+<li><strong>Data format</strong></li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="co"># time = X, status = delta (tidy format)</span></span>
+<span id="cb1-2"><a></a>    id    time status</span>
+<span id="cb1-3"><a></a><span class="dv">1</span>     <span class="dv">1</span>     <span class="dv">5</span>     <span class="dv">1</span></span>
+<span id="cb1-4"><a></a><span class="dv">2</span>     <span class="dv">2</span>     <span class="dv">3</span>     <span class="dv">0</span></span>
+<span id="cb1-5"><a></a><span class="dv">3</span>     <span class="dv">3</span>     <span class="dv">8</span>     <span class="dv">1</span></span>
+<span id="cb1-6"><a></a><span class="dv">4</span>     <span class="dv">4</span>     <span class="dv">2</span>     <span class="dv">0</span></span>
+<span id="cb1-7"><a></a><span class="dv">5</span>     <span class="dv">5</span>     <span class="dv">6</span>     <span class="dv">1</span></span>
+<span id="cb1-8"><a></a><span class="co"># Alternatively </span></span>
+<span id="cb1-9"><a></a>    id    time </span>
+<span id="cb1-10"><a></a><span class="dv">1</span>     <span class="dv">1</span>     <span class="dv">5</span>   </span>
+<span id="cb1-11"><a></a><span class="dv">2</span>     <span class="dv">2</span>     <span class="dv">3</span><span class="sc">+</span>  </span>
+<span id="cb1-12"><a></a><span class="dv">3</span>     <span class="dv">3</span>     <span class="dv">8</span>  </span>
+<span id="cb1-13"><a></a><span class="dv">4</span>     <span class="dv">4</span>     <span class="dv">2</span><span class="sc">+</span>  </span>
+<span id="cb1-14"><a></a><span class="dv">5</span>     <span class="dv">5</span>     <span class="dv">6</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section></section>
+<section>
 <section id="german-breast-cancer-study-a-working-example" class="title-slide slide level1 center">
 <h1>German Breast Cancer Study: A Working Example</h1>
 
 </section>
-
+<section id="german-breast-cancer-gbc-study" class="slide level2">
+<h2>German Breast Cancer (GBC) Study</h2>
+<ul>
+<li><strong>Study Information</strong>
+<ul>
+<li><strong>Population</strong>: 686 patients with node-positive breast cancer<br>
+</li>
+<li><strong>Objective</strong>: Assess if tamoxifen + chemo reduces mortality/relapse<br>
+</li>
+<li><strong>Baseline info</strong>: Age, tumor size, hormone levels, menopausal status, etc.<br>
+</li>
+<li><strong>Follow-up</strong>: Median 44 months
+<ul>
+<li>171 deaths <span class="math inline">\(\to\)</span> exact times known<br>
+</li>
+<li>515 censored <span class="math inline">\(\to\)</span> survival time <span class="math inline">\(&gt;\)</span> censoring time</li>
+</ul></li>
+</ul></li>
+<li><strong>Data sets</strong>:
+<ul>
+<li>Mortality data: <a href="https://lmaowisc.github.io/tidysurv/data/gbc_mort.txt" target="_blank">https://lmaowisc.github.io/tidysurv/data/gbc_mort.txt</a></li>
+<li>Mortality + relapse: <a href="https://lmaowisc.github.io/tidysurv/data/gbc.txt" target="_blank">https://lmaowisc.github.io/tidysurv/data/gbc.txt</a></li>
+<li>Download and save in a <code>data</code> folder under your root directory</li>
+</ul></li>
+</ul>
+</section>
+<section id="data-format-i" class="slide level2">
+<h2>Data Format (I)</h2>
+<ul>
+<li><strong>Death only</strong></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a><span class="co"># Load mortality data</span></span>
+<span id="cb2-2"><a></a>gbc_mort <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">"data/gbc_mort.txt"</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-3"><a></a><span class="co"># Check the first few rows of the data frame</span></span>
+<span id="cb2-4"><a></a><span class="fu">head</span>(gbc_mort)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  id      time status hormone age meno size grade nodes prog estrg
+1  1 74.819672      0       1  38    1   18     3     5  141   105
+2  2 65.770492      0       1  52    1   20     1     1   78    14
+3  3 47.737705      1       1  47    1   30     2     1  422    89
+4  4  4.852459      0       1  40    1   24     1     3   25    11
+5  5 61.081967      0       2  64    2   19     2     1   19     9
+6  6 63.377049      0       2  49    2   56     1     3  356    64</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a><span class="co"># The data frame 'gbc_mort' contains:</span></span>
+<span id="cb4-2"><a></a><span class="co">#  time:   time (months) to death or censoring</span></span>
+<span id="cb4-3"><a></a><span class="co">#  status: event indicator (1 = death, 0 = censoring)</span></span>
+<span id="cb4-4"><a></a><span class="co"># hormone: Hormone therapy (1 = no, 2 = yes); age: Age at diagnosis (years);</span></span>
+<span id="cb4-5"><a></a><span class="co"># meno: Menopausal status (1 = no, 2 = yes); size: Tumor size (mm); grade: Tumor grade (1–3);</span></span>
+<span id="cb4-6"><a></a><span class="co"># nodes: Number of positive lymph nodes; prog: Progesterone receptor level (fmol/mg); estrg:</span></span>
+<span id="cb4-7"><a></a><span class="co"># Estrogen receptor level (fmol/mg).</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="data-format-ii" class="slide level2">
+<h2>Data Format (II)</h2>
+<ul>
+<li><strong>Mortality + relapse</strong></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a><span class="co"># Load mortality + relapse data</span></span>
+<span id="cb5-2"><a></a>gbc <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">"data/gbc.txt"</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-3"><a></a><span class="co"># Check the first few rows of the data frame</span></span>
+<span id="cb5-4"><a></a><span class="fu">head</span>(gbc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  id     time status hormone age meno size grade nodes prog estrg
+1  1 43.83607      1       1  38    1   18     3     5  141   105
+2  1 74.81967      0       1  38    1   18     3     5  141   105
+3  2 46.55738      1       1  52    1   20     1     1   78    14
+4  2 65.77049      0       1  52    1   20     1     1   78    14
+5  3 41.93443      1       1  47    1   30     2     1  422    89
+6  3 47.73770      2       1  47    1   30     2     1  422    89</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a><span class="co"># The data frame 'gbc' contains:</span></span>
+<span id="cb7-2"><a></a><span class="co">#  time:   time (months) to death, relapse, or censoring</span></span>
+<span id="cb7-3"><a></a><span class="co">#  status: event indicator (1 = relapse, 2 = death, 0 = censoring)</span></span>
+<span id="cb7-4"><a></a><span class="co">#  other covariates the same as in gbc_mor.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="analysis-goals" class="slide level2">
+<h2>Analysis Goals</h2>
+<ul>
+<li><strong>Descriptive</strong>
+<ul>
+<li>Summarize patient characteristics</li>
+<li>Visualize survival distributions</li>
+</ul></li>
+<li><strong>Inferential</strong>
+<ul>
+<li>Compare survival curves (e.g., hormone therapy vs.&nbsp;no hormone therapy)</li>
+<li>Assess impact of covariates on survival (e.g., age, tumor size, etc.)</li>
+<li>Model competing risks (e.g., relapse vs.&nbsp;death)</li>
+</ul></li>
+<li><strong>Predictive</strong>
+<ul>
+<li>Develop risk prediction models</li>
+<li>Evaluate model performance (e.g., concordance index, calibration)</li>
+</ul></li>
+</ul>
+</section></section>
+<section>
 <section id="standard-analysis-with-survival-package" class="title-slide slide level1 center">
 <h1>Standard Analysis with <code>survival</code> Package</h1>
 
+</section>
+<section id="survival-package-overview" class="slide level2">
+<h2>Survival Package Overview</h2>
+<ul>
+<li><strong>Key Functions</strong>
+<ul>
+<li><code>Surv()</code>: Create survival object</li>
+<li><code>survfit()</code>: Fit Kaplan-Meier survival curves</li>
+<li><code>survdiff()</code>: Compare survival curves (log-rank test)</li>
+<li><code>coxph()</code>: Fit Cox proportional hazards regression models</li>
+<li><code>survreg()</code>: Fit parametric survival regression models</li>
+</ul></li>
+</ul>
+</section>
+<section id="kaplan-meier-survival-curves" class="slide level2">
+<h2>Kaplan-Meier Survival Curves</h2>
+<ul>
+<li><strong>Create dataset for relapse-free survival</strong></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a><span class="co"># Sort by subject id, then time</span></span>
+<span id="cb8-2"><a></a>o <span class="ot">&lt;-</span> <span class="fu">order</span>(gbc<span class="sc">$</span>id, gbc<span class="sc">$</span>time)</span>
+<span id="cb8-3"><a></a>gbc <span class="ot">&lt;-</span> gbc[o,]</span>
+<span id="cb8-4"><a></a><span class="co"># Keep only first row per subject =&gt; first event</span></span>
+<span id="cb8-5"><a></a>df <span class="ot">&lt;-</span> gbc[<span class="sc">!</span><span class="fu">duplicated</span>(gbc<span class="sc">$</span>id), ]</span>
+<span id="cb8-6"><a></a><span class="co"># Convert status &gt; 0 to 1 if it is either relapse or death</span></span>
+<span id="cb8-7"><a></a>df<span class="sc">$</span>status <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(df<span class="sc">$</span>status <span class="sc">&gt;</span> <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb8-8"><a></a><span class="fu">head</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  id      time status hormone age meno size grade nodes prog estrg
+1  1 43.836066      1       1  38    1   18     3     5  141   105
+3  2 46.557377      1       1  52    1   20     1     1   78    14
+5  3 41.934426      1       1  47    1   30     2     1  422    89
+7  4  4.852459      0       1  40    1   24     1     3   25    11
+8  5 61.081967      0       2  64    2   19     2     1   19     9
+9  6 63.377049      0       2  49    2   56     1     3  356    64</code></pre>
+</div>
+</div>
+</section>
+<section id="kaplan-meier-curves-i" class="slide level2">
+<h2>Kaplan-Meier Curves (I)</h2>
+<ul>
+<li><strong>Fit Kaplan-Meier survival curves</strong></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a><span class="fu">library</span>(survival) </span>
+<span id="cb10-2"><a></a><span class="co"># Fit KM curves by hormone treatment group</span></span>
+<span id="cb10-3"><a></a>km_fit <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> hormone, <span class="at">data =</span> df)</span>
+<span id="cb10-4"><a></a>km_fit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call: survfit(formula = Surv(time, status) ~ hormone, data = df)
+
+            n events median 0.95LCL 0.95UCL
+hormone=1 440    205   50.1    42.5    59.5
+hormone=2 246     94   66.2    62.9      NA</code></pre>
+</div>
+</div>
+</section>
+<section id="kaplan-meier-curves-ii" class="slide level2">
+<h2>Kaplan-Meier Curves (II)</h2>
+<ul>
+<li><strong>Summarize survival estimates at specified time points</strong>
+<ul>
+<li>For example, at 6, 12, 24, and 36 months</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a><span class="fu">summary</span>(km_fit, <span class="at">times =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">12</span>, <span class="dv">24</span>, <span class="dv">36</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call: survfit(formula = Surv(time, status) ~ hormone, data = df)
+
+                hormone=1 
+ time n.risk n.event survival std.err lower 95% CI upper 95% CI
+    6    419       9    0.979 0.00691        0.966        0.993
+   12    379      35    0.897 0.01476        0.868        0.926
+   24    280      73    0.720 0.02203        0.678        0.764
+   36    195      41    0.606 0.02475        0.559        0.656
+
+                hormone=2 
+ time n.risk n.event survival std.err lower 95% CI upper 95% CI
+    6    236       4    0.983 0.00826        0.967        1.000
+   12    223       8    0.950 0.01418        0.922        0.978
+   24    177      38    0.785 0.02701        0.733        0.839
+   36    136      16    0.708 0.03047        0.650        0.770</code></pre>
+</div>
+</div>
+</section>
+<section id="kaplan-meier-curves-iii" class="slide level2">
+<h2>Kaplan-Meier Curves (III)</h2>
+<ul>
+<li><strong>Plot Kaplan-Meier survival curves by group</strong></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a></a><span class="fu">plot</span>(km_fit, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">xlab =</span> <span class="st">"Time (months)"</span>, <span class="at">ylab =</span> <span class="st">"Tumor-free probabilities"</span>,</span>
+<span id="cb14-2"><a></a>     <span class="at">col=</span><span class="fu">c</span>(<span class="st">"red"</span>, <span class="st">"blue"</span>), <span class="at">conf.int=</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="sec1_files/figure-revealjs/unnamed-chunk-6-1.png" width="960" class="r-stretch"></section>
+<section id="log-rank-test" class="slide level2">
+<h2>Log-Rank Test</h2>
+<ul>
+<li><strong>Compare survival curves between groups</strong></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a></a><span class="fu">survdiff</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> hormone, <span class="at">data =</span> df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+survdiff(formula = Surv(time, status) ~ hormone, data = df)
+
+            N Observed Expected (O-E)^2/E (O-E)^2/V
+hormone=1 440      205      180      3.37      8.56
+hormone=2 246       94      119      5.12      8.56
+
+ Chisq= 8.6  on 1 degrees of freedom, p= 0.003 </code></pre>
+</div>
+</div>
+</section></section>
+<section>
+<section id="summary" class="title-slide slide level1 center">
+<h1>Summary</h1>
 
 </section>
+<section id="key-takeaways" class="slide level2">
+<h2>Key Takeaways</h2>
+<ul>
+<li>Survival analysis is essential for time-to-event data in medical research</li>
+<li>Key concepts: survival function, hazard function, censoring</li>
+<li>Data format: time and event indicator</li>
+<li>Standard analysis tools: <code>survival</code> package in R</li>
+<li>Kaplan-Meier curves and log-rank tests for group comparisons</li>
+</ul>
+
+
+</section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
@@ -462,6 +776,82 @@ S(t) = \exp\left(-\int_0^t \lambda(u) \mathrm{d}u\right)
         ]
       });
     </script>
+    
+
+    <script>
+
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+
+      // slide changes (different for each slide format).
+
+      (function () {
+
+        // dispatch for htmlwidgets
+
+        function fireSlideEnter() {
+
+          const event = window.document.createEvent("Event");
+
+          event.initEvent("slideenter", true, true);
+
+          window.document.dispatchEvent(event);
+
+        }
+
+    
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+
+          fireSlideEnter();
+
+    
+
+          // dispatch for shiny
+
+          if (window.jQuery) {
+
+            if (previousSlide) {
+
+              window.jQuery(previousSlide).trigger("hidden");
+
+            }
+
+            if (currentSlide) {
+
+              window.jQuery(currentSlide).trigger("shown");
+
+            }
+
+          }
+
+        }
+
+    
+
+        // hookup for slidy
+
+        if (window.w3c_slidy) {
+
+          window.w3c_slidy.add_observer(function (slide_num) {
+
+            // slide_num starts at position 1
+
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+
+          });
+
+        }
+
+    
+
+      })();
+
+    </script>
+
+    
+
     <script id="quarto-html-after-body" type="application/javascript">
     window.document.addEventListener("DOMContentLoaded", function (event) {
       const toggleBodyColorMode = (bsSheetEl) => {
