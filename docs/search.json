@@ -80,5 +80,33 @@
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Outline",
     "text": "Outline\n\nExamples and regulatory guidelines\nTraditional methods\n\nTime to first event\nWeighted total events (Wcompo package)\n\nWin ratio and hierarchical endpoints\n\nThe estimand issue"
+  },
+  {
+    "objectID": "sec1.html#time-to-event-data",
+    "href": "sec1.html#time-to-event-data",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Time-to-Event Data",
+    "text": "Time-to-Event Data\n\nA common type of outcome in medical and clinical studies\n\nStarting point: Randomization, diagnosis, enrollment, birth, etc.\n\nEndpoint (Event of interest): Death, disease onset, hospitalization, etc.\n\nEngineering: Failure times of machines or components (reliability)\nSocial sciences: Time to job change, dropout, or event occurrence\n\n\nRight censoring:\n\nEvent not observed within the follow-up period\nDue to study ending, dropout, or loss to follow-up\nWe only know:\n\\[\nT &gt; C\n\\] where \\(T\\) is event time and \\(C\\) is censoring time"
+  },
+  {
+    "objectID": "sec1.html#censoring",
+    "href": "sec1.html#censoring",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Censoring",
+    "text": "Censoring\n\nRight censoring:\n\nEvent not observed within the follow-up period\nDue to study ending, dropout, or loss to follow-up\nWe only know:\n\\[\nT &gt; C\n\\] where ( T ) is event time and ( C ) is censoring time"
+  },
+  {
+    "objectID": "sec1.html#follow-up-swimmer-plot",
+    "href": "sec1.html#follow-up-swimmer-plot",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Follow-up (Swimmer) Plot",
+    "text": "Follow-up (Swimmer) Plot\n\nA rat tumorigenicity study"
+  },
+  {
+    "objectID": "sec1.html#basic-estimands",
+    "href": "sec1.html#basic-estimands",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Basic Estimands",
+    "text": "Basic Estimands\n\nSurvival function: \\(S(t) = \\Pr(T &gt; t)\\)\n\nProbability subject survives beyond time \\(t\\)\n\nHazard function:\n\\[\n\\lambda(t) = \\lim_{\\Delta t \\to 0} \\frac{\\Pr(t \\leq T &lt; t + \\Delta t \\mid T \\geq t)}{\\Delta t}\n\\]\n\nInstantaneous risk of failure at time \\(t\\)\n\nRelationship \\[\nS(t) = \\exp\\left(-\\int_0^t \\lambda(u) \\mathrm{d}u\\right)\n\\]\n\nCumulative hazard function: \\(\\Lambda(t) = \\int_0^t \\lambda(u) \\mathrm{d}u\\)"
   }
 ]

@@ -6,7 +6,10 @@ This site presents materials for the short course
 **Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data**
 to be taught at the 2025 Joint Statistical Meetings (JSM) in Nashville, TN.
 
-This course aims to equip participants with the skills to apply tidy principles to survival analysis, fostering a more organized and reproducible approach to data analysis in R.
+**This course** aims to equip participants with the skills to apply tidy principles to survival analysis, fostering a more organized and reproducible approach to data analysis in R.
+
+In a tidyverse approach, we apply consistent data workflows to survival analysis tasks. This means using tibble data frames and `dplyr` for data preparation, keeping outputs tidy (one row per observation or estimate), and leveraging `ggplot2` for visualization. For example, one might create the survival outcome as a new column using `Surv(time, status)` within a `dplyr` pipeline, fit models and then use broom to `tidy()` model outputs into data frames, and produce publication-quality plots with `ggplot2` or `ggsurvfit`. The goal is a reproducible workflow where raw data are transformed, analyzed, and visualized seamlessly.
+
 
 **Target Audience**: Statisticians, data analysts, researchers, and students interested in survival analysis who are familiar with R and the Tidyverse.
 
@@ -50,6 +53,7 @@ This course aims to equip participants with the skills to apply tidy principles 
     -   2.1 Importing and cleaning survival data
     -   2.2 Using `dplyr` for data manipulation
     -   2.3 Simple visualization of follow-up data with `ggplot2`
+    -   2.4 "Table 1" with `gtsummary`
     
 -   **3. Nonparametric Survival Analysis** (50 min)
     -   3.1 Tabulation of summary statistics with `gtsummary`
@@ -57,7 +61,7 @@ This course aims to equip participants with the skills to apply tidy principles 
     -   3.3 Tidy analysis of competing risks using `tidycmprsk`
 
 -  **4. Cox proportional hazards regression** (40 min)
-    -   4.1 Tabulation of regression results with `gtsummary`
+    -   4.1 Tabulating regression results with `gtsummary`
     -   4.2 Model diagnostics and residual plots with `survminer`
     -   4.3 Fine-Gray model for competing risks with `tidycmprsk`
 
@@ -66,4 +70,21 @@ This course aims to equip participants with the skills to apply tidy principles 
     -   5.2 Using the `censored` package for survival models
 
 
+```{r}
+#| echo: false
+
+# Define source and destination
+source_folder <- "data"
+destination_folder <- "docs/data"
+
+# Create destination directory
+dir.create(destination_folder, recursive = TRUE, showWarnings = FALSE)
+
+# Copy all files and subfolders
+file.copy(from = list.files(source_folder, full.names = TRUE),
+          to   = destination_folder,
+          recursive = TRUE)
+
+
+```
 

@@ -159,21 +159,91 @@ Lu Mao
     </div>
 </div>
 
+</section><section id="TOC">
+<nav role="doc-toc"> 
+<h2 id="toc-title">Table of contents</h2>
+<ul>
+<li><a href="#/basics-of-survival-analysis" id="/toc-basics-of-survival-analysis">Basics of Survival Analysis</a></li>
+<li><a href="#/german-breast-cancer-study-a-working-example" id="/toc-german-breast-cancer-study-a-working-example">German Breast Cancer Study: A Working Example</a></li>
+<li><a href="#/standard-analysis-with-survival-package" id="/toc-standard-analysis-with-survival-package">Standard Analysis with <code>survival</code> Package</a></li>
+</ul>
+</nav>
 </section>
-<section id="outline" class="slide level2">
-<h2>Outline</h2>
+<section class="slide level2">
+
+<!-- ## Outline -->
+<!-- -   Examples and regulatory guidelines -->
+<!-- -   Traditional methods -->
+<!--     -   Time to first event -->
+<!--     -   Weighted total events ([`Wcompo`](https://cran.r-project.org/package=Wcompo){target="_blank"} package) -->
+<!-- -   Win ratio and hierarchical endpoints -->
+<!--     -   The estimand issue -->
+</section>
+<section>
+<section id="basics-of-survival-analysis" class="title-slide slide level1 center">
+<h1>Basics of Survival Analysis</h1>
+
+</section>
+<section id="time-to-event-data" class="slide level2">
+<h2>Time-to-Event Data</h2>
 <ul>
-<li>Examples and regulatory guidelines</li>
-<li>Traditional methods
+<li>A common type of outcome in medical and clinical studies
 <ul>
-<li>Time to first event</li>
-<li>Weighted total events (<a href="https://cran.r-project.org/package=Wcompo" target="_blank"><code>Wcompo</code></a> package)</li>
+<li><strong>Starting point</strong>: Randomization, diagnosis, enrollment, birth, etc.<br>
+</li>
+<li><strong>Endpoint (Event of interest)</strong>: Death, disease onset, hospitalization, etc.
+<ul>
+<li><strong>Engineering</strong>: Failure times of machines or components (reliability)</li>
+<li><strong>Social sciences</strong>: Time to job change, dropout, or event occurrence</li>
 </ul></li>
-<li>Win ratio and hierarchical endpoints
+</ul></li>
+<li><strong>Right censoring</strong>:
 <ul>
-<li>The estimand issue</li>
+<li>Event not observed within the follow-up period</li>
+<li>Due to study ending, dropout, or loss to follow-up</li>
+<li>We only know:<br>
+<span class="math display">\[
+T &gt; C
+\]</span> where <span class="math inline">\(T\)</span> is event time and <span class="math inline">\(C\)</span> is censoring time</li>
 </ul></li>
 </ul>
+</section>
+<section id="follow-up-swimmer-plot" class="slide level2">
+<h2>Follow-up (Swimmer) Plot</h2>
+<ul>
+<li>A rat tumorigenicity study</li>
+</ul>
+
+<img data-src="images/rat_swim.png" class="quarto-figure quarto-figure-center r-stretch" style="width:60.0%"></section>
+<section id="basic-estimands" class="slide level2">
+<h2>Basic Estimands</h2>
+<ul>
+<li><strong>Survival function</strong>: <span class="math inline">\(S(t) = \Pr(T &gt; t)\)</span>
+<ul>
+<li>Probability subject survives beyond time <span class="math inline">\(t\)</span></li>
+</ul></li>
+<li><strong>Hazard function</strong>:<br>
+<span class="math display">\[
+\lambda(t) = \lim_{\Delta t \to 0} \frac{\Pr(t \leq T &lt; t + \Delta t \mid T \geq t)}{\Delta t}
+\]</span>
+<ul>
+<li>Instantaneous risk of failure at time <span class="math inline">\(t\)</span></li>
+</ul></li>
+<li><strong>Relationship</strong> <span class="math display">\[
+S(t) = \exp\left(-\int_0^t \lambda(u) \mathrm{d}u\right)
+\]</span>
+<ul>
+<li><strong>Cumulative hazard function</strong>: <span class="math inline">\(\Lambda(t) = \int_0^t \lambda(u) \mathrm{d}u\)</span></li>
+</ul></li>
+</ul>
+</section></section>
+<section id="german-breast-cancer-study-a-working-example" class="title-slide slide level1 center">
+<h1>German Breast Cancer Study: A Working Example</h1>
+
+</section>
+
+<section id="standard-analysis-with-survival-package" class="title-slide slide level1 center">
+<h1>Standard Analysis with <code>survival</code> Package</h1>
 
 
 </section>

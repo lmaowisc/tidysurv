@@ -13,8 +13,11 @@ author:
 format: 
   revealjs:
     theme: simple
-    auto-stretch: false
-    # incremental: true   
+    # auto-stretch: false
+    # incremental: true
+    toc: true
+    toc-depth: 1
+    # small: true
 editor: visual
 execute: 
   eval: false
@@ -34,14 +37,63 @@ include-in-header:
 #   data-background-position: 2% 2%
 ---
 
-## Outline
+<!-- ## Outline -->
 
--   Examples and regulatory guidelines
--   Traditional methods
-    -   Time to first event
-    -   Weighted total events ([`Wcompo`](https://cran.r-project.org/package=Wcompo){target="_blank"} package)
--   Win ratio and hierarchical endpoints
-    -   The estimand issue
+<!-- -   Examples and regulatory guidelines -->
+<!-- -   Traditional methods -->
+<!--     -   Time to first event -->
+<!--     -   Weighted total events ([`Wcompo`](https://cran.r-project.org/package=Wcompo){target="_blank"} package) -->
+<!-- -   Win ratio and hierarchical endpoints -->
+<!--     -   The estimand issue -->
+
+# Basics of Survival Analysis
+
+## Time-to-Event Data
+
+- A common type of outcome in medical and clinical studies  
+  - **Starting point**: Randomization, diagnosis, enrollment, birth, etc.  
+  - **Endpoint (Event of interest)**: Death, disease onset, hospitalization, etc.
+      - **Engineering**: Failure times of machines or components (reliability)
+      - **Social sciences**: Time to job change, dropout, or event occurrence
+
+- **Right censoring**:
+  - Event not observed within the follow-up period
+  - Due to study ending, dropout, or loss to follow-up
+  - We only know:  
+    $$
+    T > C
+    $$
+    where $T$ is event time and $C$ is censoring time
+
+## Follow-up (Swimmer) Plot
+
+- A rat tumorigenicity study 
+
+![](images/rat_swim.png){fig-align="center" width="60%"}
+
+## Basic Estimands
+
+- **Survival function**: $S(t) = \Pr(T > t)$
+  - Probability subject survives beyond time $t$
+- **Hazard function**:  
+  $$
+  \lambda(t) = \lim_{\Delta t \to 0} \frac{\Pr(t \leq T < t + \Delta t \mid T \geq t)}{\Delta t}
+  $$
+  - Instantaneous risk of failure at time $t$
+- **Relationship**
+  $$
+  S(t) = \exp\left(-\int_0^t \lambda(u) \mathrm{d}u\right)
+  $$
+  - **Cumulative hazard function**: $\Lambda(t) = \int_0^t \lambda(u) \mathrm{d}u$
+  
+
+# German Breast Cancer Study: A Working Example
+
+
+
+# Standard Analysis with `survival` Package
+
+
 
 
 
