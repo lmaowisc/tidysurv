@@ -1,6 +1,6 @@
 ---
 title: "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data"
-subtitle: "Section 1. Introduction"
+subtitle: "Module 1. Introduction"
 css: style.css
 # csl: apa.csl
 author:

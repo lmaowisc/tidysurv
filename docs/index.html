@@ -201,7 +201,8 @@ window.Quarto = {
 
 
 <p>This site presents materials for the short course <strong>Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data</strong> to be taught at the 2025 Joint Statistical Meetings (JSM) in Nashville, TN.</p>
-<p>This course aims to equip participants with the skills to apply tidy principles to survival analysis, fostering a more organized and reproducible approach to data analysis in R.</p>
+<p><strong>This course</strong> aims to equip participants with the skills to apply tidy principles to survival analysis, fostering a more organized and reproducible approach to data analysis in R.</p>
+<p>In a tidyverse approach, we apply consistent data workflows to survival analysis tasks. This means using tibble data frames and <code>dplyr</code> for data preparation, keeping outputs tidy (one row per observation or estimate), and leveraging <code>ggplot2</code> for visualization. For example, one might create the survival outcome as a new column using <code>Surv(time, status)</code> within a <code>dplyr</code> pipeline, fit models and then use broom to <code>tidy()</code> model outputs into data frames, and produce publication-quality plots with <code>ggplot2</code> or <code>ggsurvfit</code>. The goal is a reproducible workflow where raw data are transformed, analyzed, and visualized seamlessly.</p>
 <p><strong>Target Audience</strong>: Statisticians, data analysts, researchers, and students interested in survival analysis who are familiar with R and the Tidyverse.</p>
 <section id="time-and-place" class="level2">
 <h2 class="anchored" data-anchor-id="time-and-place">Time and Place</h2>
@@ -261,6 +262,7 @@ window.Quarto = {
 <li>2.1 Importing and cleaning survival data</li>
 <li>2.2 Using <code>dplyr</code> for data manipulation</li>
 <li>2.3 Simple visualization of follow-up data with <code>ggplot2</code></li>
+<li>2.4 “Table 1” with <code>gtsummary</code></li>
 </ul></li>
 <li><strong>3. Nonparametric Survival Analysis</strong> (50 min)
 <ul>
@@ -270,7 +272,7 @@ window.Quarto = {
 </ul></li>
 <li><strong>4. Cox proportional hazards regression</strong> (40 min)
 <ul>
-<li>4.1 Tabulation of regression results with <code>gtsummary</code></li>
+<li>4.1 Tabulating regression results with <code>gtsummary</code></li>
 <li>4.2 Model diagnostics and residual plots with <code>survminer</code></li>
 <li>4.3 Fine-Gray model for competing risks with <code>tidycmprsk</code></li>
 </ul></li>
@@ -280,6 +282,11 @@ window.Quarto = {
 <li>5.2 Using the <code>censored</code> package for survival models</li>
 </ul></li>
 </ul>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE TRUE TRUE TRUE TRUE</code></pre>
+</div>
+</div>
 
 
 

@@ -1,4 +1,4 @@
-# Section 1. Introduction
+# Module 1. Introduction
 
 ## Slides
 
@@ -11,135 +11,152 @@ Section slides [here](sec1.html){target="_blank"}. (To convert html to pdf, pres
 #| code-summary: "Show the code"
 #| eval: false
 
-#################################################################
-# This code generates the numerical results in chapter 1       ##
-#################################################################
+# -------------------------------------------
+# Survival Analysis: Module 1 Code
+# -------------------------------------------
 
-library(survival)  # For standard (univariate) survival analysis
-library(Wcompo)    # For weighted total events (CompoML function)
-library(rmt)       # For the hfaction data set (Heart Failure ACTION trial)
-library(tidyverse) # For data wrangling (dplyr, ggplot2, etc.)
+# Load necessary package
+library(survival)
 
-# load hfaction data
-data(hfaction)
-head(hfaction) 
-#> Shows the first rows of the hfaction data frame
+# ---------------------------
+# 1. Load Datasets
+# ---------------------------
 
-# convert status=1 for death, 2=hospitalization
-# (Swapping the original coding of event types in hfaction)
-hfaction <- hfaction |>
-  mutate(
-    status = case_when(
-      status == 1 ~ 2, # status previously "1" becomes "2" now
-      status == 2 ~ 1, # status previously "2" becomes "1" now
-      status == 0 ~ 0  # status "0" remains "0" (censoring)
-    )
-  )
+# Load mortality-only data
+gbc_mort <- read.table("data/gbc_mort.txt", header = TRUE)
+head(gbc_mort)
 
-head(hfaction)
-#> Check that the status values have been reassigned correctly
+# Load mortality + relapse data
+gbc <- read.table("data/gbc.txt", header = TRUE)
+head(gbc)
 
-# count unique patients in each arm
-hfaction |> 
-  group_by(trt_ab) |>
-  distinct(patid) |>
-  count(trt_ab)
-#> Summarizes how many unique patients are in each treatment arm (trt_ab)
+# ---------------------------
+# 2. Prepare Dataset for Relapse-Free Survival
+# ---------------------------
 
-# TFE: take the first event per patient id
-# This means each patient is represented by their earliest event (or censoring)
-hfaction_TFE <- hfaction |>
-  arrange(patid, time) |>
-  group_by(patid) |>
-  slice_head() |>
-  ungroup()
+# Sort by subject ID and event time
+gbc <- gbc[order(gbc$id, gbc$time), ]
 
-# -------------------------------------------------------------------------
-# Mortality analysis
-# -------------------------------------------------------------------------
+# Keep first event per subject
+df <- gbc[!duplicated(gbc$id), ]
 
-## Get mortality data
-hfaction_D <- hfaction |>
-  filter(status != 2) # remove hospitalization records (now coded as "2")
+# Collapse relapse/death to single composite outcome
+df$status <- ifelse(df$status > 0, 1, 0)
+head(df)
 
-## Cox model for death against trt_ab
-obj_D <- coxph(Surv(time, status) ~ trt_ab, data = hfaction_D)
-summary(obj_D)
-#> n= 426, number of events= 93 
-#> coef exp(coef) se(coef)      z Pr(>|z|)  
-#> trt_ab -0.3973    0.6721   0.2129 -1.866   0.0621 .
-# Interpretation: a hazard ratio < 1 suggests lower hazard of death in the 
-# training arm, though p-value is ~0.06.
+# ---------------------------
+# 3. Kaplan-Meier Estimation
+# ---------------------------
 
-# -------------------------------------------------------------------------
-# TFE analysis
-# -------------------------------------------------------------------------
+# Fit Kaplan-Meier curves by hormone treatment
+km_fit <- survfit(Surv(time, status) ~ hormone, data = df)
 
-## how many of first events are death (1) or hosp (2)
-hfaction_TFE |>
-  count(status)
-#> Tells how many first events were coded as status=1 or status=2
+# Print KM summary
+summary(km_fit, times = c(6, 12, 24, 36))
 
-# Cox model for TFE against trt_ab
-# Here "status > 0" means any event (death or hospitalization) vs. censoring
-obj_TFE <- coxph(Surv(time, status > 0) ~ trt_ab, data = hfaction_TFE)
-summary(obj_TFE)
-#> Similar interpretation as above, now for time to first event 
-# (either death or hospitalization).
+# Plot KM curves with CI
+plot(km_fit, ylim = c(0, 1), xlab = "Time (months)",
+     ylab = "Relapse-free survival probability",
+     col = c("red", "blue"), conf.int = TRUE)
+legend("bottomleft", col = c("red", "blue"), lty = 1,
+       legend = c("No hormone", "Hormone"))
 
-# -------------------------------------------------------------------------
-# Mortality vs TFE
-# -------------------------------------------------------------------------
+# ---------------------------
+# 4. Log-Rank Test
+# ---------------------------
 
-library(ggsurvfit) # For Kaplan-Meier plots using ggplot2
-library(patchwork) # For combining plots side by side
+# Compare survival curves by treatment
+lgr_obj <- survdiff(Surv(time, status) ~ hormone, data = df)
+lgr_obj
 
-pD <- survfit2(Surv(time, status) ~ trt_ab, data = hfaction_D) |>
-  ggsurvfit(linewidth = 1) +
-  scale_ggsurvfit() +
-  scale_color_discrete(labels = c("Usual care", "Training")) +
-  scale_x_continuous("Time (years)", limits = c(0, 4)) +
-  labs(y = "Overall survival")
-#> pD is the plot of overall survival (death only) for each arm
+# Stratified test by menopausal status
+survdiff(Surv(time, status) ~ hormone + strata(meno), data = df)
 
-pTFE <- survfit2(Surv(time, status > 0) ~ trt_ab, data = hfaction_TFE) |>
-  ggsurvfit(linewidth = 1) +
-  scale_ggsurvfit() +
-  scale_color_discrete(labels = c("Usual care", "Training")) +
-  scale_x_continuous("Time (years)", limits = c(0, 4)) +
-  labs(y = "Hospitalization-free survival")
-#> pTFE is the plot for time to first event (death or hospitalization)
+# ---------------------------
+# 5. Cox Proportional Hazards Model
+# ---------------------------
 
-# Combine pD and pTFE plots side by side, sharing legends
-pD + pTFE + plot_layout(guides = "collect") & 
-  theme(
-    legend.position = "top", 
-    legend.text = element_text(size = 12)
-  )
+# Fit Cox PH model with multiple covariates
+cox_fit <- coxph(Surv(time, status) ~ hormone + meno + age + grade +
+                   size + prog + estrg, data = df)
+summary(cox_fit)
 
-# ggsave("images/intro_hfaction_unis.png", width = 8, height = 4.5)
-#> Uncomment to save the plot (if needed)
+# Extract estimates and covariance matrix
+beta <- cox_fit$coefficients
+vbeta <- vcov(cox_fit)
+coef(summary(cox_fit))
 
-# -------------------------------------------------------------------------
-# Total events (proportional mean)
-# -------------------------------------------------------------------------
+# ---------------------------
+# 6. Survival Prediction
+# ---------------------------
 
-## fit proportional means model with death = 2 x hosp
-obj_ML <- CompoML(hfaction$patid, hfaction$time, hfaction$status, 
-                  hfaction$trt_ab, w = c(2, 1))
-#> This model weights death as "2" and hospitalization as "1". 
-#> CompoML fits a marginal proportional means model for these outcomes.
+# Define new subject's covariates
+new_data <- data.frame(hormone = 1, meno = 1, 
+                       age = 45, grade = 2,
+                       size = 20, prog = 100,
+                       estrg = 100)
 
-## summary results
-obj_ML
-#> Provides estimates of the weighted event rates in each arm, etc.
+# Predict survival probabilities
+predicted_survival <- survfit(cox_fit, newdata = new_data,
+                              times = c(6, 12, 24, 36))
+summary(predicted_survival)
 
-## plot model-based mean functions
-plot(obj_ML, 0, ylim= c(0, 5), xlim= c(0, 4), xlab="Time (years)", 
-     col = "red", lwd = 2)
-plot(obj_ML, 1, add = TRUE, col = "blue", lwd=2)
-legend(0, 5, col = c("red", "blue"), c("Usual care","Training"), lwd = 2)
-#> Illustrates the cumulative mean count of "weighted" events over time
+# Plot predicted survival function
+plot(predicted_survival, ylim = c(0, 1), xlab = "Time (months)",
+     ylab = "Predicted survival probability", conf.int = TRUE)
+
+# ---------------------------
+# 7. Model Diagnostics
+# ---------------------------
+
+# Test proportional hazards assumption
+ph_test <- cox.zph(cox_fit)
+ph_test
+
+# Plot Schoenfeld residuals
+par(mfrow = c(2, 4))  # 2 rows, 4 columns
+plot(ph_test, se = TRUE, col = "blue", lwd = 2)
+
+# ---------------------------
+# 8. Check Functional Form of Covariates
+# ---------------------------
+
+# Extract martingale residuals
+mart_resid <- residuals(cox_fit, type = "martingale")
+
+# Plot residuals vs quantitative covariates
+par(mfrow = c(1, 4))  # 1 row, 4 plots
+
+plot(df$age, mart_resid, xlab = "Age", ylab = "Martingale Residuals",
+     main = "Age")
+lines(lowess(df$age, mart_resid), col = "blue", lwd = 2)
+abline(h = 0, lty = 2, col = "red")
+
+plot(df$size, mart_resid, xlab = "Tumor Size", ylab = "Martingale Residuals",
+     main = "Tumor Size")
+lines(lowess(df$size, mart_resid), col = "blue", lwd = 2)
+abline(h = 0, lty = 2, col = "red")
+
+plot(df$prog, mart_resid, xlab = "Progesterone", ylab = "Martingale Residuals",
+     main = "Progesterone")
+lines(lowess(df$prog, mart_resid), col = "blue", lwd = 2)
+abline(h = 0, lty = 2, col = "red")
+
+plot(df$estrg, mart_resid, xlab = "Estrogen", ylab = "Martingale Residuals",
+     main = "Estrogen")
+lines(lowess(df$estrg, mart_resid), col = "blue", lwd = 2)
+abline(h = 0, lty = 2, col = "red")
+
+# ---------------------------
+# 9. Addressing Violations
+# ---------------------------
+
+# Dichotomize age at 40, stratify on grade
+df$age40 <- ifelse(df$age < 40, 0, 1)
+
+cox_fit2 <- coxph(Surv(time, status) ~ hormone + meno + age40 +
+                    size + prog + estrg + strata(grade), data = df)
+summary(cox_fit2)
 
 
 ```
