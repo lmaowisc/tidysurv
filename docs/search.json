@@ -198,7 +198,7 @@
     "href": "sec1.html#kaplan-meier-curves-iii",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Kaplan-Meier Curves (III)",
-    "text": "Kaplan-Meier Curves (III)\n\nPlot Kaplan-Meier survival curves by group\n\n\nplot(km_fit, ylim = c(0,1), xlab = \"Time (months)\", ylab = \"Tumor-free probabilities\",\n     col=c(\"red\", \"blue\"), conf.int= TRUE)\n# Add legend\nlegend(1, 0.2, col=c(\"red\", \"blue\"), lty=1, \n       c(\"No hormone\", \"Hormone\")) # Legend text"
+    "text": "Kaplan-Meier Curves (III)\n\nPlot Kaplan-Meier survival curves by group\n\n\nplot(km_fit, ylim = c(0,1), xlab = \"Time (months)\", ylab = \"Relapse-free survival probability\",\n     col = c(\"red\", \"blue\"), conf.int = TRUE)\n# Add legend\nlegend(1, 0.2, col=c(\"red\", \"blue\"), lty = 1, \n       c(\"No hormone\", \"Hormone\")) # Legend text"
   },
   {
     "objectID": "sec1.html#log-rank-test",
@@ -212,14 +212,14 @@
     "href": "sec1.html#key-takeaways",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Key Takeaways",
-    "text": "Key Takeaways\n\nSurvival analysis is essential for time-to-event data in medical research\nKey concepts: survival function, hazard function, censoring\nData format: time and event indicator\nStandard analysis tools: survival package in R\nKaplan-Meier curves and log-rank tests for group comparisons"
+    "text": "Key Takeaways\n\nSurvival analysis is essential for (often censored) time-to-event data\nKey estimands: survival function, hazard function, cumulative hazard\nStandard analysis tools\n\nKaplan-Meier curves (survfit())\nLog-rank test (survdiff())\nCox proportional hazards model (coxph())"
   },
   {
     "objectID": "sec1.html#cox-model---model-specification",
     "href": "sec1.html#cox-model---model-specification",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Cox Model - Model Specification",
-    "text": "Cox Model - Model Specification\n\nCox proportional hazards model \\[\n\\lambda(t \\mid Z) = \\lambda_0(t) \\exp(\\beta_1 Z_1 + \\beta_2 Z_2 + \\ldots + \\beta_p Z_p)\n\\]\n\n\\(\\lambda_0(t)\\): baseline hazard function\n\\(Z=(Z_1,\\ldots, Z_p)^\\mathrm{T}\\): covariates (e.g., hormone therapy, age, tumor size)\n\\(\\beta=(\\beta_1，\\ldots，\\beta_p)^\\mathrm{T}\\): regression coefficients"
+    "text": "Cox Model - Model Specification\n\nCox proportional hazards model \\[\n\\lambda(t \\mid Z) = \\lambda_0(t) \\exp(\\beta_1 Z_1 + \\beta_2 Z_2 + \\ldots + \\beta_p Z_p)\n\\]\n\n\\(\\lambda_0(t)\\): baseline hazard function\n\\(Z=(Z_1,\\ldots, Z_p)^\\mathrm{T}\\): covariates (e.g., hormone therapy, age, tumor size)\n\\(\\beta=(\\beta_1，\\ldots，\\beta_p)^\\mathrm{T}\\): regression coefficients\n\\(\\exp(\\beta_j)\\): hazard ratio for covariate \\(Z_j\\)\n\nProportional hazards (PH) assumption \\[\n\\frac{\\lambda(t \\mid Z)}{\\lambda(t \\mid Z^*)} = \\exp\\{\\beta^\\mathrm{T}(Z - Z^*)\\}\n\\]\n\nHR constant over time, i.e., \\(\\beta(t) \\equiv \\beta\\) (for each covariate)"
   },
   {
     "objectID": "sec1.html#cox-model---model-fitting",
@@ -227,5 +227,103 @@
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Cox Model - Model Fitting",
     "text": "Cox Model - Model Fitting\n\nModel fitting: survival::coxph()\n\n\ncox_fit &lt;- coxph(Surv(time, status) ~ hormone + age + size + prog + estrg, data = df)\nsummary(cox_fit) # Print model summary\n\nCall:\ncoxph(formula = Surv(time, status) ~ hormone + age + size + prog + \n    estrg, data = df)\n\n  n= 686, number of events= 299 \n\n              coef  exp(coef)   se(coef)      z Pr(&gt;|z|)    \nhormone -0.3529035  0.7026450  0.1279482 -2.758  0.00581 ** \nage      0.0011593  1.0011600  0.0063647  0.182  0.85546    \nsize     0.0159456  1.0160734  0.0036144  4.412 1.03e-05 ***\nprog    -0.0027926  0.9972113  0.0005900 -4.733 2.21e-06 ***\nestrg    0.0001630  1.0001630  0.0004772  0.342  0.73265    \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n        exp(coef) exp(-coef) lower .95 upper .95\nhormone    0.7026     1.4232    0.5468    0.9029\nage        1.0012     0.9988    0.9887    1.0137\nsize       1.0161     0.9842    1.0089    1.0233\nprog       0.9972     1.0028    0.9961    0.9984\nestrg      1.0002     0.9998    0.9992    1.0011\n\nConcordance= 0.64  (se = 0.016 )\nLikelihood ratio test= 58.91  on 5 df,   p=2e-11\nWald test            = 50.3  on 5 df,   p=1e-09\nScore (logrank) test = 47.24  on 5 df,   p=5e-09"
+  },
+  {
+    "objectID": "sec1.html#cox-model---model-fitting-i",
+    "href": "sec1.html#cox-model---model-fitting-i",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model - Model Fitting (I)",
+    "text": "Cox Model - Model Fitting (I)\n\nModel fitting: survival::coxph()\n\n\ncox_fit &lt;- coxph(Surv(time, status) ~ hormone + meno + age + grade + size + prog + estrg, \n                 data = df)\nsummary(cox_fit) # Print model summary\n\nCall:\ncoxph(formula = Surv(time, status) ~ hormone + meno + age + grade + \n    size + prog + estrg, data = df)\n\n  n= 686, number of events= 299 \n\n              coef  exp(coef)   se(coef)      z Pr(&gt;|z|)    \nhormone -0.3422139  0.7101963  0.1290669 -2.651  0.00801 ** \nmeno     0.2765637  1.3185909  0.1837781  1.505  0.13236    \nage     -0.0087813  0.9912572  0.0093375 -0.940  0.34700    \ngrade    0.2785797  1.3212519  0.1051531  2.649  0.00807 ** \nsize     0.0152793  1.0153966  0.0036877  4.143 3.42e-05 ***\nprog    -0.0023307  0.9976720  0.0005803 -4.016 5.91e-05 ***\nestrg    0.0001678  1.0001679  0.0004669  0.359  0.71923    \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n        exp(coef) exp(-coef) lower .95 upper .95\nhormone    0.7102     1.4081    0.5515    0.9146\nmeno       1.3186     0.7584    0.9198    1.8904\nage        0.9913     1.0088    0.9733    1.0096\ngrade      1.3213     0.7569    1.0752    1.6236\nsize       1.0154     0.9848    1.0081    1.0228\nprog       0.9977     1.0023    0.9965    0.9988\nestrg      1.0002     0.9998    0.9993    1.0011\n\nConcordance= 0.651  (se = 0.016 )\nLikelihood ratio test= 68.4  on 7 df,   p=3e-12\nWald test            = 61.93  on 7 df,   p=6e-11\nScore (logrank) test = 61.23  on 7 df,   p=9e-11"
+  },
+  {
+    "objectID": "sec1.html#cox-model---model-fitting-ii",
+    "href": "sec1.html#cox-model---model-fitting-ii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model - Model Fitting (II)",
+    "text": "Cox Model - Model Fitting (II)\n\nExtracting \\(\\hat\\beta\\) and \\(\\hat{\\mathrm{var}}(\\hat\\beta)\\)\n\n\nbeta &lt;- cox_fit$coefficients # Estimated coefficients\nvbeta &lt;- vcov(cox_fit) # Estimated variance-covariance matrix\n# Extract regression table (as data frame)\ncoef(summary(cox_fit))\n\n                 coef exp(coef)     se(coef)          z     Pr(&gt;|z|)\nhormone -0.3422138547 0.7101963 0.1290669350 -2.6514448 8.014821e-03\nmeno     0.2765636858 1.3185909 0.1837780595  1.5048787 1.323553e-01\nage     -0.0087812621 0.9912572 0.0093375120 -0.9404285 3.469978e-01\ngrade    0.2785796730 1.3212519 0.1051531448  2.6492757 8.066449e-03\nsize     0.0152793172 1.0153966 0.0036877471  4.1432660 3.423945e-05\nprog    -0.0023307288 0.9976720 0.0005803186 -4.0162919 5.912102e-05\nestrg    0.0001678465 1.0001679 0.0004669057  0.3594870 7.192308e-01\n\n\n\nConclusion\n\nHormone therapy significantly reduces the risk of relapse or death by \\(1-0.710=29\\%\\) (\\(p\\) = 0.008)"
+  },
+  {
+    "objectID": "sec1.html#cox-model---prediction",
+    "href": "sec1.html#cox-model---prediction",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model - Prediction",
+    "text": "Cox Model - Prediction\n\nPredicted survival function \\[\n\\hat S(t \\mid z) = \\exp\\left\\{- \\exp(\\hat\\beta^\\mathrm{T} z) \\hat\\Lambda_0(t)\\right\\}\n\\]\nPrepare new data for prediction\n\n\n# Create new data for prediction\n# specify all covariate values\nnew_data &lt;- data.frame(hormone = 1, meno = 1, \n                        age = 45, grade = 2, \n                        size = 20, prog = 100, \n                        estrg = 100)\nnew_data\n\n  hormone meno age grade size prog estrg\n1       1    1  45     2   20  100   100\n\n\n\n# Predict survival probabilities at 12 months\npredicted_survival &lt;- survfit(cox_fit, newdata = new_data[1, ], times = c(6, 12, 24, 36))\nsummary(predicted_survival)"
+  },
+  {
+    "objectID": "sec1.html#cox-model---prediction-i",
+    "href": "sec1.html#cox-model---prediction-i",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model - Prediction (I)",
+    "text": "Cox Model - Prediction (I)\n\nPredicted survival function \\[\n\\hat S(t \\mid z) = \\exp\\left\\{- \\exp(\\hat\\beta^\\mathrm{T} z) \\hat\\Lambda_0(t)\\right\\}\n\\]\nPrepare new data for prediction\n\n\n# Create new data for prediction\n# specify all covariate values\nnew_data &lt;- data.frame(hormone = 1, meno = 1, \n                        age = 45, grade = 2, \n                        size = 20, prog = 100, \n                        estrg = 100)\nnew_data\n\n  hormone meno age grade size prog estrg\n1       1    1  45     2   20  100   100"
+  },
+  {
+    "objectID": "sec1.html#cox-model---prediction-ii",
+    "href": "sec1.html#cox-model---prediction-ii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model - Prediction (II)",
+    "text": "Cox Model - Prediction (II)\n\nPredict survival probabilities at specified time points\n\n\n# Predict survival probabilities at 6, 12, 24, 26 months\npredicted_survival &lt;- survfit(cox_fit, newdata = new_data[1, ], times = c(6, 12, 24, 36))\nsummary(predicted_survival, times = c(6, 12, 24, 36))\n\nCall: survfit(formula = cox_fit, newdata = new_data[1, ], times = c(6, \n    12, 24, 36))\n\n time n.risk n.event survival std.err lower 95% CI upper 95% CI\n    6    655      13    0.985 0.00441        0.976        0.994\n   12    602      43    0.933 0.01059        0.913        0.954\n   24    457     111    0.786 0.02304        0.743        0.833\n   36    331      57    0.696 0.02925        0.641        0.755"
+  },
+  {
+    "objectID": "sec1.html#cox-model---prediction-ii-1",
+    "href": "sec1.html#cox-model---prediction-ii-1",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model - Prediction (II)",
+    "text": "Cox Model - Prediction (II)\n\nPlot predicted survival function\n\n\n# Plot predicted survival function\nplot(predicted_survival, ylim = c(0, 1), xlab = \"Time (months)\", \n     ylab = \"Relapsep-free survival probability\", conf.int = TRUE)"
+  },
+  {
+    "objectID": "sec1.html#cox-model---prediction-iii",
+    "href": "sec1.html#cox-model---prediction-iii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model - Prediction (III)",
+    "text": "Cox Model - Prediction (III)\n\nPlot predicted survival function\n\n\n# Plot predicted survival function\nplot(predicted_survival, ylim = c(0, 1), xlab = \"Time (months)\", \n     ylab = \"Relapsep-free survival probability\", conf.int = TRUE)"
+  },
+  {
+    "objectID": "sec1.html#cox-model---model-checking-i",
+    "href": "sec1.html#cox-model---model-checking-i",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model - Model Checking (I)",
+    "text": "Cox Model - Model Checking (I)\n\nCheck PH assumptions\n\nGraphical: Plot scaled Schoenfeld residuals vs. time\nStatistical: Use cox.zph() to test PH assumption\n\n\n\nph_test &lt;- cox.zph(cox_fit)\nph_test # Print test results\n\n         chisq df      p\nhormone  0.272  1 0.6017\nmeno     5.514  1 0.0189\nage      9.430  1 0.0021\ngrade    8.490  1 0.0036\nsize     0.872  1 0.3505\nprog     4.881  1 0.0272\nestrg    5.403  1 0.0201\nGLOBAL  20.636  7 0.0043"
+  },
+  {
+    "objectID": "sec1.html#cox-model---model-checking-ii",
+    "href": "sec1.html#cox-model---model-checking-ii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model - Model Checking (II)",
+    "text": "Cox Model - Model Checking (II)\n\nGraphical check of PH assumptions"
+  },
+  {
+    "objectID": "sec1.html#cox-model---check-ph-assumptions-i",
+    "href": "sec1.html#cox-model---check-ph-assumptions-i",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model - Check PH Assumptions (I)",
+    "text": "Cox Model - Check PH Assumptions (I)\n\nSchoenfeld residuals\n\nDifference between observed and expected covariate values at each event time\nUse cox.zph() to test PH assumption\n\n\n\nph_test &lt;- cox.zph(cox_fit)\nph_test # Print test results\n\n         chisq df      p\nhormone  0.272  1 0.6017\nmeno     5.514  1 0.0189\nage      9.430  1 0.0021\ngrade    8.490  1 0.0036\nsize     0.872  1 0.3505\nprog     4.881  1 0.0272\nestrg    5.403  1 0.0201\nGLOBAL  20.636  7 0.0043"
+  },
+  {
+    "objectID": "sec1.html#cox-model---check-ph-assumptions-ii",
+    "href": "sec1.html#cox-model---check-ph-assumptions-ii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model - Check PH Assumptions (II)",
+    "text": "Cox Model - Check PH Assumptions (II)\n\nGraphical check of PH assumptions\n\nPlot Schoenfeld residuals against time\n\n\n\npar(mfrow= c(2, 4)) # Set up 2x4 plotting area for 7 covariates\nplot(ph_test, se = TRUE, col = \"blue\", lwd = 2) # Plot Schoenfeld residuals"
+  },
+  {
+    "objectID": "sec1.html#cox-model---check-covariate-forms",
+    "href": "sec1.html#cox-model---check-covariate-forms",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model - Check Covariate Forms",
+    "text": "Cox Model - Check Covariate Forms\n\nCheck linearity of covariate effects\n\nPlot martingale residuals against (quantitative) covariates\n\n\n\n# Extract martingale residuals \nmart_resid &lt;- residuals(cox_fit, type = 'martingale')\n\n\n\nPlotting\npar(mfrow= c(1, 4))  # Set up 1x4 plotting area for 4 covariates\n# Plot martingale residuals against age\nplot(df$age, mart_resid, xlab = \"Age\", ylab = \"Martingale Residuals\",\n     main = \"Age\")\n# Add smoothed line\nlines(lowess(df$age, mart_resid), col = \"blue\", lwd = 2)\nabline(h = 0, col = \"red\", lty = 2) # Add horizontal line at 0\n\n# Repeat for other covariates\nplot(df$size, mart_resid, xlab = \"Tumor Size\", ylab = \"Martingale Residuals\",\n     main = \"Tumor Size\")\nlines(lowess(df$size, mart_resid), col = \"blue\", lwd = 2)\nabline(h = 0, col = \"red\", lty = 2) # Add horizontal line at 0\nplot(df$prog, mart_resid, xlab = \"Progesterone Receptor\", ylab = \"Martingale Residuals\",\n     main = \"Progesterone Receptor\")\nlines(lowess(df$prog, mart_resid), col = \"blue\", lwd = 2)\nabline(h = 0, col = \"red\", lty = 2) # Add horizontal line at 0\nplot(df$estrg, mart_resid, xlab = \"Estrogen Receptor\", ylab = \"Martingale Residuals\",\n     main = \"Estrogen Receptor\")\nlines(lowess(df$estrg, mart_resid), col = \"blue\", lwd = 2)\nabline(h = 0, col = \"red\", lty = 2) # Add horizontal line at 0"
+  },
+  {
+    "objectID": "sec1.html#coding-exercise",
+    "href": "sec1.html#coding-exercise",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Coding Exercise",
+    "text": "Coding Exercise\n\n\n\nExercise\n\n\nResidual analyses show that the proportional hazards assumption is violated for tumor grade, and that the effect of age is not linear.\nFit a different model to address these issues.\n\n\nSample solution\n# Dichotomize age at 40\ndf$age40 &lt;- ifelse(df$age &lt; 40, 0, 1)\n# Fit Cox model stratified by tumor grade and with binary age \ncox_fit2 &lt;- coxph(Surv(time, status) ~ hormone + meno + age40 + size + prog + estrg + \n                   strata(grade), data = df)\nsummary(cox_fit2) # Print model summary"
+  },
+  {
+    "objectID": "sec1.html#open-questions",
+    "href": "sec1.html#open-questions",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Open Questions",
+    "text": "Open Questions\n\nEfficient/effective presentation of survival probabilities\n\nPoint estimates, confidence intervals\n\nCustomizable survival curves\n\nAdd at risk table below graph\n\nPresentation of regression results\n\nHazard ratios, confidence intervals, p-values\nVisualize regression results (e.g., forest plots)"
   }
 ]

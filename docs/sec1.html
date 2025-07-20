@@ -520,10 +520,10 @@ hormone=2 246     94   66.2    62.9      NA</code></pre>
 <li><strong>Plot Kaplan-Meier survival curves by group</strong></li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a></a><span class="fu">plot</span>(km_fit, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">xlab =</span> <span class="st">"Time (months)"</span>, <span class="at">ylab =</span> <span class="st">"Tumor-free probabilities"</span>,</span>
-<span id="cb14-2"><a></a>     <span class="at">col=</span><span class="fu">c</span>(<span class="st">"red"</span>, <span class="st">"blue"</span>), <span class="at">conf.int=</span> <span class="cn">TRUE</span>)</span>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a></a><span class="fu">plot</span>(km_fit, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">xlab =</span> <span class="st">"Time (months)"</span>, <span class="at">ylab =</span> <span class="st">"Relapse-free survival probability"</span>,</span>
+<span id="cb14-2"><a></a>     <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"red"</span>, <span class="st">"blue"</span>), <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb14-3"><a></a><span class="co"># Add legend</span></span>
-<span id="cb14-4"><a></a><span class="fu">legend</span>(<span class="dv">1</span>, <span class="fl">0.2</span>, <span class="at">col=</span><span class="fu">c</span>(<span class="st">"red"</span>, <span class="st">"blue"</span>), <span class="at">lty=</span><span class="dv">1</span>, </span>
+<span id="cb14-4"><a></a><span class="fu">legend</span>(<span class="dv">1</span>, <span class="fl">0.2</span>, <span class="at">col=</span><span class="fu">c</span>(<span class="st">"red"</span>, <span class="st">"blue"</span>), <span class="at">lty =</span> <span class="dv">1</span>, </span>
 <span id="cb14-5"><a></a>       <span class="fu">c</span>(<span class="st">"No hormone"</span>, <span class="st">"Hormone"</span>)) <span class="co"># Legend text</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
@@ -578,45 +578,243 @@ hormone=2 246       94      119      5.12      8.56
 <li><span class="math inline">\(\lambda_0(t)\)</span>: baseline hazard function</li>
 <li><span class="math inline">\(Z=(Z_1,\ldots, Z_p)^\mathrm{T}\)</span>: covariates (e.g., hormone therapy, age, tumor size)</li>
 <li><span class="math inline">\(\beta=(\beta_1，\ldots，\beta_p)^\mathrm{T}\)</span>: regression coefficients</li>
-<li></li>
+<li><span class="math inline">\(\exp(\beta_j)\)</span>: hazard ratio for covariate <span class="math inline">\(Z_j\)</span></li>
+</ul></li>
+<li><strong>Proportional hazards (PH) assumption</strong> <span class="math display">\[
+\frac{\lambda(t \mid Z)}{\lambda(t \mid Z^*)} = \exp\{\beta^\mathrm{T}(Z - Z^*)\}
+\]</span>
+<ul>
+<li>HR constant over time, i.e., <span class="math inline">\(\beta(t) \equiv \beta\)</span> (for each covariate)</li>
 </ul></li>
 </ul>
 </section>
-<section id="cox-model---model-fitting" class="slide level2">
-<h2>Cox Model - Model Fitting</h2>
+<section id="cox-model---model-fitting-i" class="slide level2">
+<h2>Cox Model - Model Fitting (I)</h2>
 <ul>
 <li><strong>Model fitting</strong>: <code>survival::coxph()</code></li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a></a>cox_fit <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> hormone <span class="sc">+</span> age <span class="sc">+</span> size <span class="sc">+</span> prog <span class="sc">+</span> estrg, <span class="at">data =</span> df)</span>
-<span id="cb20-2"><a></a><span class="fu">summary</span>(cox_fit) <span class="co"># Print model summary</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a></a>cox_fit <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> hormone <span class="sc">+</span> meno <span class="sc">+</span> age <span class="sc">+</span> grade <span class="sc">+</span> size <span class="sc">+</span> prog <span class="sc">+</span> estrg, </span>
+<span id="cb20-2"><a></a>                 <span class="at">data =</span> df)</span>
+<span id="cb20-3"><a></a><span class="fu">summary</span>(cox_fit) <span class="co"># Print model summary</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Call:
-coxph(formula = Surv(time, status) ~ hormone + age + size + prog + 
-    estrg, data = df)
+coxph(formula = Surv(time, status) ~ hormone + meno + age + grade + 
+    size + prog + estrg, data = df)
 
   n= 686, number of events= 299 
 
               coef  exp(coef)   se(coef)      z Pr(&gt;|z|)    
-hormone -0.3529035  0.7026450  0.1279482 -2.758  0.00581 ** 
-age      0.0011593  1.0011600  0.0063647  0.182  0.85546    
-size     0.0159456  1.0160734  0.0036144  4.412 1.03e-05 ***
-prog    -0.0027926  0.9972113  0.0005900 -4.733 2.21e-06 ***
-estrg    0.0001630  1.0001630  0.0004772  0.342  0.73265    
+hormone -0.3422139  0.7101963  0.1290669 -2.651  0.00801 ** 
+meno     0.2765637  1.3185909  0.1837781  1.505  0.13236    
+age     -0.0087813  0.9912572  0.0093375 -0.940  0.34700    
+grade    0.2785797  1.3212519  0.1051531  2.649  0.00807 ** 
+size     0.0152793  1.0153966  0.0036877  4.143 3.42e-05 ***
+prog    -0.0023307  0.9976720  0.0005803 -4.016 5.91e-05 ***
+estrg    0.0001678  1.0001679  0.0004669  0.359  0.71923    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
         exp(coef) exp(-coef) lower .95 upper .95
-hormone    0.7026     1.4232    0.5468    0.9029
-age        1.0012     0.9988    0.9887    1.0137
-size       1.0161     0.9842    1.0089    1.0233
-prog       0.9972     1.0028    0.9961    0.9984
-estrg      1.0002     0.9998    0.9992    1.0011
+hormone    0.7102     1.4081    0.5515    0.9146
+meno       1.3186     0.7584    0.9198    1.8904
+age        0.9913     1.0088    0.9733    1.0096
+grade      1.3213     0.7569    1.0752    1.6236
+size       1.0154     0.9848    1.0081    1.0228
+prog       0.9977     1.0023    0.9965    0.9988
+estrg      1.0002     0.9998    0.9993    1.0011
 
-Concordance= 0.64  (se = 0.016 )
-Likelihood ratio test= 58.91  on 5 df,   p=2e-11
-Wald test            = 50.3  on 5 df,   p=1e-09
-Score (logrank) test = 47.24  on 5 df,   p=5e-09</code></pre>
+Concordance= 0.651  (se = 0.016 )
+Likelihood ratio test= 68.4  on 7 df,   p=3e-12
+Wald test            = 61.93  on 7 df,   p=6e-11
+Score (logrank) test = 61.23  on 7 df,   p=9e-11</code></pre>
+</div>
+</div>
+</section>
+<section id="cox-model---model-fitting-ii" class="slide level2">
+<h2>Cox Model - Model Fitting (II)</h2>
+<ul>
+<li>Extracting <span class="math inline">\(\hat\beta\)</span> and <span class="math inline">\(\hat{\mathrm{var}}(\hat\beta)\)</span></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a></a>beta <span class="ot">&lt;-</span> cox_fit<span class="sc">$</span>coefficients <span class="co"># Estimated coefficients</span></span>
+<span id="cb22-2"><a></a>vbeta <span class="ot">&lt;-</span> <span class="fu">vcov</span>(cox_fit) <span class="co"># Estimated variance-covariance matrix</span></span>
+<span id="cb22-3"><a></a><span class="co"># Extract regression table (as data frame)</span></span>
+<span id="cb22-4"><a></a><span class="fu">coef</span>(<span class="fu">summary</span>(cox_fit))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                 coef exp(coef)     se(coef)          z     Pr(&gt;|z|)
+hormone -0.3422138547 0.7101963 0.1290669350 -2.6514448 8.014821e-03
+meno     0.2765636858 1.3185909 0.1837780595  1.5048787 1.323553e-01
+age     -0.0087812621 0.9912572 0.0093375120 -0.9404285 3.469978e-01
+grade    0.2785796730 1.3212519 0.1051531448  2.6492757 8.066449e-03
+size     0.0152793172 1.0153966 0.0036877471  4.1432660 3.423945e-05
+prog    -0.0023307288 0.9976720 0.0005803186 -4.0162919 5.912102e-05
+estrg    0.0001678465 1.0001679 0.0004669057  0.3594870 7.192308e-01</code></pre>
+</div>
+</div>
+<ul>
+<li><strong>Conclusion</strong>
+<ul>
+<li>Hormone therapy significantly reduces the risk of relapse or death by <span class="math inline">\(1-0.710=29\%\)</span> (<span class="math inline">\(p\)</span> = 0.008)</li>
+</ul></li>
+</ul>
+</section>
+<section id="cox-model---prediction-i" class="slide level2">
+<h2>Cox Model - Prediction (I)</h2>
+<ul>
+<li><p><strong>Predicted survival function</strong> <span class="math display">\[
+\hat S(t \mid z) = \exp\left\{- \exp(\hat\beta^\mathrm{T} z) \hat\Lambda_0(t)\right\}
+\]</span></p></li>
+<li><p>Prepare new data for prediction</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a></a><span class="co"># Create new data for prediction</span></span>
+<span id="cb24-2"><a></a><span class="co"># specify all covariate values</span></span>
+<span id="cb24-3"><a></a>new_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">hormone =</span> <span class="dv">1</span>, <span class="at">meno =</span> <span class="dv">1</span>, </span>
+<span id="cb24-4"><a></a>                        <span class="at">age =</span> <span class="dv">45</span>, <span class="at">grade =</span> <span class="dv">2</span>, </span>
+<span id="cb24-5"><a></a>                        <span class="at">size =</span> <span class="dv">20</span>, <span class="at">prog =</span> <span class="dv">100</span>, </span>
+<span id="cb24-6"><a></a>                        <span class="at">estrg =</span> <span class="dv">100</span>)</span>
+<span id="cb24-7"><a></a>new_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  hormone meno age grade size prog estrg
+1       1    1  45     2   20  100   100</code></pre>
+</div>
+</div>
+</section>
+<section id="cox-model---prediction-ii" class="slide level2">
+<h2>Cox Model - Prediction (II)</h2>
+<ul>
+<li><strong>Predict survival probabilities at specified time points</strong></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a></a><span class="co"># Predict survival probabilities at 6, 12, 24, 26 months</span></span>
+<span id="cb26-2"><a></a>predicted_survival <span class="ot">&lt;-</span> <span class="fu">survfit</span>(cox_fit, <span class="at">newdata =</span> new_data[<span class="dv">1</span>, ], <span class="at">times =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">12</span>, <span class="dv">24</span>, <span class="dv">36</span>))</span>
+<span id="cb26-3"><a></a><span class="fu">summary</span>(predicted_survival, <span class="at">times =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">12</span>, <span class="dv">24</span>, <span class="dv">36</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call: survfit(formula = cox_fit, newdata = new_data[1, ], times = c(6, 
+    12, 24, 36))
+
+ time n.risk n.event survival std.err lower 95% CI upper 95% CI
+    6    655      13    0.985 0.00441        0.976        0.994
+   12    602      43    0.933 0.01059        0.913        0.954
+   24    457     111    0.786 0.02304        0.743        0.833
+   36    331      57    0.696 0.02925        0.641        0.755</code></pre>
+</div>
+</div>
+</section>
+<section id="cox-model---prediction-iii" class="slide level2">
+<h2>Cox Model - Prediction (III)</h2>
+<ul>
+<li><strong>Plot predicted survival function</strong></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a></a><span class="co"># Plot predicted survival function</span></span>
+<span id="cb28-2"><a></a><span class="fu">plot</span>(predicted_survival, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">xlab =</span> <span class="st">"Time (months)"</span>, </span>
+<span id="cb28-3"><a></a>     <span class="at">ylab =</span> <span class="st">"Relapsep-free survival probability"</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="sec1_files/figure-revealjs/unnamed-chunk-13-1.png" width="960" class="r-stretch"></section>
+<section id="cox-model---check-ph-assumptions-i" class="slide level2">
+<h2>Cox Model - Check PH Assumptions (I)</h2>
+<ul>
+<li><strong>Schoenfeld residuals</strong>
+<ul>
+<li>Difference between observed and expected covariate values at each event time</li>
+<li>Use <code>cox.zph()</code> to test PH assumption</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a></a>ph_test <span class="ot">&lt;-</span> <span class="fu">cox.zph</span>(cox_fit)</span>
+<span id="cb29-2"><a></a>ph_test <span class="co"># Print test results</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         chisq df      p
+hormone  0.272  1 0.6017
+meno     5.514  1 0.0189
+age      9.430  1 0.0021
+grade    8.490  1 0.0036
+size     0.872  1 0.3505
+prog     4.881  1 0.0272
+estrg    5.403  1 0.0201
+GLOBAL  20.636  7 0.0043</code></pre>
+</div>
+</div>
+</section>
+<section id="cox-model---check-ph-assumptions-ii" class="slide level2">
+<h2>Cox Model - Check PH Assumptions (II)</h2>
+<ul>
+<li><strong>Graphical check of PH assumptions</strong>
+<ul>
+<li>Plot Schoenfeld residuals against time</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a></a><span class="fu">par</span>(<span class="at">mfrow=</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">4</span>)) <span class="co"># Set up 2x4 plotting area for 7 covariates</span></span>
+<span id="cb31-2"><a></a><span class="fu">plot</span>(ph_test, <span class="at">se =</span> <span class="cn">TRUE</span>, <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">lwd =</span> <span class="dv">2</span>) <span class="co"># Plot Schoenfeld residuals</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="sec1_files/figure-revealjs/unnamed-chunk-15-1.png" width="960" class="r-stretch"></section>
+<section id="cox-model---check-covariate-forms" class="slide level2">
+<h2>Cox Model - Check Covariate Forms</h2>
+<ul>
+<li><strong>Check linearity of covariate effects</strong>
+<ul>
+<li>Plot martingale residuals against (quantitative) covariates</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a></a><span class="co"># Extract martingale residuals </span></span>
+<span id="cb32-2"><a></a>mart_resid <span class="ot">&lt;-</span> <span class="fu">residuals</span>(cox_fit, <span class="at">type =</span> <span class="st">'martingale'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Plotting</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a></a><span class="fu">par</span>(<span class="at">mfrow=</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>))  <span class="co"># Set up 1x4 plotting area for 4 covariates</span></span>
+<span id="cb33-2"><a></a><span class="co"># Plot martingale residuals against age</span></span>
+<span id="cb33-3"><a></a><span class="fu">plot</span>(df<span class="sc">$</span>age, mart_resid, <span class="at">xlab =</span> <span class="st">"Age"</span>, <span class="at">ylab =</span> <span class="st">"Martingale Residuals"</span>,</span>
+<span id="cb33-4"><a></a>     <span class="at">main =</span> <span class="st">"Age"</span>)</span>
+<span id="cb33-5"><a></a><span class="co"># Add smoothed line</span></span>
+<span id="cb33-6"><a></a><span class="fu">lines</span>(<span class="fu">lowess</span>(df<span class="sc">$</span>age, mart_resid), <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb33-7"><a></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lty =</span> <span class="dv">2</span>) <span class="co"># Add horizontal line at 0</span></span>
+<span id="cb33-8"><a></a></span>
+<span id="cb33-9"><a></a><span class="co"># Repeat for other covariates</span></span>
+<span id="cb33-10"><a></a><span class="fu">plot</span>(df<span class="sc">$</span>size, mart_resid, <span class="at">xlab =</span> <span class="st">"Tumor Size"</span>, <span class="at">ylab =</span> <span class="st">"Martingale Residuals"</span>,</span>
+<span id="cb33-11"><a></a>     <span class="at">main =</span> <span class="st">"Tumor Size"</span>)</span>
+<span id="cb33-12"><a></a><span class="fu">lines</span>(<span class="fu">lowess</span>(df<span class="sc">$</span>size, mart_resid), <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb33-13"><a></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lty =</span> <span class="dv">2</span>) <span class="co"># Add horizontal line at 0</span></span>
+<span id="cb33-14"><a></a><span class="fu">plot</span>(df<span class="sc">$</span>prog, mart_resid, <span class="at">xlab =</span> <span class="st">"Progesterone Receptor"</span>, <span class="at">ylab =</span> <span class="st">"Martingale Residuals"</span>,</span>
+<span id="cb33-15"><a></a>     <span class="at">main =</span> <span class="st">"Progesterone Receptor"</span>)</span>
+<span id="cb33-16"><a></a><span class="fu">lines</span>(<span class="fu">lowess</span>(df<span class="sc">$</span>prog, mart_resid), <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb33-17"><a></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lty =</span> <span class="dv">2</span>) <span class="co"># Add horizontal line at 0</span></span>
+<span id="cb33-18"><a></a><span class="fu">plot</span>(df<span class="sc">$</span>estrg, mart_resid, <span class="at">xlab =</span> <span class="st">"Estrogen Receptor"</span>, <span class="at">ylab =</span> <span class="st">"Martingale Residuals"</span>,</span>
+<span id="cb33-19"><a></a>     <span class="at">main =</span> <span class="st">"Estrogen Receptor"</span>)</span>
+<span id="cb33-20"><a></a><span class="fu">lines</span>(<span class="fu">lowess</span>(df<span class="sc">$</span>estrg, mart_resid), <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb33-21"><a></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lty =</span> <span class="dv">2</span>) <span class="co"># Add horizontal line at 0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="sec1_files/figure-revealjs/unnamed-chunk-17-1.png" width="1536" class="r-stretch"></section>
+<section id="coding-exercise" class="slide level2">
+<h2>Coding Exercise</h2>
+<div class="callout callout-note no-icon callout-titled callout-style-simple">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Exercise</strong></p>
+</div>
+<div class="callout-content">
+<p>Residual analyses show that the proportional hazards assumption is violated for tumor grade, and that the effect of age is not linear.</p>
+<p>Fit a different model to address these issues.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Sample solution</summary>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a></a><span class="co"># Dichotomize age at 40</span></span>
+<span id="cb34-2"><a></a>df<span class="sc">$</span>age40 <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(df<span class="sc">$</span>age <span class="sc">&lt;</span> <span class="dv">40</span>, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb34-3"><a></a><span class="co"># Fit Cox model stratified by tumor grade and with binary age </span></span>
+<span id="cb34-4"><a></a>cox_fit2 <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> hormone <span class="sc">+</span> meno <span class="sc">+</span> age40 <span class="sc">+</span> size <span class="sc">+</span> prog <span class="sc">+</span> estrg <span class="sc">+</span> </span>
+<span id="cb34-5"><a></a>                   <span class="fu">strata</span>(grade), <span class="at">data =</span> df)</span>
+<span id="cb34-6"><a></a><span class="fu">summary</span>(cox_fit2) <span class="co"># Print model summary</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</div>
 </div>
 </div>
 </section></section>
@@ -628,11 +826,32 @@ Score (logrank) test = 47.24  on 5 df,   p=5e-09</code></pre>
 <section id="key-takeaways" class="slide level2">
 <h2>Key Takeaways</h2>
 <ul>
-<li>Survival analysis is essential for time-to-event data in medical research</li>
-<li>Key concepts: survival function, hazard function, censoring</li>
-<li>Data format: time and event indicator</li>
-<li>Standard analysis tools: <code>survival</code> package in R</li>
-<li>Kaplan-Meier curves and log-rank tests for group comparisons</li>
+<li>Survival analysis is essential for (often censored) time-to-event data</li>
+<li>Key estimands: survival function, hazard function, cumulative hazard</li>
+<li>Standard analysis tools
+<ul>
+<li>Kaplan-Meier curves (<code>survfit()</code>)</li>
+<li>Log-rank test (<code>survdiff()</code>)</li>
+<li>Cox proportional hazards model (<code>coxph()</code>)</li>
+</ul></li>
+</ul>
+</section>
+<section id="open-questions" class="slide level2">
+<h2>Open Questions</h2>
+<ul>
+<li>Efficient/effective presentation of survival probabilities
+<ul>
+<li>Point estimates, confidence intervals</li>
+</ul></li>
+<li>Customizable survival curves
+<ul>
+<li>Add at risk table below graph</li>
+</ul></li>
+<li>Presentation of regression results
+<ul>
+<li>Hazard ratios, confidence intervals, p-values</li>
+<li>Visualize regression results (e.g., forest plots)</li>
+</ul></li>
 </ul>
 
 

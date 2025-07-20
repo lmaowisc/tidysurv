@@ -218,10 +218,10 @@ km_fit
 
 ```{r}
 #| eval: true
-plot(km_fit, ylim = c(0,1), xlab = "Time (months)", ylab = "Tumor-free probabilities",
-     col=c("red", "blue"), conf.int= TRUE)
+plot(km_fit, ylim = c(0,1), xlab = "Time (months)", ylab = "Relapse-free survival probability",
+     col = c("red", "blue"), conf.int = TRUE)
 # Add legend
-legend(1, 0.2, col=c("red", "blue"), lty=1, 
+legend(1, 0.2, col=c("red", "blue"), lty = 1, 
        c("No hormone", "Hormone")) # Legend text
 ```
 
@@ -255,28 +255,188 @@ $$
     -   $\lambda_0(t)$: baseline hazard function
     -   $Z=(Z_1,\ldots, Z_p)^\mathrm{T}$: covariates (e.g., hormone therapy, age, tumor size)
     -   $\beta=(\beta_1，\ldots，\beta_p)^\mathrm{T}$: regression coefficients
-    - 
+    -   $\exp(\beta_j)$: hazard ratio for covariate $Z_j$
   
+-  **Proportional hazards (PH) assumption**
+$$
+\frac{\lambda(t \mid Z)}{\lambda(t \mid Z^*)} = \exp\{\beta^\mathrm{T}(Z - Z^*)\}
+$$
+    - HR constant over time, i.e., $\beta(t) \equiv \beta$ (for each covariate)
 
-## Cox Model - Model Fitting
+
+## Cox Model - Model Fitting (I)
 
 -  **Model fitting**: `survival::coxph()`
 ```{r}
 #| eval: true
 
-cox_fit <- coxph(Surv(time, status) ~ hormone + age + size + prog + estrg, data = df)
+cox_fit <- coxph(Surv(time, status) ~ hormone + meno + age + grade + size + prog + estrg, 
+                 data = df)
 summary(cox_fit) # Print model summary
-
 ```
 
 
+
+## Cox Model - Model Fitting (II)
+
+- Extracting $\hat\beta$ and $\hat{\mathrm{var}}(\hat\beta)$
+```{r}
+#| eval: true
+beta <- cox_fit$coefficients # Estimated coefficients
+vbeta <- vcov(cox_fit) # Estimated variance-covariance matrix
+# Extract regression table (as data frame)
+coef(summary(cox_fit))
+```
+
+- **Conclusion** 
+    -  Hormone therapy significantly reduces the risk of relapse or death by $1-0.710=29\%$ ($p$ = 0.008)
+
+## Cox Model - Prediction (I)
+
+-  **Predicted survival function**
+    $$
+    \hat S(t \mid z) = \exp\left\{- \exp(\hat\beta^\mathrm{T} z) \hat\Lambda_0(t)\right\}
+    $$
+
+-  Prepare new data for prediction
+```{r}
+#| eval: true
+# Create new data for prediction
+# specify all covariate values
+new_data <- data.frame(hormone = 1, meno = 1, 
+                        age = 45, grade = 2, 
+                        size = 20, prog = 100, 
+                        estrg = 100)
+new_data
+```
+
+## Cox Model - Prediction (II)
+
+-  **Predict survival probabilities at specified time points**
+```{r}
+#| eval: true
+# Predict survival probabilities at 6, 12, 24, 26 months
+predicted_survival <- survfit(cox_fit, newdata = new_data[1, ], times = c(6, 12, 24, 36))
+summary(predicted_survival, times = c(6, 12, 24, 36))
+```
+
+## Cox Model - Prediction (III)
+
+- **Plot predicted survival function**
+
+```{r}
+#| eval: true
+# Plot predicted survival function
+plot(predicted_survival, ylim = c(0, 1), xlab = "Time (months)", 
+     ylab = "Relapsep-free survival probability", conf.int = TRUE)
+
+```
+
+## Cox Model - Check PH Assumptions (I)
+
+- **Schoenfeld residuals**
+    -  Difference between observed and expected covariate values at each event time
+    -  Use `cox.zph()` to test PH assumption
+
+```{r}
+#| eval: true
+ph_test <- cox.zph(cox_fit)
+ph_test # Print test results
+```
+
+
+## Cox Model - Check PH Assumptions  (II)
+
+
+- **Graphical check of PH assumptions**
+    - Plot Schoenfeld residuals against time
+
+```{r}
+#| eval: true
+par(mfrow= c(2, 4)) # Set up 2x4 plotting area for 7 covariates
+plot(ph_test, se = TRUE, col = "blue", lwd = 2) # Plot Schoenfeld residuals
+```
+
+## Cox Model - Check Covariate Forms
+
+- **Check linearity of covariate effects**
+    -  Plot martingale residuals against (quantitative) covariates
+```{r}
+#| eval: true
+# Extract martingale residuals 
+mart_resid <- residuals(cox_fit, type = 'martingale')
+```
+```{r}
+#| eval: true
+#| code-fold: true
+#| code-summary: "Plotting"
+#| fig-width: 16
+#| fig-height: 4
+par(mfrow= c(1, 4))  # Set up 1x4 plotting area for 4 covariates
+# Plot martingale residuals against age
+plot(df$age, mart_resid, xlab = "Age", ylab = "Martingale Residuals",
+     main = "Age")
+# Add smoothed line
+lines(lowess(df$age, mart_resid), col = "blue", lwd = 2)
+abline(h = 0, col = "red", lty = 2) # Add horizontal line at 0
+
+# Repeat for other covariates
+plot(df$size, mart_resid, xlab = "Tumor Size", ylab = "Martingale Residuals",
+     main = "Tumor Size")
+lines(lowess(df$size, mart_resid), col = "blue", lwd = 2)
+abline(h = 0, col = "red", lty = 2) # Add horizontal line at 0
+plot(df$prog, mart_resid, xlab = "Progesterone Receptor", ylab = "Martingale Residuals",
+     main = "Progesterone Receptor")
+lines(lowess(df$prog, mart_resid), col = "blue", lwd = 2)
+abline(h = 0, col = "red", lty = 2) # Add horizontal line at 0
+plot(df$estrg, mart_resid, xlab = "Estrogen Receptor", ylab = "Martingale Residuals",
+     main = "Estrogen Receptor")
+lines(lowess(df$estrg, mart_resid), col = "blue", lwd = 2)
+abline(h = 0, col = "red", lty = 2) # Add horizontal line at 0
+```
+
+## Coding Exercise
+
+::: {.callout-note appearance="minimal"}
+## Exercise
+Residual analyses show that the proportional hazards assumption is violated for tumor grade,
+and that the effect of age is not linear.
+
+Fit a different model to address these issues.
+```{r}
+#| code-fold: true
+#| code-summary: "Sample solution"
+# Dichotomize age at 40
+df$age40 <- ifelse(df$age < 40, 0, 1)
+# Fit Cox model stratified by tumor grade and with binary age 
+cox_fit2 <- coxph(Surv(time, status) ~ hormone + meno + age40 + size + prog + estrg + 
+                   strata(grade), data = df)
+summary(cox_fit2) # Print model summary
+```
+:::
 
 # Summary
 
 ## Key Takeaways
 
--   Survival analysis is essential for time-to-event data in medical research
--   Key concepts: survival function, hazard function, censoring
--   Data format: time and event indicator
--   Standard analysis tools: `survival` package in R
--   Kaplan-Meier curves and log-rank tests for group comparisons
+-  Survival analysis is essential for (often censored) time-to-event data
+-  Key estimands: survival function, hazard function, cumulative hazard
+-  Standard analysis tools
+    - Kaplan-Meier curves (`survfit()`) 
+    - Log-rank test (`survdiff()`)
+    - Cox proportional hazards model (`coxph()`)
+    
+## Open Questions
+
+- Efficient/effective presentation of survival probabilities
+    - Point estimates, confidence intervals
+
+- Customizable survival curves
+    - Add at risk table below graph
+    
+- Presentation of regression results
+    - Hazard ratios, confidence intervals, p-values
+    - Visualize regression results (e.g., forest plots)
+
+
+
