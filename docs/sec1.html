@@ -488,10 +488,9 @@ hormone=2 246     94   66.2    62.9      NA</code></pre>
 <section id="kaplan-meier-curves-ii" class="slide level2">
 <h2>Kaplan-Meier Curves (II)</h2>
 <ul>
-<li><strong>Summarize survival estimates at specified time points</strong>
+<li><p><strong>Summarize survival estimates at specified time points</strong></p>
 <ul>
 <li>For example, at 6, 12, 24, and 36 months</li>
-</ul></li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a><span class="fu">summary</span>(km_fit, <span class="at">times =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">12</span>, <span class="dv">24</span>, <span class="dv">36</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -512,7 +511,8 @@ hormone=2 246     94   66.2    62.9      NA</code></pre>
    24    177      38    0.785 0.02701        0.733        0.839
    36    136      16    0.708 0.03047        0.650        0.770</code></pre>
 </div>
-</div>
+</div></li>
+</ul>
 </section>
 <section id="kaplan-meier-curves-iii" class="slide level2">
 <h2>Kaplan-Meier Curves (III)</h2>
@@ -521,7 +521,10 @@ hormone=2 246     94   66.2    62.9      NA</code></pre>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a></a><span class="fu">plot</span>(km_fit, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">xlab =</span> <span class="st">"Time (months)"</span>, <span class="at">ylab =</span> <span class="st">"Tumor-free probabilities"</span>,</span>
-<span id="cb14-2"><a></a>     <span class="at">col=</span><span class="fu">c</span>(<span class="st">"red"</span>, <span class="st">"blue"</span>), <span class="at">conf.int=</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-2"><a></a>     <span class="at">col=</span><span class="fu">c</span>(<span class="st">"red"</span>, <span class="st">"blue"</span>), <span class="at">conf.int=</span> <span class="cn">TRUE</span>)</span>
+<span id="cb14-3"><a></a><span class="co"># Add legend</span></span>
+<span id="cb14-4"><a></a><span class="fu">legend</span>(<span class="dv">1</span>, <span class="fl">0.2</span>, <span class="at">col=</span><span class="fu">c</span>(<span class="st">"red"</span>, <span class="st">"blue"</span>), <span class="at">lty=</span><span class="dv">1</span>, </span>
+<span id="cb14-5"><a></a>       <span class="fu">c</span>(<span class="st">"No hormone"</span>, <span class="st">"Hormone"</span>)) <span class="co"># Legend text</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="sec1_files/figure-revealjs/unnamed-chunk-6-1.png" width="960" class="r-stretch"></section>
@@ -531,7 +534,8 @@ hormone=2 246     94   66.2    62.9      NA</code></pre>
 <li><strong>Compare survival curves between groups</strong></li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a></a><span class="fu">survdiff</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> hormone, <span class="at">data =</span> df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a></a>lgr_obj <span class="ot">&lt;-</span> <span class="fu">survdiff</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> hormone, <span class="at">data =</span> df)</span>
+<span id="cb15-2"><a></a>lgr_obj <span class="co"># Print log-rank test results</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Call:
 survdiff(formula = Surv(time, status) ~ hormone, data = df)
@@ -542,7 +546,40 @@ hormone=2 246       94      119      5.12      8.56
 
  Chisq= 8.6  on 1 degrees of freedom, p= 0.003 </code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a></a>lgr_obj<span class="sc">$</span>pvalue <span class="co"># Extract p-value</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.003427282</code></pre>
 </div>
+</div>
+<div class="callout callout-note no-icon callout-titled callout-style-simple">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Exercise</strong></p>
+</div>
+<div class="callout-content">
+<p>Perform a log-rank test on treatment stratified by patient menopausal status <code>meno</code>.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Solution</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a></a><span class="fu">survdiff</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> hormone <span class="sc">+</span> <span class="fu">strata</span>(meno), <span class="at">data =</span> df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="cox-model---model-specification" class="slide level2">
+<h2>Cox Model - Model Specification</h2>
+<ul>
+<li><strong>Cox proportional hazards model</strong> <span class="math display">\[
+\lambda(t \mid Z) = \lambda_0(t) \exp(\beta_1 Z_1 + \beta_2 Z_2 + \ldots + \beta_p Z_p)
+\]</span>
+<ul>
+<li><span class="math inline">\(\lambda_0(t)\)</span>: baseline hazard function</li>
+<li><span class="math inline">\(Z=(Z_1,\ldots, Z_p)^\mathrm{T}\)</span>: covariates (e.g., hormone therapy, age, tumor size)</li>
+<li><span class="math inline">\(Z=(\beta_1，\ldots，\beta_p)^\mathrm{T}\)</span>: regression coefficients</li>
+</ul></li>
+</ul>
 </section></section>
 <section>
 <section id="summary" class="title-slide slide level1 center">

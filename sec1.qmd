@@ -37,58 +37,51 @@ include-in-header:
 #   data-background-position: 2% 2%
 ---
 
-
 # Basics of Survival Analysis
 
 ## Time-to-Event Data
 
-- A common type of outcome in medical and clinical studies  
-  - **Starting point**: Randomization, diagnosis, enrollment, birth, etc.  
-  - **Endpoint (Event of interest)**: Death, disease onset, hospitalization, etc.
-      - **Engineering**: Failure times of machines or components (reliability)
-      - **Social sciences**: Time to job change, dropout, or event occurrence
-
-- **Right censoring**:
-  - Event not observed within the follow-up period
-  - Due to study ending, dropout, or loss to follow-up
-  - We only know:  
-    $$
-    T > C
-    $$
-    where $T$ is event time and $C$ is censoring time
+-   A common type of outcome in medical and clinical studies
+    -   **Starting point**: Randomization, diagnosis, enrollment, birth, etc.\
+    -   **Endpoint (Event of interest)**: Death, disease onset, hospitalization, etc.
+        -   **Engineering**: Failure times of machines or components (reliability)
+        -   **Social sciences**: Time to job change, dropout, or event occurrence
+-   **Right censoring**:
+    -   Event not observed within the follow-up period
+    -   Due to study ending, dropout, or loss to follow-up
+    -   We only know:\
+        $$
+        T > C
+        $$ where $T$ is event time and $C$ is censoring time
 
 ## Follow-up (Swimmer) Plot
 
-- A rat tumorigenicity study 
+-   A rat tumorigenicity study
 
 ![](images/rat_swim.png){fig-align="center" width="60%"}
 
-
 ## Basic Estimands
 
-- **Survival function**: $S(t) = \Pr(T > t)$
-  - Probability subject survives beyond time $t$
-- **Hazard function**:  
-  $$
-  \lambda(t) = \lim_{\Delta t \to 0} \frac{\Pr(t \leq T < t + \Delta t \mid T \geq t)}{\Delta t}
-  $$
-  - Instantaneous risk of failure at time $t$
-- **Relationship**
-  $$
-  S(t) = \exp\left(-\int_0^t \lambda(u) \mathrm{d}u\right)
-  $$
-  - **Cumulative hazard function**: $\Lambda(t) = \int_0^t \lambda(u) \mathrm{d}u$
-  
+-   **Survival function**: $S(t) = \Pr(T > t)$
+    -   Probability subject survives beyond time $t$
+-   **Hazard function**:\
+    $$
+    \lambda(t) = \lim_{\Delta t \to 0} \frac{\Pr(t \leq T < t + \Delta t \mid T \geq t)}{\Delta t}
+    $$
+    -   Instantaneous risk of failure at time $t$
+-   **Relationship** $$
+    S(t) = \exp\left(-\int_0^t \lambda(u) \mathrm{d}u\right)
+    $$
+    -   **Cumulative hazard function**: $\Lambda(t) = \int_0^t \lambda(u) \mathrm{d}u$
 
 ## Observed (Censored) Data
 
-- **Notation**: $(X, \delta)$
-    - $X=\min(T, C)$: observation time (event or censoring)
-    - $\delta = I(T\leq C)$: event indicator (1 for event, 0 for censoring)
+-   **Notation**: $(X, \delta)$
+    -   $X=\min(T, C)$: observation time (event or censoring)
+    -   $\delta = I(T\leq C)$: event indicator (1 for event, 0 for censoring)
+-   **Data format**
 
-- **Data format**
-
-```r
+``` r
 # time = X, status = delta (tidy format)
     id    time status
 1     1     5     1
@@ -116,15 +109,14 @@ include-in-header:
     -   **Follow-up**: Median 44 months
         -   171 deaths $\to$ exact times known\
         -   515 censored $\to$ survival time $>$ censoring time
-
--  **Data sets**: 
+-   **Data sets**:
     -   Mortality data: [https://lmaowisc.github.io/tidysurv/data/gbc_mort.txt](https://lmaowisc.github.io/tidysurv/data/gbc_mort.txt){target="_blank"}
     -   Mortality + relapse: [https://lmaowisc.github.io/tidysurv/data/gbc.txt](https://lmaowisc.github.io/tidysurv/data/gbc.txt){target="_blank"}
-    - Download and save in a `data` folder under your root directory
-    
+    -   Download and save in a `data` folder under your root directory
+
 ## Data Format (I)
 
-- **Death only**
+-   **Death only**
 
 ```{r}
 #| eval: true
@@ -143,7 +135,8 @@ head(gbc_mort)
 
 ## Data Format (II)
 
-- **Mortality + relapse**
+-   **Mortality + relapse**
+
 ```{r}
 #| eval: true
 # Load mortality + relapse data
@@ -158,23 +151,21 @@ head(gbc)
 
 ## Analysis Goals
 
--  **Descriptive**
+-   **Descriptive**
     -   Summarize patient characteristics
-    -   Visualize survival distributions  
-
--  **Inferential**
+    -   Visualize survival distributions
+-   **Inferential**
     -   Compare survival curves (e.g., hormone therapy vs. no hormone therapy)
     -   Assess impact of covariates on survival (e.g., age, tumor size, etc.)
     -   Model competing risks (e.g., relapse vs. death)
-
-- **Predictive**
+-   **Predictive**
     -   Develop risk prediction models
     -   Evaluate model performance (e.g., concordance index, calibration)
-
 
 # Standard Analysis with `survival` Package
 
 ## Survival Package Overview
+
 -   **Key Functions**
     -   `Surv()`: Create survival object
     -   `survfit()`: Fit Kaplan-Meier survival curves
@@ -184,7 +175,7 @@ head(gbc)
 
 ## Kaplan-Meier Survival Curves
 
-- **Create dataset for relapse-free survival**
+-   **Create dataset for relapse-free survival**
 
 ```{r}
 #| eval: true
@@ -200,7 +191,8 @@ head(df)
 
 ## Kaplan-Meier Curves (I)
 
-- **Fit Kaplan-Meier survival curves**
+-   **Fit Kaplan-Meier survival curves**
+
 ```{r}
 #| eval: true
 library(survival) 
@@ -211,41 +203,76 @@ km_fit
 
 ## Kaplan-Meier Curves (II)
 
-- **Summarize survival estimates at specified time points**
-    - For example, at 6, 12, 24, and 36 months
-```{r}
-#| eval: true
-summary(km_fit, times = c(6, 12, 24, 36))
-```
-    
+-   **Summarize survival estimates at specified time points**
+
+    -   For example, at 6, 12, 24, and 36 months
+
+    ```{r}
+    #| eval: true
+    summary(km_fit, times = c(6, 12, 24, 36))
+    ```
+
 ## Kaplan-Meier Curves (III)
 
-- **Plot Kaplan-Meier survival curves by group**
+-   **Plot Kaplan-Meier survival curves by group**
 
 ```{r}
 #| eval: true
 plot(km_fit, ylim = c(0,1), xlab = "Time (months)", ylab = "Tumor-free probabilities",
      col=c("red", "blue"), conf.int= TRUE)
+# Add legend
+legend(1, 0.2, col=c("red", "blue"), lty=1, 
+       c("No hormone", "Hormone")) # Legend text
 ```
 
 ## Log-Rank Test
 
-- **Compare survival curves between groups**
+-   **Compare survival curves between groups**
 
 ```{r}
 #| eval: true
+lgr_obj <- survdiff(Surv(time, status) ~ hormone, data = df)
+lgr_obj # Print log-rank test results
+lgr_obj$pvalue # Extract p-value
+```
 
-survdiff(Surv(time, status) ~ hormone, data = df)
+::: {.callout-note appearance="minimal"}
+## Exercise
+Perform a log-rank test on treatment stratified by patient menopausal status `meno`.
+```{r}
+#| code-fold: true
+#| code-summary: "Solution"
+survdiff(Surv(time, status) ~ hormone + strata(meno), data = df)
+```
+:::
+
+## Cox Model - Model Specification
+
+-  **Cox proportional hazards model**
+$$
+\lambda(t \mid Z) = \lambda_0(t) \exp(\beta_1 Z_1 + \beta_2 Z_2 + \ldots + \beta_p Z_p)
+$$
+    -   $\lambda_0(t)$: baseline hazard function
+    -   $Z=(Z_1,\ldots, Z_p)^\mathrm{T}$: covariates (e.g., hormone therapy, age, tumor size)
+    -   $\beta=(\beta_1，\ldots，\beta_p)^\mathrm{T}$: regression coefficients
+  
+-  **Model fitting**: `survival::coxph()`
+```{r}
+#| eval: true
+
+cox_fit <- coxph(Surv(time, status) ~ hormone + age + size + prog + estrg, data = df)
+
 
 ```
+
 
 
 # Summary
 
 ## Key Takeaways
 
-- Survival analysis is essential for time-to-event data in medical research
-- Key concepts: survival function, hazard function, censoring
-- Data format: time and event indicator
-- Standard analysis tools: `survival` package in R
-- Kaplan-Meier curves and log-rank tests for group comparisons
+-   Survival analysis is essential for time-to-event data in medical research
+-   Key concepts: survival function, hazard function, censoring
+-   Data format: time and event indicator
+-   Standard analysis tools: `survival` package in R
+-   Kaplan-Meier curves and log-rank tests for group comparisons

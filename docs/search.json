@@ -191,21 +191,21 @@
     "href": "sec1.html#kaplan-meier-curves-ii",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Kaplan-Meier Curves (II)",
-    "text": "Kaplan-Meier Curves (II)\n\nSummarize survival estimates at specified time points\n\nFor example, at 6, 12, 24, and 36 months\n\n\n\nsummary(km_fit, times = c(6, 12, 24, 36))\n\nCall: survfit(formula = Surv(time, status) ~ hormone, data = df)\n\n                hormone=1 \n time n.risk n.event survival std.err lower 95% CI upper 95% CI\n    6    419       9    0.979 0.00691        0.966        0.993\n   12    379      35    0.897 0.01476        0.868        0.926\n   24    280      73    0.720 0.02203        0.678        0.764\n   36    195      41    0.606 0.02475        0.559        0.656\n\n                hormone=2 \n time n.risk n.event survival std.err lower 95% CI upper 95% CI\n    6    236       4    0.983 0.00826        0.967        1.000\n   12    223       8    0.950 0.01418        0.922        0.978\n   24    177      38    0.785 0.02701        0.733        0.839\n   36    136      16    0.708 0.03047        0.650        0.770"
+    "text": "Kaplan-Meier Curves (II)\n\nSummarize survival estimates at specified time points\n\nFor example, at 6, 12, 24, and 36 months\n\n\nsummary(km_fit, times = c(6, 12, 24, 36))\n\nCall: survfit(formula = Surv(time, status) ~ hormone, data = df)\n\n                hormone=1 \n time n.risk n.event survival std.err lower 95% CI upper 95% CI\n    6    419       9    0.979 0.00691        0.966        0.993\n   12    379      35    0.897 0.01476        0.868        0.926\n   24    280      73    0.720 0.02203        0.678        0.764\n   36    195      41    0.606 0.02475        0.559        0.656\n\n                hormone=2 \n time n.risk n.event survival std.err lower 95% CI upper 95% CI\n    6    236       4    0.983 0.00826        0.967        1.000\n   12    223       8    0.950 0.01418        0.922        0.978\n   24    177      38    0.785 0.02701        0.733        0.839\n   36    136      16    0.708 0.03047        0.650        0.770"
   },
   {
     "objectID": "sec1.html#kaplan-meier-curves-iii",
     "href": "sec1.html#kaplan-meier-curves-iii",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Kaplan-Meier Curves (III)",
-    "text": "Kaplan-Meier Curves (III)\n\nPlot Kaplan-Meier survival curves by group\n\n\nplot(km_fit, ylim = c(0,1), xlab = \"Time (months)\", ylab = \"Tumor-free probabilities\",\n     col=c(\"red\", \"blue\"), conf.int= TRUE)"
+    "text": "Kaplan-Meier Curves (III)\n\nPlot Kaplan-Meier survival curves by group\n\n\nplot(km_fit, ylim = c(0,1), xlab = \"Time (months)\", ylab = \"Tumor-free probabilities\",\n     col=c(\"red\", \"blue\"), conf.int= TRUE)\n# Add legend\nlegend(1, 0.2, col=c(\"red\", \"blue\"), lty=1, \n       c(\"No hormone\", \"Hormone\")) # Legend text"
   },
   {
     "objectID": "sec1.html#log-rank-test",
     "href": "sec1.html#log-rank-test",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Log-Rank Test",
-    "text": "Log-Rank Test\n\nCompare survival curves between groups\n\n\nsurvdiff(Surv(time, status) ~ hormone, data = df)\n\nCall:\nsurvdiff(formula = Surv(time, status) ~ hormone, data = df)\n\n            N Observed Expected (O-E)^2/E (O-E)^2/V\nhormone=1 440      205      180      3.37      8.56\nhormone=2 246       94      119      5.12      8.56\n\n Chisq= 8.6  on 1 degrees of freedom, p= 0.003"
+    "text": "Log-Rank Test\n\nCompare survival curves between groups\n\n\nlgr_obj &lt;- survdiff(Surv(time, status) ~ hormone, data = df)\nlgr_obj # Print log-rank test results\n\nCall:\nsurvdiff(formula = Surv(time, status) ~ hormone, data = df)\n\n            N Observed Expected (O-E)^2/E (O-E)^2/V\nhormone=1 440      205      180      3.37      8.56\nhormone=2 246       94      119      5.12      8.56\n\n Chisq= 8.6  on 1 degrees of freedom, p= 0.003 \n\nlgr_obj$pvalue # Extract p-value\n\n[1] 0.003427282\n\n\n\n\n\nExercise\n\n\nPerform a log-rank test on treatment stratified by patient menopausal status meno.\n\n\nSolution\nsurvdiff(Surv(time, status) ~ hormone + strata(meno), data = df)"
   },
   {
     "objectID": "sec1.html#key-takeaways",
@@ -213,5 +213,12 @@
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Key Takeaways",
     "text": "Key Takeaways\n\nSurvival analysis is essential for time-to-event data in medical research\nKey concepts: survival function, hazard function, censoring\nData format: time and event indicator\nStandard analysis tools: survival package in R\nKaplan-Meier curves and log-rank tests for group comparisons"
+  },
+  {
+    "objectID": "sec1.html#cox-model---model-specification",
+    "href": "sec1.html#cox-model---model-specification",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model - Model Specification",
+    "text": "Cox Model - Model Specification\n\nCox proportional hazards model \\[\n\\lambda(t \\mid Z) = \\lambda_0(t) \\exp(\\beta_1 Z_1 + \\beta_2 Z_2 + \\ldots + \\beta_p Z_p)\n\\]\n\n\\(\\lambda_0(t)\\): baseline hazard function\n\\(Z=(Z_1,\\ldots, Z_p)^\\mathrm{T}\\): covariates (e.g., hormone therapy, age, tumor size)\n\\(Z=(\\beta_1，\\ldots，\\beta_p)^\\mathrm{T}\\): regression coefficients"
   }
 ]
