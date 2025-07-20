@@ -17,6 +17,7 @@ website:
     search: true
     contents:
       - intro.qmd
+      - tidy.qmd
 csl: apa.csl
 format:
   html:

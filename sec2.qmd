@@ -1,0 +1,86 @@
+---
+title: "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data"
+subtitle: "Module 2. Data Manipulation with Tidyverse"
+css: style.css
+# csl: apa.csl
+author:
+  name: Lu Mao
+  affiliations: 
+    - name: Department of Biostatistics & Medical Informatics
+    - University of Wisconsin-Madison
+    - Aug 2, 2025
+  email: lmao@biostat.wisc.edu
+format: 
+  revealjs:
+    theme: simple
+    # auto-stretch: false
+    # incremental: true
+    toc: true
+    toc-depth: 1
+    # small: true
+editor: visual
+execute: 
+  eval: false
+  echo: true
+  # cache: true
+include-in-header:
+  - text: |
+      <style type="text/css">
+      ul li ul li {
+        font-size: 0.78em;
+      }
+      </style>
+# bibliography: references.bib
+# title-slide-attributes: 
+#   data-background-image: jsm_logo.png
+#   data-background-size: 20%
+#   data-background-position: 2% 2%
+---
+
+# Overview of Tidyverse
+
+## The `tidyverse` Ecosystem
+
+-   **Motivation**: tidy data for reproducible analysis
+
+-   **Key packages**
+
+    -   `dplyr` (filtering, mutating, grouping, summarizing)
+    -   `tidyr` (pivoting, nesting, reshaping)
+    -   `tibble` (modern data frames)
+    -   `readr` / `haven` (importing .csv or .sas7bdat)
+    -   `lubridate` (handling time variables)
+    -   `ggplot2` (visualization)
+
+```{r}
+#| eval: true
+# Load core tidyverse packages
+library(tidyverse)
+```
+
+## What Does “Tidy” Mean?
+
+> A dataset is tidy if:
+>
+> -   Each **variable** is a column
+> -   Each **observation** is a row
+> -   Each **type of observational unit** is a table
+>
+> — Hadley Wickham, *Tidy Data* (2014)  
+> [https://www.jstatsoft.org/article/view/v059i10](https://www.jstatsoft.org/article/view/v059i10)
+
+
+## Why Tidy Data?
+
+- **Tidy data principles**
+    - Easy to reshape and transform
+    - Compatible with `ggplot2`, `dplyr`, `tidyr`, and modeling tools
+    - Encourages modular and reproducible code
+
+
+- **Messy data challenges:**
+    - Time in rows, covariates in columns
+    - Multiple data types in one column
+    - Missing/censored values inconsistently coded
+
+

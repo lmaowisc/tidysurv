@@ -1,0 +1,162 @@
+# Module 2. Data Manipulation with Tidyverse 
+
+## Slides
+
+Section slides [here](sec2.html){target="_blank"}. (To convert html to pdf, press E $\to$ Print $\to$ Destination: Save to pdf)
+
+## R code
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| eval: false
+
+# -------------------------------------------
+# Survival Analysis: Module 2 Code
+# -------------------------------------------
+
+# Load necessary package
+library(survival)
+
+# ---------------------------
+# 1. Load Datasets
+# ---------------------------
+
+# Load mortality-only data
+gbc_mort <- read.table("data/gbc_mort.txt", header = TRUE)
+head(gbc_mort)
+
+# Load mortality + relapse data
+gbc <- read.table("data/gbc.txt", header = TRUE)
+head(gbc)
+
+# ---------------------------
+# 2. Prepare Dataset for Relapse-Free Survival
+# ---------------------------
+
+# Sort by subject ID and event time
+gbc <- gbc[order(gbc$id, gbc$time), ]
+
+# Keep first event per subject
+df <- gbc[!duplicated(gbc$id), ]
+
+# Collapse relapse/death to single composite outcome
+df$status <- ifelse(df$status > 0, 1, 0)
+head(df)
+
+# ---------------------------
+# 3. Kaplan-Meier Estimation
+# ---------------------------
+
+# Fit Kaplan-Meier curves by hormone treatment
+km_fit <- survfit(Surv(time, status) ~ hormone, data = df)
+
+# Print KM summary
+summary(km_fit, times = c(6, 12, 24, 36))
+
+# Plot KM curves with CI
+plot(km_fit, ylim = c(0, 1), xlab = "Time (months)",
+     ylab = "Relapse-free survival probability",
+     col = c("red", "blue"), conf.int = TRUE)
+legend("bottomleft", col = c("red", "blue"), lty = 1,
+       legend = c("No hormone", "Hormone"))
+
+# ---------------------------
+# 4. Log-Rank Test
+# ---------------------------
+
+# Compare survival curves by treatment
+lgr_obj <- survdiff(Surv(time, status) ~ hormone, data = df)
+lgr_obj
+
+# Stratified test by menopausal status
+survdiff(Surv(time, status) ~ hormone + strata(meno), data = df)
+
+# ---------------------------
+# 5. Cox Proportional Hazards Model
+# ---------------------------
+
+# Fit Cox PH model with multiple covariates
+cox_fit <- coxph(Surv(time, status) ~ hormone + meno + age + grade +
+                   size + prog + estrg, data = df)
+summary(cox_fit)
+
+# Extract estimates and covariance matrix
+beta <- cox_fit$coefficients
+vbeta <- vcov(cox_fit)
+coef(summary(cox_fit))
+
+# ---------------------------
+# 6. Survival Prediction
+# ---------------------------
+
+# Define new subject's covariates
+new_data <- data.frame(hormone = 1, meno = 1, 
+                       age = 45, grade = 2,
+                       size = 20, prog = 100,
+                       estrg = 100)
+
+# Predict survival probabilities
+predicted_survival <- survfit(cox_fit, newdata = new_data,
+                              times = c(6, 12, 24, 36))
+summary(predicted_survival)
+
+# Plot predicted survival function
+plot(predicted_survival, ylim = c(0, 1), xlab = "Time (months)",
+     ylab = "Predicted survival probability", conf.int = TRUE)
+
+# ---------------------------
+# 7. Model Diagnostics
+# ---------------------------
+
+# Test proportional hazards assumption
+ph_test <- cox.zph(cox_fit)
+ph_test
+
+# Plot Schoenfeld residuals
+par(mfrow = c(2, 4))  # 2 rows, 4 columns
+plot(ph_test, se = TRUE, col = "blue", lwd = 2)
+
+# ---------------------------
+# 8. Check Functional Form of Covariates
+# ---------------------------
+
+# Extract martingale residuals
+mart_resid <- residuals(cox_fit, type = "martingale")
+
+# Plot residuals vs quantitative covariates
+par(mfrow = c(1, 4))  # 1 row, 4 plots
+
+plot(df$age, mart_resid, xlab = "Age", ylab = "Martingale Residuals",
+     main = "Age")
+lines(lowess(df$age, mart_resid), col = "blue", lwd = 2)
+abline(h = 0, lty = 2, col = "red")
+
+plot(df$size, mart_resid, xlab = "Tumor Size", ylab = "Martingale Residuals",
+     main = "Tumor Size")
+lines(lowess(df$size, mart_resid), col = "blue", lwd = 2)
+abline(h = 0, lty = 2, col = "red")
+
+plot(df$prog, mart_resid, xlab = "Progesterone", ylab = "Martingale Residuals",
+     main = "Progesterone")
+lines(lowess(df$prog, mart_resid), col = "blue", lwd = 2)
+abline(h = 0, lty = 2, col = "red")
+
+plot(df$estrg, mart_resid, xlab = "Estrogen", ylab = "Martingale Residuals",
+     main = "Estrogen")
+lines(lowess(df$estrg, mart_resid), col = "blue", lwd = 2)
+abline(h = 0, lty = 2, col = "red")
+
+# ---------------------------
+# 9. Addressing Violations
+# ---------------------------
+
+# Dichotomize age at 40, stratify on grade
+df$age40 <- ifelse(df$age < 40, 0, 1)
+
+cox_fit2 <- coxph(Surv(time, status) ~ hormone + meno + age40 +
+                    size + prog + estrg + strata(grade), data = df)
+summary(cox_fit2)
+
+
+```

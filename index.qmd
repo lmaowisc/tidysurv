@@ -72,6 +72,7 @@ In a tidyverse approach, we apply consistent data workflows to survival analysis
 
 ```{r}
 #| echo: false
+#| output: false
 
 # Define source and destination
 source_folder <- "data"

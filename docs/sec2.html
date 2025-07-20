@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Lu Mao">
 
-<title>Welcome to the workshop – Tidy Survival Analysis — A Workshop</title>
+<title>Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data – Tidy Survival Analysis — A Workshop</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -66,6 +101,11 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<style type="text/css">
+ul li ul li {
+  font-size: 0.78em;
+}
+</style>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -98,8 +138,9 @@ window.Quarto = {
 </script>
 
 <link rel="stylesheet" href="styles.css">
-<meta name="twitter:title" content="Welcome to the workshop – Tidy Survival Analysis — A Workshop">
-<meta name="twitter:description" content="">
+<link rel="stylesheet" href="style.css">
+<meta name="twitter:title" content="Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data – Tidy Survival Analysis — A Workshop">
+<meta name="twitter:description" content="Module 2. Data Manipulation with Tidyverse">
 <meta name="twitter:card" content="summary">
 </head>
 
@@ -121,7 +162,7 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
 </ul>
@@ -135,7 +176,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Welcome to the workshop</li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data</li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -177,26 +218,48 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#time-and-place" id="toc-time-and-place" class="nav-link active" data-scroll-target="#time-and-place">Time and Place</a></li>
-  <li><a href="#instructor-profile" id="toc-instructor-profile" class="nav-link" data-scroll-target="#instructor-profile">Instructor Profile</a></li>
-  <li><a href="#learning-outcomes" id="toc-learning-outcomes" class="nav-link" data-scroll-target="#learning-outcomes">Learning Outcomes</a></li>
-  <li><a href="#outline" id="toc-outline" class="nav-link" data-scroll-target="#outline">Outline</a></li>
+  <li><a href="#overview-of-tidyverse" id="toc-overview-of-tidyverse" class="nav-link active" data-scroll-target="#overview-of-tidyverse">Overview of Tidyverse</a>
+  <ul>
+  <li><a href="#the-tidyverse-ecosystem" id="toc-the-tidyverse-ecosystem" class="nav-link" data-scroll-target="#the-tidyverse-ecosystem">The <code>tidyverse</code> Ecosystem</a></li>
+  <li><a href="#what-does-tidy-mean" id="toc-what-does-tidy-mean" class="nav-link" data-scroll-target="#what-does-tidy-mean">What Does “Tidy” Mean?</a></li>
+  <li><a href="#why-tidy-data" id="toc-why-tidy-data" class="nav-link" data-scroll-target="#why-tidy-data">Why Tidy Data?</a></li>
+  </ul></li>
   </ul>
-</nav>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="sec2.html"><i class="bi bi-file-slides"></i>RevealJS</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Welcome to the workshop</h1>
+<h1 class="title">Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data</h1>
+<p class="subtitle lead">Module 2. Data Manipulation with Tidyverse</p>
 </div>
 
 
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliations</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author">Lu Mao <a href="mailto:lmao@biostat.wisc.edu" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> </p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            Department of Biostatistics &amp; Medical Informatics
+          </p>
+        <p class="affiliation">
+            University of Wisconsin-Madison
+          </p>
+        <p class="affiliation">
+            Aug 2, 2025
+          </p>
+      </div>
+  </div>
 
 <div class="quarto-title-meta">
 
-    
+      
   
     
   </div>
@@ -206,91 +269,72 @@ window.Quarto = {
 </header>
 
 
-<p>This site presents materials for the short course <strong>Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data</strong> to be taught at the 2025 Joint Statistical Meetings (JSM) in Nashville, TN.</p>
-<p><strong>This course</strong> aims to equip participants with the skills to apply tidy principles to survival analysis, fostering a more organized and reproducible approach to data analysis in R.</p>
-<p>In a tidyverse approach, we apply consistent data workflows to survival analysis tasks. This means using tibble data frames and <code>dplyr</code> for data preparation, keeping outputs tidy (one row per observation or estimate), and leveraging <code>ggplot2</code> for visualization. For example, one might create the survival outcome as a new column using <code>Surv(time, status)</code> within a <code>dplyr</code> pipeline, fit models and then use broom to <code>tidy()</code> model outputs into data frames, and produce publication-quality plots with <code>ggplot2</code> or <code>ggsurvfit</code>. The goal is a reproducible workflow where raw data are transformed, analyzed, and visualized seamlessly.</p>
-<p><strong>Target Audience</strong>: Statisticians, data analysts, researchers, and students interested in survival analysis who are familiar with R and the Tidyverse.</p>
-<section id="time-and-place" class="level2">
-<h2 class="anchored" data-anchor-id="time-and-place">Time and Place</h2>
+<section id="overview-of-tidyverse" class="level1">
+<h1>Overview of Tidyverse</h1>
+<section id="the-tidyverse-ecosystem" class="level2">
+<h2 class="anchored" data-anchor-id="the-tidyverse-ecosystem">The <code>tidyverse</code> Ecosystem</h2>
 <ul>
-<li>Sunday, Aug 3: 8:30 AM - 12:30 PM</li>
-<li>Music City Center | Room: CC-110A</li>
-</ul>
-</section>
-<section id="instructor-profile" class="level2">
-<h2 class="anchored" data-anchor-id="instructor-profile">Instructor Profile</h2>
-<section id="lu-mao-phd" class="level5">
-<h5 class="anchored" data-anchor-id="lu-mao-phd"><a href="https://lmaowisc.github.io/" target="_blank">Lu Mao, PhD</a></h5>
+<li><p><strong>Motivation</strong>: tidy data for reproducible analysis</p></li>
+<li><p><strong>Key packages</strong></p>
 <ul>
-<li>Associate Professor of Biostatistics at UW-Madison</li>
-<li>Methodologic research
-<ul>
-<li><a href="https://reporter.nih.gov/search/9aSu5u3xlE26GrjbF_4cBg/project-details/10734551" target="_blank">R01HL149875</a>: <em>Novel Statistical Methods for Complex Time-to-Event Data in Cardiovascular Clinical Trials</em> (12/01/2019 – 07/31/2028)</li>
-<li><a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2015526" target="_blank">DMS2015526</a>: <em>Randomized Trials with Non-Compliance</em> (07/01/2020 – 06/30/2024)</li>
-</ul></li>
-<li>Collaborative research
-<ul>
-<li>Cardiovascular disease, cancer, radiology, behavioral health interventions</li>
-</ul></li>
-<li>Teaching
-<ul>
-<li><a href="https://lmaowisc.github.io/BMI741" target="_blank">Survival Analysis: Theory and Methods</a> (UW; 2020 - 2025)</li>
-</ul></li>
-<li>Editorial service
-<ul>
-<li><a href="https://www.jacc.org/journal/heart-failure/editorial-board" target="_blank">Statistical Editor</a>, <em>JACC Journals</em></li>
-<li><a href="https://www.tandfonline.com/action/journalInformation?show=editorialBoard&amp;journalCode=usbr20" target="_blank">Associate Editor</a>, <em>Statistics for Biopharmaceutical Research</em></li>
+<li><code>dplyr</code> (filtering, mutating, grouping, summarizing)</li>
+<li><code>tidyr</code> (pivoting, nesting, reshaping)</li>
+<li><code>tibble</code> (modern data frames)</li>
+<li><code>readr</code> / <code>haven</code> (importing .csv or .sas7bdat)</li>
+<li><code>lubridate</code> (handling time variables)</li>
+<li><code>ggplot2</code> (visualization)</li>
 </ul></li>
 </ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load core tidyverse packages</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+✔ lubridate 1.9.3     ✔ tidyr     1.3.1
+✔ purrr     1.0.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+</div>
 </section>
+<section id="what-does-tidy-mean" class="level2">
+<h2 class="anchored" data-anchor-id="what-does-tidy-mean">What Does “Tidy” Mean?</h2>
+<blockquote class="blockquote">
+<p>A dataset is tidy if:</p>
+<ul>
+<li>Each <strong>variable</strong> is a column</li>
+<li>Each <strong>observation</strong> is a row</li>
+<li>Each <strong>type of observational unit</strong> is a table</li>
+</ul>
+<p>— Hadley Wickham, <em>Tidy Data</em> (2014)<br>
+<a href="https://www.jstatsoft.org/article/view/v059i10">https://www.jstatsoft.org/article/view/v059i10</a></p>
+</blockquote>
 </section>
-<section id="learning-outcomes" class="level2">
-<h2 class="anchored" data-anchor-id="learning-outcomes">Learning Outcomes</h2>
-<ol type="1">
-<li>Understand the fundamentals of survival analysis, including key concepts such as censored data, survival functions, and hazard functions.</li>
-<li>Utilize R’s Tidyverse packages to manipulate, visualize, and analyze survival data.</li>
-<li>Fit and interpret survival models using the survival and survminer packages in conjunction with Tidyverse functions.</li>
-<li>Create clear and informative visualizations of survival data, including Kaplan-Meier curves and survival distributions.</li>
-<li>Communicate survival analysis results effectively using tidy principles.</li>
-</ol>
-</section>
-<section id="outline" class="level2">
-<h2 class="anchored" data-anchor-id="outline">Outline</h2>
+<section id="why-tidy-data" class="level2">
+<h2 class="anchored" data-anchor-id="why-tidy-data">Why Tidy Data?</h2>
 <ul>
-<li><strong>1. Introduction to Survival Analysis</strong> (30 min)
+<li><strong>Tidy data principles</strong>
 <ul>
-<li>1.1 Key concepts: survival functions, hazard functions, and censoring</li>
-<li>1.2 German breast cancer study: a working example</li>
-<li>1.3 Overview of survival analysis with <code>survival</code> package</li>
+<li>Easy to reshape and transform</li>
+<li>Compatible with <code>ggplot2</code>, <code>dplyr</code>, <code>tidyr</code>, and modeling tools</li>
+<li>Encourages modular and reproducible code</li>
 </ul></li>
-<li><strong>2. Data Manipulation with Tidyverse</strong> (45 min)
+<li><strong>Messy data challenges:</strong>
 <ul>
-<li>2.1 Importing and cleaning survival data</li>
-<li>2.2 Using <code>dplyr</code> for data manipulation</li>
-<li>2.3 Simple visualization of follow-up data with <code>ggplot2</code></li>
-<li>2.4 “Table 1” with <code>gtsummary</code></li>
-</ul></li>
-<li><strong>3. Nonparametric Survival Analysis</strong> (50 min)
-<ul>
-<li>3.1 Tabulation of summary statistics with <code>gtsummary</code></li>
-<li>3.2 Visualing Kaplan-Meier curves with <code>ggsurvfit</code> (or <code>survminer</code>)</li>
-<li>3.3 Tidy analysis of competing risks using <code>tidycmprsk</code></li>
-</ul></li>
-<li><strong>4. Cox proportional hazards regression</strong> (40 min)
-<ul>
-<li>4.1 Tabulating regression results with <code>gtsummary</code></li>
-<li>4.2 Model diagnostics and residual plots with <code>survminer</code></li>
-<li>4.3 Fine-Gray model for competing risks with <code>tidycmprsk</code></li>
-</ul></li>
-<li><strong>5. Machine learning using <code>tidymodels</code></strong> (50 min)
-<ul>
-<li>5.1 Modeling basics</li>
-<li>5.2 Using the <code>censored</code> package for survival models</li>
+<li>Time in rows, covariates in columns</li>
+<li>Multiple data types in one column</li>
+<li>Missing/censored values inconsistently coded</li>
 </ul></li>
 </ul>
 
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
