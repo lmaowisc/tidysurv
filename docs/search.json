@@ -363,8 +363,8 @@
     "objectID": "sec2.html#what-does-tidy-mean",
     "href": "sec2.html#what-does-tidy-mean",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
-    "section": "",
-    "text": "A dataset is tidy if:\n\nEach variable is a column\nEach observation is a row\nEach type of observational unit is a table\n\n— Hadley Wickham, Tidy Data (2014)\nhttps://www.jstatsoft.org/article/view/v059i10"
+    "section": "What Does “Tidy” Mean?",
+    "text": "What Does “Tidy” Mean?\n\nA dataset is tidy if:\n\nEach variable is a column\nEach observation is a row\nEach type of observational unit is a table\n\n— Hadley Wickham, Tidy Data (2014)\nhttps://www.jstatsoft.org/article/view/v059i10"
   },
   {
     "objectID": "sec2.html#overview-of-the-tidyverse",
@@ -377,15 +377,15 @@
     "objectID": "sec2.html#the-tidyverse-ecosystem",
     "href": "sec2.html#the-tidyverse-ecosystem",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
-    "section": "",
-    "text": "Motivation: tidy data for reproducible analysis\nKey packages\n\ndplyr (filtering, mutating, grouping, summarizing)\ntidyr (pivoting, nesting, reshaping)\ntibble (modern data frames)\nreadr / haven (importing .csv or .sas7bdat)\nlubridate (handling time variables)\nggplot2 (visualization)\n\n\n\n# Load core tidyverse packages\nlibrary(tidyverse)\n\n── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──\n✔ dplyr     1.1.4     ✔ readr     2.1.5\n✔ forcats   1.0.0     ✔ stringr   1.5.1\n✔ ggplot2   3.5.1     ✔ tibble    3.2.1\n✔ lubridate 1.9.3     ✔ tidyr     1.3.1\n✔ purrr     1.0.2     \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter() masks stats::filter()\n✖ dplyr::lag()    masks stats::lag()\nℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors"
+    "section": "The tidyverse Ecosystem",
+    "text": "The tidyverse Ecosystem\n\nMotivation: tidy data for reproducible analysis\nKey packages\n\ndplyr (filtering, mutating, grouping, summarizing)\ntidyr (pivoting, nesting, reshaping)\ntibble (modern data frames)\nreadr / haven (importing .csv or .sas7bdat)\nlubridate (handling time variables)\nggplot2 (visualization)\n\n\n\n# Load core tidyverse packages\nlibrary(tidyverse)"
   },
   {
     "objectID": "sec2.html#why-tidy-data",
     "href": "sec2.html#why-tidy-data",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
-    "section": "",
-    "text": "Tidy data principles\n\nEasy to reshape and transform\nCompatible with ggplot2, dplyr, tidyr, and modeling tools\nEncourages modular and reproducible code\n\nMessy data challenges:\n\nTime in rows, covariates in columns\nMultiple data types in one column\nMissing/censored values inconsistently coded"
+    "section": "Why Tidy Data?",
+    "text": "Why Tidy Data?\n\nTidy data principles\n\nEasy to reshape and transform\nCompatible with ggplot2, dplyr, tidyr, and modeling tools\nEncourages modular and reproducible code\n\nMessy data challenges:\n\nTime in rows, covariates in columns\nMultiple data types in one column\nMissing/censored values inconsistently coded"
   },
   {
     "objectID": "sec2.html",
