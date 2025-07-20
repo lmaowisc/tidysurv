@@ -577,9 +577,48 @@ hormone=2 246       94      119      5.12      8.56
 <ul>
 <li><span class="math inline">\(\lambda_0(t)\)</span>: baseline hazard function</li>
 <li><span class="math inline">\(Z=(Z_1,\ldots, Z_p)^\mathrm{T}\)</span>: covariates (e.g., hormone therapy, age, tumor size)</li>
-<li><span class="math inline">\(Z=(\beta_1，\ldots，\beta_p)^\mathrm{T}\)</span>: regression coefficients</li>
+<li><span class="math inline">\(\beta=(\beta_1，\ldots，\beta_p)^\mathrm{T}\)</span>: regression coefficients</li>
+<li></li>
 </ul></li>
 </ul>
+</section>
+<section id="cox-model---model-fitting" class="slide level2">
+<h2>Cox Model - Model Fitting</h2>
+<ul>
+<li><strong>Model fitting</strong>: <code>survival::coxph()</code></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a></a>cox_fit <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> hormone <span class="sc">+</span> age <span class="sc">+</span> size <span class="sc">+</span> prog <span class="sc">+</span> estrg, <span class="at">data =</span> df)</span>
+<span id="cb20-2"><a></a><span class="fu">summary</span>(cox_fit) <span class="co"># Print model summary</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+coxph(formula = Surv(time, status) ~ hormone + age + size + prog + 
+    estrg, data = df)
+
+  n= 686, number of events= 299 
+
+              coef  exp(coef)   se(coef)      z Pr(&gt;|z|)    
+hormone -0.3529035  0.7026450  0.1279482 -2.758  0.00581 ** 
+age      0.0011593  1.0011600  0.0063647  0.182  0.85546    
+size     0.0159456  1.0160734  0.0036144  4.412 1.03e-05 ***
+prog    -0.0027926  0.9972113  0.0005900 -4.733 2.21e-06 ***
+estrg    0.0001630  1.0001630  0.0004772  0.342  0.73265    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+        exp(coef) exp(-coef) lower .95 upper .95
+hormone    0.7026     1.4232    0.5468    0.9029
+age        1.0012     0.9988    0.9887    1.0137
+size       1.0161     0.9842    1.0089    1.0233
+prog       0.9972     1.0028    0.9961    0.9984
+estrg      1.0002     0.9998    0.9992    1.0011
+
+Concordance= 0.64  (se = 0.016 )
+Likelihood ratio test= 58.91  on 5 df,   p=2e-11
+Wald test            = 50.3  on 5 df,   p=1e-09
+Score (logrank) test = 47.24  on 5 df,   p=5e-09</code></pre>
+</div>
+</div>
 </section></section>
 <section>
 <section id="summary" class="title-slide slide level1 center">

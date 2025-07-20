@@ -22,7 +22,7 @@ editor: visual
 execute: 
   eval: false
   echo: true
-  cache: true
+  # cache: true
 include-in-header:
   - text: |
       <style type="text/css">
@@ -255,13 +255,17 @@ $$
     -   $\lambda_0(t)$: baseline hazard function
     -   $Z=(Z_1,\ldots, Z_p)^\mathrm{T}$: covariates (e.g., hormone therapy, age, tumor size)
     -   $\beta=(\beta_1，\ldots，\beta_p)^\mathrm{T}$: regression coefficients
+    - 
   
+
+## Cox Model - Model Fitting
+
 -  **Model fitting**: `survival::coxph()`
 ```{r}
 #| eval: true
 
 cox_fit <- coxph(Surv(time, status) ~ hormone + age + size + prog + estrg, data = df)
-
+summary(cox_fit) # Print model summary
 
 ```
 

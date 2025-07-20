@@ -219,6 +219,13 @@
     "href": "sec1.html#cox-model---model-specification",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Cox Model - Model Specification",
-    "text": "Cox Model - Model Specification\n\nCox proportional hazards model \\[\n\\lambda(t \\mid Z) = \\lambda_0(t) \\exp(\\beta_1 Z_1 + \\beta_2 Z_2 + \\ldots + \\beta_p Z_p)\n\\]\n\n\\(\\lambda_0(t)\\): baseline hazard function\n\\(Z=(Z_1,\\ldots, Z_p)^\\mathrm{T}\\): covariates (e.g., hormone therapy, age, tumor size)\n\\(Z=(\\beta_1，\\ldots，\\beta_p)^\\mathrm{T}\\): regression coefficients"
+    "text": "Cox Model - Model Specification\n\nCox proportional hazards model \\[\n\\lambda(t \\mid Z) = \\lambda_0(t) \\exp(\\beta_1 Z_1 + \\beta_2 Z_2 + \\ldots + \\beta_p Z_p)\n\\]\n\n\\(\\lambda_0(t)\\): baseline hazard function\n\\(Z=(Z_1,\\ldots, Z_p)^\\mathrm{T}\\): covariates (e.g., hormone therapy, age, tumor size)\n\\(\\beta=(\\beta_1，\\ldots，\\beta_p)^\\mathrm{T}\\): regression coefficients"
+  },
+  {
+    "objectID": "sec1.html#cox-model---model-fitting",
+    "href": "sec1.html#cox-model---model-fitting",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model - Model Fitting",
+    "text": "Cox Model - Model Fitting\n\nModel fitting: survival::coxph()\n\n\ncox_fit &lt;- coxph(Surv(time, status) ~ hormone + age + size + prog + estrg, data = df)\nsummary(cox_fit) # Print model summary\n\nCall:\ncoxph(formula = Surv(time, status) ~ hormone + age + size + prog + \n    estrg, data = df)\n\n  n= 686, number of events= 299 \n\n              coef  exp(coef)   se(coef)      z Pr(&gt;|z|)    \nhormone -0.3529035  0.7026450  0.1279482 -2.758  0.00581 ** \nage      0.0011593  1.0011600  0.0063647  0.182  0.85546    \nsize     0.0159456  1.0160734  0.0036144  4.412 1.03e-05 ***\nprog    -0.0027926  0.9972113  0.0005900 -4.733 2.21e-06 ***\nestrg    0.0001630  1.0001630  0.0004772  0.342  0.73265    \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n        exp(coef) exp(-coef) lower .95 upper .95\nhormone    0.7026     1.4232    0.5468    0.9029\nage        1.0012     0.9988    0.9887    1.0137\nsize       1.0161     0.9842    1.0089    1.0233\nprog       0.9972     1.0028    0.9961    0.9984\nestrg      1.0002     0.9998    0.9992    1.0011\n\nConcordance= 0.64  (se = 0.016 )\nLikelihood ratio test= 58.91  on 5 df,   p=2e-11\nWald test            = 50.3  on 5 df,   p=1e-09\nScore (logrank) test = 47.24  on 5 df,   p=5e-09"
   }
 ]
