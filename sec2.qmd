@@ -437,7 +437,7 @@ fig8
 #| eval: true
 #| echo: false
 #| fig-width: 12
-#| fig-height: 3.5
+#| fig-height: 3
 fig8 + facet_wrap(~ group, scales = "free") + # facet by group (using different y-axis scales)
   labs(title = "Swimmer Plot of Rat Survival Times") # add title
 ```
@@ -451,4 +451,66 @@ fig8 + facet_wrap(~ group, scales = "free") + # facet by group (using different 
   labs(title = "Swimmer Plot of Rat Survival Times") # add title
 
 ```
+
+# “Table 1” with `gtsummary`
+
+## Descriptive Statistics
+
+- **Importance of Table 1**
+    - Summarizes baseline characteristics
+    - Provides context for formal analysis
+- **Using `gtsummary`**
+    - `tbl_summary()` for descriptive statistics
+    - `add_p()` for p-values comparing groups (not recommended for randomized trials)
+    - `add_overall` to add overall summary
+    - `modify_header()` to customize table headers
+
+## Basic Syntax of `tbl_summary()`
+
+- **Common arguments**
+    - `by = "group"` to summarize by group
+    - `include = c("variable1", "variable2")` to include specific variables
+    - `label = list(variable = "Label")` to customize variable labels
+    - `statistic = list(variable ~ "statistic")` to specify statistics
+        - `statistic = list(all_continuous() ~ "{mean} ({sd})")` for mean and SD
+    - `digits = list(variable ~ 2)` to set decimal places
+    
+## A Simple Example
+
+- **Example dataset**
+```{r}
+#| eval: true
+
+# Example data: 10 subjects with treatment, age, and sex
+df9 <- tibble(
+  id = 1:10,
+  time = c(101, 55, 67, 23, 45, 98, 34, 77, 91, 104),
+  status = c(0, 1, 1, 0, 1, 0, 1, 0, 1, 0), # 0 = censored, 1 = event
+  trt = c("A", "A", "B", "B", "A", "B", "A", "B", "A", "B"),
+  sex = c("M", "F", "M", "F", "M", "F", "M", "F", "M", "F"),
+  age = c(65, 70, 58, 60, 64, 59, 66, 62, 68, 61)
+)
+head(df9)
+```
+
+
+## Creating a Summary Table
+
+<!-- - Sample code -->
+
+```{r}
+#| eval: true
+library(gtsummary) # load package
+df9 |> 
+  tbl_summary(
+    by = trt,                            # summarize by treatment arm
+    include = c(sex, age, time, status), # include specific variables
+    label = list(                        # label variables
+      time = "Follow-up time (months)",
+      status = "Events"
+    )
+  )
+```
+
+    
 

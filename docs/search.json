@@ -596,5 +596,33 @@
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Exercise: Swimmer Plot by Group",
     "text": "Exercise: Swimmer Plot by Group\n\nTask: Create a swimmer plot for df8 by group\n\nUse facet_wrap() to create separate panels for each group\nAdd a title “Swimmer Plot of Rat Survival Times”\n\n\n\n\n\nSolution\nfig8 + facet_wrap(~ group, scales = \"free\") + # facet by group (using different y-axis scales)\n  labs(title = \"Swimmer Plot of Rat Survival Times\") # add title"
+  },
+  {
+    "objectID": "sec2.html#descriptive-statistics",
+    "href": "sec2.html#descriptive-statistics",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Descriptive Statistics",
+    "text": "Descriptive Statistics\n\nImportance of Table 1\n\nSummarizes baseline characteristics\nProvides context for formal analysis\n\nUsing gtsummary\n\ntbl_summary() for descriptive statistics\nadd_p() for p-values comparing groups (not recommended for randomized trials)\nadd_overall to add overall summary\nmodify_header() to customize table headers"
+  },
+  {
+    "objectID": "sec2.html#a-simple-example-1",
+    "href": "sec2.html#a-simple-example-1",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "A Simple Example",
+    "text": "A Simple Example\n\nExample dataset\n\n\n# Example data: 10 subjects with treatment, age, and sex\ndf9 &lt;- tibble(\n  id = 1:10,\n  time = c(101, 55, 67, 23, 45, 98, 34, 77, 91, 104),\n  status = c(0, 1, 1, 0, 1, 0, 1, 0, 1, 0), # 0 = censored, 1 = event\n  trt = c(\"A\", \"A\", \"B\", \"B\", \"A\", \"B\", \"A\", \"B\", \"A\", \"B\"),\n  sex = c(\"M\", \"F\", \"M\", \"F\", \"M\", \"F\", \"M\", \"F\", \"M\", \"F\"),\n  age = c(65, 70, 58, 60, 64, 59, 66, 62, 68, 61)\n)\nhead(df9)\n\n# A tibble: 6 × 6\n     id  time status trt   sex     age\n  &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt;\n1     1   101      0 A     M        65\n2     2    55      1 A     F        70\n3     3    67      1 B     M        58\n4     4    23      0 B     F        60\n5     5    45      1 A     M        64\n6     6    98      0 B     F        59"
+  },
+  {
+    "objectID": "sec2.html#creating-a-summary-table",
+    "href": "sec2.html#creating-a-summary-table",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Creating a Summary Table",
+    "text": "Creating a Summary Table\n\n\nlibrary(gtsummary) # load package\ndf9 |&gt; \n  tbl_summary(\n    by = trt,                            # summarize by treatment arm\n    include = c(sex, age, time, status), # include specific variables\n    label = list(                        # label variables\n      time = \"Follow-up time (months)\",\n      status = \"Events\"\n    )\n  )\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\nA, N = 51\nB, N = 51\n\n\n\n\nsex\n\n\n\n\n\n\n    F\n1 (20%)\n4 (80%)\n\n\n    M\n4 (80%)\n1 (20%)\n\n\nage\n66.0 (65.0, 68.0)\n60.0 (59.0, 61.0)\n\n\nFollow-up time (months)\n55 (45, 91)\n77 (67, 98)\n\n\nEvents\n4 (80%)\n1 (20%)\n\n\n\n1 n (%); Median (IQR)"
+  },
+  {
+    "objectID": "sec2.html#basic-syntax-of-tbl_summary",
+    "href": "sec2.html#basic-syntax-of-tbl_summary",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Basic Syntax of tbl_summary()",
+    "text": "Basic Syntax of tbl_summary()\n\nCommon arguments\n\nby = \"group\" to summarize by group\ninclude = c(\"variable1\", \"variable2\") to include specific variables\nlabel = list(variable = \"Label\") to customize variable labels\nstatistic = list(variable ~ \"statistic\") to specify statistics\n\nstatistic = list(all_continuous() ~ \"{mean} ({sd})\") for mean and SD\n\ndigits = list(variable ~ 2) to set decimal places"
   }
 ]
