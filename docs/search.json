@@ -561,5 +561,40 @@
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Exercise: Clean Up",
     "text": "Exercise: Clean Up\n\nTask: Clean up df7 to create a tidy survival dataset\n\nRemove rows with event = prog and status = 0 (non-terminal event)\nRecode status = 2 for death events\n\n\n\n\nSolution\ndf7 |&gt; \n  filter(\n    !(event == \"prog\" & status == 0) # remove non-occurrence of non-terminal events\n    ) |&gt; \n  mutate(\n    status = if_else(event == \"death\" & status == 1, 2, status) # recode death status\n  ) \n# # A tibble: 5 × 4\n#      id event  time status\n#   &lt;int&gt; &lt;chr&gt; &lt;dbl&gt;  &lt;dbl&gt;\n# 1     1 prog     10      1\n# 2     1 death    15      0\n# 3     2 death    20      2\n# 4     3 prog     30      1\n# 5     3 death    35      2\n\n\n\nMore on reshaping data\n\ntidyr official documentation\nR for Data Science: Data tidying"
+  },
+  {
+    "objectID": "sec2.html#swimmer-plot",
+    "href": "sec2.html#swimmer-plot",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Swimmer Plot",
+    "text": "Swimmer Plot\n\nWhat is a swimmer plot?\n\nVisualizes subject follow-up\nEach row represents a subject\nHorizontal lines show time to event/censoring"
+  },
+  {
+    "objectID": "sec2.html#creating-a-swimmer-plot",
+    "href": "sec2.html#creating-a-swimmer-plot",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Creating a Swimmer Plot",
+    "text": "Creating a Swimmer Plot\n\nCode to reproduce previous plot\n\n\n# Specify the plot\nfig8 &lt;- df8 |&gt; \n  # Set-up: id on the y-axis, time on the x-axis\n  ggplot(aes(x = time, y = reorder(id, time))) + # reorder id by time\n  # Add geometric objects\n  geom_linerange(aes(xmin = 0, xmax = time)) + # horizontal lines from 0 to time\n  # Add points for events/censoring, distinguish by status\n  geom_point(aes(shape = factor(status)), size = 2.5, fill = \"white\") +\n  # Add vertical line at x = 0\n  geom_vline(xintercept = 0, linewidth = 1) +\n  theme_minimal() + # use minimal theme\n  # Format y axis\n  scale_y_discrete(name = \"Rats\") + # y-axis label\n  # Format x axis (label, breaks, no expansion on left, 0.05 expansion on right)\n  scale_x_continuous(name = \"Time (days)\", breaks = seq(0, 100, by = 20), \n                     expand = expansion(c(0, 0.05))) +\n  # Format point shape (pch = 23 for censoring, pch = 19 for event; label shape)\n  scale_shape_manual(values = c(23, 19), labels = c(\"Censoring\", \"Tumor development\")) +\n  # Further formatting using theme()\n  theme(\n    legend.position = \"top\", # place legend at the top\n    legend.title = element_blank(), # no legend title\n    axis.text.y = element_blank(), # no y-axis labels (otherwise id's will be printed)\n    axis.ticks.y = element_blank(), # no y-axis ticks\n    panel.grid.major.y = element_blank(), # no major grid lines on y-axis\n    legend.text = element_text(size = 11) # legend text size\n  )\n\n# Display the plot\nfig8"
+  },
+  {
+    "objectID": "sec2.html#swimmer-plot-basics",
+    "href": "sec2.html#swimmer-plot-basics",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Swimmer Plot Basics",
+    "text": "Swimmer Plot Basics\n\nUsing ggplot2\n\ngeom_linerange() for horizontal lines\ngeom_point() for events\nfacet_wrap() for treatment arms (optional)\n\nA data example\n\n\n# Example data: rat survival times\ndf8 &lt;- tibble(\n  time = c(101, 55, 67, 23, 45, 98, 34, 77, 91, 104, 88),\n  status = c(0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1),\n  group = c(\"A\", \"A\", \"A\", \"B\", \"B\", \"B\", \"A\", \"B\", \"B\", \"A\", \"B\")\n) |&gt; \n  mutate(\n    id = row_number(), # create id column using row number\n    .before = 1 # place id before time\n  )"
+  },
+  {
+    "objectID": "sec2.html#creating-swimmer-plot-with-ggplot2",
+    "href": "sec2.html#creating-swimmer-plot-with-ggplot2",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Creating Swimmer Plot with ggplot2",
+    "text": "Creating Swimmer Plot with ggplot2\n\n# Specify the plot\nfig8 &lt;- df8 |&gt; \n  # Set-up: id on the y-axis, time on the x-axis\n  ggplot(aes(x = time, y = reorder(id, time))) + # reorder id by time\n  # Add geometric objects\n  geom_linerange(aes(xmin = 0, xmax = time)) + # horizontal lines from 0 to time\n  # Add points for events/censoring, distinguish by status\n  geom_point(aes(shape = factor(status)), size = 2.5, fill = \"white\") +\n  # Add vertical line at x = 0\n  geom_vline(xintercept = 0, linewidth = 1) +\n  theme_minimal() + # use minimal theme\n  # Format y axis\n  scale_y_discrete(name = \"Rats\") + # y-axis label\n  # Format x axis (label, breaks, no expansion on left, 0.05 expansion on right)\n  scale_x_continuous(name = \"Time (days)\", breaks = seq(0, 100, by = 20), \n                     expand = expansion(c(0, 0.05))) +\n  # Format point shape (pch = 23 for censoring, pch = 19 for event; label shape)\n  scale_shape_manual(values = c(23, 19), labels = c(\"Censoring\", \"Tumor development\")) +\n  # Further formatting using theme()\n  theme(\n    legend.position = \"top\", # place legend at the top\n    legend.title = element_blank(), # no legend title\n    axis.text.y = element_blank(), # no y-axis labels (otherwise id's will be printed)\n    axis.ticks.y = element_blank(), # no y-axis ticks\n    panel.grid.major.y = element_blank(), # no major grid lines on y-axis\n    legend.text = element_text(size = 11) # legend text size\n  )\n\n# Display the plot\nfig8"
+  },
+  {
+    "objectID": "sec2.html#exercise-swimmer-plot-by-group",
+    "href": "sec2.html#exercise-swimmer-plot-by-group",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Exercise: Swimmer Plot by Group",
+    "text": "Exercise: Swimmer Plot by Group\n\nTask: Create a swimmer plot for df8 by group\n\nUse facet_wrap() to create separate panels for each group\nAdd a title “Swimmer Plot of Rat Survival Times”\n\n\n\n\n\nSolution\nfig8 + facet_wrap(~ group, scales = \"free\") + # facet by group (using different y-axis scales)\n  labs(title = \"Swimmer Plot of Rat Survival Times\") # add title"
   }
 ]

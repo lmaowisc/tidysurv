@@ -230,7 +230,7 @@ Lu Mao
 <ul>
 <li><a href="#/overview-of-tidyverse" id="/toc-overview-of-tidyverse">Overview of Tidyverse</a></li>
 <li><a href="#/tidying-survival-data" id="/toc-tidying-survival-data">Tidying Survival Data</a></li>
-<li><a href="#/visualizing-follow-up-data" id="/toc-visualizing-follow-up-data">Visualizing Follow-Up Data</a></li>
+<li><a href="#/visualizing-subject-follow-up" id="/toc-visualizing-subject-follow-up">Visualizing Subject Follow-Up</a></li>
 </ul>
 </nav>
 </section>
@@ -683,11 +683,106 @@ Lu Mao
 </ul></li>
 </ul>
 </section></section>
-<section id="visualizing-follow-up-data" class="title-slide slide level1 center">
-<h1>Visualizing Follow-Up Data</h1>
-
+<section>
+<section id="visualizing-subject-follow-up" class="title-slide slide level1 center">
+<h1>Visualizing Subject Follow-Up</h1>
 
 </section>
+<section id="swimmer-plot" class="slide level2">
+<h2>Swimmer Plot</h2>
+<ul>
+<li><strong>What is a swimmer plot?</strong>
+<ul>
+<li>Visualizes subject follow-up</li>
+<li>Each row represents a subject</li>
+<li>Horizontal lines show time to event/censoring</li>
+</ul></li>
+</ul>
+
+<img data-src="images/rat_swim.png" class="quarto-figure quarto-figure-center r-stretch" style="width:60.0%"></section>
+<section id="swimmer-plot-basics" class="slide level2">
+<h2>Swimmer Plot Basics</h2>
+<ul>
+<li><strong>Using <code>ggplot2</code></strong>
+<ul>
+<li><code>geom_linerange()</code> for horizontal lines</li>
+<li><code>geom_point()</code> for events</li>
+<li><code>facet_wrap()</code> for treatment arms (optional)</li>
+</ul></li>
+<li><strong>A data example</strong></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a></a><span class="co"># Example data: rat survival times</span></span>
+<span id="cb26-2"><a></a>df8 <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb26-3"><a></a>  <span class="at">time =</span> <span class="fu">c</span>(<span class="dv">101</span>, <span class="dv">55</span>, <span class="dv">67</span>, <span class="dv">23</span>, <span class="dv">45</span>, <span class="dv">98</span>, <span class="dv">34</span>, <span class="dv">77</span>, <span class="dv">91</span>, <span class="dv">104</span>, <span class="dv">88</span>),</span>
+<span id="cb26-4"><a></a>  <span class="at">status =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb26-5"><a></a>  <span class="at">group =</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"B"</span>, <span class="st">"B"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"B"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>)</span>
+<span id="cb26-6"><a></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb26-7"><a></a>  <span class="fu">mutate</span>(</span>
+<span id="cb26-8"><a></a>    <span class="at">id =</span> <span class="fu">row_number</span>(), <span class="co"># create id column using row number</span></span>
+<span id="cb26-9"><a></a>    <span class="at">.before =</span> <span class="dv">1</span> <span class="co"># place id before time</span></span>
+<span id="cb26-10"><a></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="creating-a-swimmer-plot" class="slide level2">
+<h2>Creating a Swimmer Plot</h2>
+<ul>
+<li>Code to reproduce previous plot</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a></a><span class="co"># Specify the plot</span></span>
+<span id="cb27-2"><a></a>fig8 <span class="ot">&lt;-</span> df8 <span class="sc">|&gt;</span> </span>
+<span id="cb27-3"><a></a>  <span class="co"># Set-up: id on the y-axis, time on the x-axis</span></span>
+<span id="cb27-4"><a></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> <span class="fu">reorder</span>(id, time))) <span class="sc">+</span> <span class="co"># reorder id by time</span></span>
+<span id="cb27-5"><a></a>  <span class="co"># Add geometric objects</span></span>
+<span id="cb27-6"><a></a>  <span class="fu">geom_linerange</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> <span class="dv">0</span>, <span class="at">xmax =</span> time)) <span class="sc">+</span> <span class="co"># horizontal lines from 0 to time</span></span>
+<span id="cb27-7"><a></a>  <span class="co"># Add points for events/censoring, distinguish by status</span></span>
+<span id="cb27-8"><a></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">shape =</span> <span class="fu">factor</span>(status)), <span class="at">size =</span> <span class="fl">2.5</span>, <span class="at">fill =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb27-9"><a></a>  <span class="co"># Add vertical line at x = 0</span></span>
+<span id="cb27-10"><a></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb27-11"><a></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="co"># use minimal theme</span></span>
+<span id="cb27-12"><a></a>  <span class="co"># Format y axis</span></span>
+<span id="cb27-13"><a></a>  <span class="fu">scale_y_discrete</span>(<span class="at">name =</span> <span class="st">"Rats"</span>) <span class="sc">+</span> <span class="co"># y-axis label</span></span>
+<span id="cb27-14"><a></a>  <span class="co"># Format x axis (label, breaks, no expansion on left, 0.05 expansion on right)</span></span>
+<span id="cb27-15"><a></a>  <span class="fu">scale_x_continuous</span>(<span class="at">name =</span> <span class="st">"Time (days)"</span>, <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">100</span>, <span class="at">by =</span> <span class="dv">20</span>), </span>
+<span id="cb27-16"><a></a>                     <span class="at">expand =</span> <span class="fu">expansion</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.05</span>))) <span class="sc">+</span></span>
+<span id="cb27-17"><a></a>  <span class="co"># Format point shape (pch = 23 for censoring, pch = 19 for event; label shape)</span></span>
+<span id="cb27-18"><a></a>  <span class="fu">scale_shape_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="dv">23</span>, <span class="dv">19</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Censoring"</span>, <span class="st">"Tumor development"</span>)) <span class="sc">+</span></span>
+<span id="cb27-19"><a></a>  <span class="co"># Further formatting using theme()</span></span>
+<span id="cb27-20"><a></a>  <span class="fu">theme</span>(</span>
+<span id="cb27-21"><a></a>    <span class="at">legend.position =</span> <span class="st">"top"</span>, <span class="co"># place legend at the top</span></span>
+<span id="cb27-22"><a></a>    <span class="at">legend.title =</span> <span class="fu">element_blank</span>(), <span class="co"># no legend title</span></span>
+<span id="cb27-23"><a></a>    <span class="at">axis.text.y =</span> <span class="fu">element_blank</span>(), <span class="co"># no y-axis labels (otherwise id's will be printed)</span></span>
+<span id="cb27-24"><a></a>    <span class="at">axis.ticks.y =</span> <span class="fu">element_blank</span>(), <span class="co"># no y-axis ticks</span></span>
+<span id="cb27-25"><a></a>    <span class="at">panel.grid.major.y =</span> <span class="fu">element_blank</span>(), <span class="co"># no major grid lines on y-axis</span></span>
+<span id="cb27-26"><a></a>    <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">11</span>) <span class="co"># legend text size</span></span>
+<span id="cb27-27"><a></a>  )</span>
+<span id="cb27-28"><a></a></span>
+<span id="cb27-29"><a></a><span class="co"># Display the plot</span></span>
+<span id="cb27-30"><a></a>fig8</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="sec2_files/figure-revealjs/unnamed-chunk-17-1.png" width="960" class="r-stretch"></section>
+<section id="exercise-swimmer-plot-by-group" class="slide level2">
+<h2>Exercise: Swimmer Plot by Group</h2>
+<ul>
+<li><strong>Task</strong>: Create a swimmer plot for <code>df8</code> by <code>group</code>
+<ul>
+<li>Use <code>facet_wrap()</code> to create separate panels for each group</li>
+<li>Add a title “Swimmer Plot of Rat Survival Times”</li>
+</ul></li>
+</ul>
+
+<img data-src="sec2_files/figure-revealjs/unnamed-chunk-18-1.png" width="1152" class="r-stretch"><div class="cell">
+<details class="code-fold">
+<summary>Solution</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a></a>fig8 <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span> group, <span class="at">scales =</span> <span class="st">"free"</span>) <span class="sc">+</span> <span class="co"># facet by group (using different y-axis scales)</span></span>
+<span id="cb28-2"><a></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Swimmer Plot of Rat Survival Times"</span>) <span class="co"># add title</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+
+
+</section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">

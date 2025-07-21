@@ -357,5 +357,98 @@ df7 |>
     - [tidyr](https://tidyr.tidyverse.org/) official documentation
     - R for Data Science: [Data tidying](https://r4ds.hadley.nz/data-tidy.html)
     
-# Visualizing Follow-Up Data
+# Visualizing Subject Follow-Up 
+
+## Swimmer Plot
+
+- **What is a swimmer plot?**
+    - Visualizes subject follow-up
+    - Each row represents a subject
+    - Horizontal lines show time to event/censoring
+
+![](images/rat_swim.png){fig-align="center" width="60%"}
+
+## Swimmer Plot Basics
+
+- **Using `ggplot2`**
+    - `geom_linerange()` for horizontal lines
+    - `geom_point()` for events
+    - `facet_wrap()` for treatment arms (optional)
+
+- **A data example**
+```{r}
+#| eval: true
+# Example data: rat survival times
+df8 <- tibble(
+  time = c(101, 55, 67, 23, 45, 98, 34, 77, 91, 104, 88),
+  status = c(0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1),
+  group = c("A", "A", "A", "B", "B", "B", "A", "B", "B", "A", "B")
+) |> 
+  mutate(
+    id = row_number(), # create id column using row number
+    .before = 1 # place id before time
+  )
+```
+
+## Creating a Swimmer Plot 
+
+- Code to reproduce previous plot
+```{r}
+#| eval: true
+# Specify the plot
+fig8 <- df8 |> 
+  # Set-up: id on the y-axis, time on the x-axis
+  ggplot(aes(x = time, y = reorder(id, time))) + # reorder id by time
+  # Add geometric objects
+  geom_linerange(aes(xmin = 0, xmax = time)) + # horizontal lines from 0 to time
+  # Add points for events/censoring, distinguish by status
+  geom_point(aes(shape = factor(status)), size = 2.5, fill = "white") +
+  # Add vertical line at x = 0
+  geom_vline(xintercept = 0, linewidth = 1) +
+  theme_minimal() + # use minimal theme
+  # Format y axis
+  scale_y_discrete(name = "Rats") + # y-axis label
+  # Format x axis (label, breaks, no expansion on left, 0.05 expansion on right)
+  scale_x_continuous(name = "Time (days)", breaks = seq(0, 100, by = 20), 
+                     expand = expansion(c(0, 0.05))) +
+  # Format point shape (pch = 23 for censoring, pch = 19 for event; label shape)
+  scale_shape_manual(values = c(23, 19), labels = c("Censoring", "Tumor development")) +
+  # Further formatting using theme()
+  theme(
+    legend.position = "top", # place legend at the top
+    legend.title = element_blank(), # no legend title
+    axis.text.y = element_blank(), # no y-axis labels (otherwise id's will be printed)
+    axis.ticks.y = element_blank(), # no y-axis ticks
+    panel.grid.major.y = element_blank(), # no major grid lines on y-axis
+    legend.text = element_text(size = 11) # legend text size
+  )
+
+# Display the plot
+fig8
+```
+
+## Exercise: Swimmer Plot by Group
+
+- **Task**: Create a swimmer plot for `df8` by `group`
+    - Use `facet_wrap()` to create separate panels for each group
+    - Add a title "Swimmer Plot of Rat Survival Times"
+
+```{r}
+#| eval: true
+#| echo: false
+#| fig-width: 12
+#| fig-height: 3.5
+fig8 + facet_wrap(~ group, scales = "free") + # facet by group (using different y-axis scales)
+  labs(title = "Swimmer Plot of Rat Survival Times") # add title
+```
+
+    
+```{r}
+#| code-fold: true
+#| code-summary: Solution
+
+fig8 + facet_wrap(~ group, scales = "free") + # facet by group (using different y-axis scales)
+  labs(title = "Swimmer Plot of Rat Survival Times") # add title
+
+```
 
