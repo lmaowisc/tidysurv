@@ -491,5 +491,75 @@
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Summarizing and Grouping",
     "text": "Summarizing and Grouping\n\nSurvival-specific summaries (e.g., number of events)\n\ngroup_by() and summarize() for descriptive summaries by arm\n\n\n\ndf1 |&gt; \n  group_by(trt) |&gt; # group by treatment arm\n  summarize( # summarize each group\n    n = n(), # count number of rows (subjects)\n    events = sum(status), # sum of events (status = 1)\n    median_time = median(time) # median survival time\n  )\n\n# A tibble: 2 × 4\n  trt       n events median_time\n  &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt;       &lt;dbl&gt;\n1 A         3      1           5\n2 B         3      2           6"
+  },
+  {
+    "objectID": "sec2.html#dates-to-time-difference",
+    "href": "sec2.html#dates-to-time-difference",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Dates to Time Difference",
+    "text": "Dates to Time Difference\n\nA data example\n\n\n# Example: raw dates as character strings\ndf2 &lt;- tibble(\n  id = 1:3,\n  rand_date = c(\"2022-01-01\", \"2022-01-15\", \"2022-01-20\"),\n  end_date = c(\"2022-04-01\", \"2022-06-01\", \"2022-03-15\"),\n  status = c(\"dead\", \"censored\", \"dead\")\n)\ndf2\n\n# A tibble: 3 × 4\n     id rand_date  end_date   status  \n  &lt;int&gt; &lt;chr&gt;      &lt;chr&gt;      &lt;chr&gt;   \n1     1 2022-01-01 2022-04-01 dead    \n2     2 2022-01-15 2022-06-01 censored\n3     3 2022-01-20 2022-03-15 dead"
+  },
+  {
+    "objectID": "sec2.html#parsing-dates-and-calculating-time",
+    "href": "sec2.html#parsing-dates-and-calculating-time",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Parsing Dates and Calculating Time",
+    "text": "Parsing Dates and Calculating Time\n\nUsing lubridate to parse dates\n\nymd() for “year-month-day” format\nmdy() for “month-day-year” format\n\n\n\n# Parse dates and calculate time/status\ndf2 |&gt; \n  mutate(\n    rand_date = ymd(rand_date), # convert character to Date\n    end_date = ymd(end_date), # convert character to Date\n    time = as.numeric(end_date - rand_date), # calculate time in days\n    status = if_else(status == \"dead\", 1, 0) # convert status to 1/0\n  )\n\n# A tibble: 3 × 5\n     id rand_date  end_date   status  time\n  &lt;int&gt; &lt;date&gt;     &lt;date&gt;      &lt;dbl&gt; &lt;dbl&gt;\n1     1 2022-01-01 2022-04-01      1    90\n2     2 2022-01-15 2022-06-01      0   137\n3     3 2022-01-20 2022-03-15      1    54"
+  },
+  {
+    "objectID": "sec2.html#exercise-calculate-survival-time",
+    "href": "sec2.html#exercise-calculate-survival-time",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Exercise: Calculate Survival Time",
+    "text": "Exercise: Calculate Survival Time\n\nCalculate time and status variables for df3:\n\n\n# create a df3 with dates in the form of month-day-year\ndf3 &lt;- tibble(\n  id = 1:3,\n  rand_date = c(\"Jan-01-2022\", \"01-15-2022\", \"01-20-2022\"),\n  end_date = c(\"04-01-2022\", \"Jun-01-2022\", \"03-15-2022\"),\n  status = c(\"dead\", \"censored\", \"dead\")\n)\ndf3\n\n# A tibble: 3 × 4\n     id rand_date   end_date    status  \n  &lt;int&gt; &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;   \n1     1 Jan-01-2022 04-01-2022  dead    \n2     2 01-15-2022  Jun-01-2022 censored\n3     3 01-20-2022  03-15-2022  dead    \n\n\n\n\nSolution\ndf3 |&gt; \n  mutate(\n    rand_date = mdy(rand_date), # convert character to Date\n    end_date = mdy(end_date), # convert character to Date\n    time = as.numeric(end_date - rand_date), # calculate time in days\n    status = if_else(status == \"dead\", 1, 0) # convert status to 1/0\n  )"
+  },
+  {
+    "objectID": "sec2.html#exercise-calculate-survival-time-i",
+    "href": "sec2.html#exercise-calculate-survival-time-i",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Exercise: Calculate Survival Time (I)",
+    "text": "Exercise: Calculate Survival Time (I)\n\nCalculate time and status variables for df3:\n\n\n# create a df3 with dates in the form of month-day-year\ndf3 &lt;- tibble(\n  id = 1:3,\n  rand_date = c(\"Jan-01-2022\", \"01-15-2022\", \"01-20-2022\"),\n  end_date = c(\"04-01-2022\", \"Jun-01-2022\", \"03-15-2022\"),\n  status = c(\"dead\", \"censored\", \"dead\")\n)\ndf3\n\n# A tibble: 3 × 4\n     id rand_date   end_date    status  \n  &lt;int&gt; &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;   \n1     1 Jan-01-2022 04-01-2022  dead    \n2     2 01-15-2022  Jun-01-2022 censored\n3     3 01-20-2022  03-15-2022  dead"
+  },
+  {
+    "objectID": "sec2.html#exercise-calculate-survival-time-ii",
+    "href": "sec2.html#exercise-calculate-survival-time-ii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Exercise: Calculate Survival Time (II)",
+    "text": "Exercise: Calculate Survival Time (II)\n\nHint: use mdy() to parse dates\n\n\n\nSolution\ndf3 |&gt; \n  mutate(\n    rand_date = mdy(rand_date), # convert character to Date\n    end_date = mdy(end_date), # convert character to Date\n    time = as.numeric(end_date - rand_date), # calculate time in days\n    status = if_else(status == \"dead\", 1, 0) # convert status to 1/0\n  )\n\n\n\nMore about manipulating dates\n\nlubridate official documentation\nR for Data Science: Dates and times"
+  },
+  {
+    "objectID": "sec2.html#parsing-censored-observations",
+    "href": "sec2.html#parsing-censored-observations",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Parsing Censored Observations",
+    "text": "Parsing Censored Observations\n\nAlternative formats for censored times\n\n\"32+\", \"&gt;17\", etc\nparse_number() for get time; str_detect() for status\n\n\n\n# Example data: relapse times with \"+\" indicating censoring\nMP &lt;- c(10,  \"32+\", 23, \"25+\")\n# Convert to (time, status) format\ndf4 &lt;- tibble(\n  MP = MP,                               # Original data\n  time = parse_number(MP),               # Extract numeric part\n  status = 1 - str_detect(MP, \"\\\\+\")     # Censored if \"+\" detected\n)\ndf4\n\n# A tibble: 4 × 3\n  MP     time status\n  &lt;chr&gt; &lt;dbl&gt;  &lt;dbl&gt;\n1 10       10      1\n2 32+      32      0\n3 23       23      1\n4 25+      25      0"
+  },
+  {
+    "objectID": "sec2.html#exercise-parse-censored-times",
+    "href": "sec2.html#exercise-parse-censored-times",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Exercise: Parse Censored Times",
+    "text": "Exercise: Parse Censored Times\n\nTask: Parse MP in df5 to create time and status\n\n\ndf5 &lt;- tibble(\n  MP = c(10, \"32+\", 23, \"&gt;25\")\n)\n\n\n\nSolution\ndf5 |&gt; \n  mutate(\n    time = parse_number(MP), # extract numeric part\n    status = 1 - str_detect(MP, \"\\\\+|&gt;\") # censored if \"+\" or (|) \"&gt;\" detected\n  )\n\n\n\nMore on string operation\n\nstringr official documentation\nR for Data Science: Strings"
+  },
+  {
+    "objectID": "sec2.html#reshaping-data",
+    "href": "sec2.html#reshaping-data",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Reshaping Data",
+    "text": "Reshaping Data\n\nWhy reshape?\n\nMultiple events per subject\nWide format (multiple columns) \\(\\rightarrow\\) long format (one row per event)\n\n\n\n# Example: wide format with multiple events\ndf6 &lt;- tibble(\n  id = 1:3,\n  prog_time = c(10, 20, 30),\n  prog_status = c(1, 0, 1), # 1 = progression, 0 = censored\n  death_time = c(15, 20, 35),\n  death_status = c(0, 1, 1) # 1 = dead, 0 = censored\n)\n# 1: progression at 10, censored at 15\n# 2: dead at 20 without progression\n# 3: progression at 30, dead at 35\ndf6\n\n# A tibble: 3 × 5\n     id prog_time prog_status death_time death_status\n  &lt;int&gt;     &lt;dbl&gt;       &lt;dbl&gt;      &lt;dbl&gt;        &lt;dbl&gt;\n1     1        10           1         15            0\n2     2        20           0         20            1\n3     3        30           1         35            1"
+  },
+  {
+    "objectID": "sec2.html#wide-to-long",
+    "href": "sec2.html#wide-to-long",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Wide to Long",
+    "text": "Wide to Long\n\nUsing pivot_longer()\n\nConvert wide format to long format\nSpecify names_to and values_to for new columns\n\n\n\ndf7 &lt;- df6 |&gt; \n  pivot_longer(\n    cols = c(prog_time, prog_status, death_time, death_status), # columns to reshape\n    names_to = c(\"event\", \".value\"), # .value keeps the variable name, event is the new column\n    names_pattern = \"(.*)_(.*)\" # split by underscore\n  ) \ndf7\n\n# A tibble: 6 × 4\n     id event  time status\n  &lt;int&gt; &lt;chr&gt; &lt;dbl&gt;  &lt;dbl&gt;\n1     1 prog     10      1\n2     1 death    15      0\n3     2 prog     20      0\n4     2 death    20      1\n5     3 prog     30      1\n6     3 death    35      1"
+  },
+  {
+    "objectID": "sec2.html#exercise-clean-up",
+    "href": "sec2.html#exercise-clean-up",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Exercise: Clean Up",
+    "text": "Exercise: Clean Up\n\nTask: Clean up df7 to create a tidy survival dataset\n\nRemove rows with event = prog and status = 0 (non-terminal event)\nRecode status = 2 for death events\n\n\n\n\nSolution\ndf7 |&gt; \n  filter(\n    !(event == \"prog\" & status == 0) # remove non-occurrence of non-terminal events\n    ) |&gt; \n  mutate(\n    status = if_else(event == \"death\" & status == 1, 2, status) # recode death status\n  ) \n# # A tibble: 5 × 4\n#      id event  time status\n#   &lt;int&gt; &lt;chr&gt; &lt;dbl&gt;  &lt;dbl&gt;\n# 1     1 prog     10      1\n# 2     1 death    15      0\n# 3     2 death    20      2\n# 4     3 prog     30      1\n# 5     3 death    35      2\n\n\n\nMore on reshaping data\n\ntidyr official documentation\nR for Data Science: Data tidying"
   }
 ]

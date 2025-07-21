@@ -176,31 +176,186 @@ head(gbc)
 ![](images/cal_surv_time.png){fig-align="center" width="60%"}
 
 
-## Parse Dates and Calculate Difference
+## Dates to Time Difference
 
 - **A data example**
 ```{r}
 #| eval: true
 # Example: raw dates as character strings
-trial_df <- tibble(
+df2 <- tibble(
   id = 1:3,
   rand_date = c("2022-01-01", "2022-01-15", "2022-01-20"),
   end_date = c("2022-04-01", "2022-06-01", "2022-03-15"),
   status = c("dead", "censored", "dead")
 )
-trial_df
+df2
 ```
 
-```{r}
+## Parsing Dates and Calculating Time
 
+- **Using `lubridate` to parse dates**
+    - `ymd()` for "year-month-day" format
+    - `mdy()` for "month-day-year" format
+```{r}
+#| eval: true
 # Parse dates and calculate time/status
-trial_df <- trial_df |> 
+df2 |> 
   mutate(
-    rand_date = ymd(rand_date),
-    end_date = ymd(end_date),
-    censor_date = ymd(censor_date),
-    status = if_else(status == "dead", 1, 0)
+    rand_date = ymd(rand_date), # convert character to Date
+    end_date = ymd(end_date), # convert character to Date
+    time = as.numeric(end_date - rand_date), # calculate time in days
+    status = if_else(status == "dead", 1, 0) # convert status to 1/0
+  )
+```
+
+
+## Exercise: Calculate Survival Time (I)
+
+
+- Calculate `time` and `status` variables for `df3`:
+```{r}
+#| eval: true
+# create a df3 with dates in the form of month-day-year
+df3 <- tibble(
+  id = 1:3,
+  rand_date = c("Jan-01-2022", "01-15-2022", "01-20-2022"),
+  end_date = c("04-01-2022", "Jun-01-2022", "03-15-2022"),
+  status = c("dead", "censored", "dead")
+)
+df3
+```
+
+
+## Exercise: Calculate Survival Time (II)
+
+- **Hint**: use `mdy()` to parse dates
+
+```{r}
+#| code-fold: true
+#| code-summary: Solution
+df3 |> 
+  mutate(
+    rand_date = mdy(rand_date), # convert character to Date
+    end_date = mdy(end_date), # convert character to Date
+    time = as.numeric(end_date - rand_date), # calculate time in days
+    status = if_else(status == "dead", 1, 0) # convert status to 1/0
   )
 
 ```
+
+- More about manipulating dates 
+    - [lubridate](https://lubridate.tidyverse.org/) official documentation
+    - R for Data Science: [Dates and times](https://r4ds.hadley.nz/datetimes.html)
+
+## Parsing Censored Observations
+
+- **Alternative formats for censored times**
+    - `"32+"`, `">17"`, etc
+    - `parse_number()` for get `time`; `str_detect()` for `status`
+```{r}
+#| eval: true
+# Example data: relapse times with "+" indicating censoring
+MP <- c(10,  "32+", 23, "25+")
+# Convert to (time, status) format
+df4 <- tibble(
+  MP = MP,                               # Original data
+  time = parse_number(MP),               # Extract numeric part
+  status = 1 - str_detect(MP, "\\+")     # Censored if "+" detected
+)
+df4
+```
+
+## Exercise: Parse Censored Times
+- **Task**: Parse `MP` in `df5` to create `time` and `status`
+```{r}
+#| eval: true
+df5 <- tibble(
+  MP = c(10, "32+", 23, ">25")
+)
+```
+```{r}
+#| code-fold: true
+#| code-summary: Solution
+df5 |> 
+  mutate(
+    time = parse_number(MP), # extract numeric part
+    status = 1 - str_detect(MP, "\\+|>") # censored if "+" or (|) ">" detected
+  )
+```
+
+- More on string operation
+    - [stringr](https://stringr.tidyverse.org/) official documentation
+    - R for Data Science: [Strings](https://r4ds.hadley.nz/strings.html)
+
+## Reshaping Data
+
+- **Why reshape?**
+    - Multiple events per subject
+    - Wide format (multiple columns) $\rightarrow$ long format (one row per event)
+    
+```{r}
+#| eval: true
+# Example: wide format with multiple events
+df6 <- tibble(
+  id = 1:3,
+  prog_time = c(10, 20, 30),
+  prog_status = c(1, 0, 1), # 1 = progression, 0 = censored
+  death_time = c(15, 20, 35),
+  death_status = c(0, 1, 1) # 1 = dead, 0 = censored
+)
+# 1: progression at 10, censored at 15
+# 2: dead at 20 without progression
+# 3: progression at 30, dead at 35
+df6
+```
+
+## Wide to Long
+
+- **Using `pivot_longer()`**
+    - Convert wide format to long format
+    - Specify `names_to` and `values_to` for new columns
+
+```{r}
+#| eval: true
+
+df7 <- df6 |> 
+  pivot_longer(
+    cols = c(prog_time, prog_status, death_time, death_status), # columns to reshape
+    names_to = c("event", ".value"), # .value keeps the variable name, event is the new column
+    names_pattern = "(.*)_(.*)" # split by underscore
+  ) 
+df7
+```
+
+## Exercise: Clean Up
+
+- **Task**: Clean up `df7` to create a tidy survival dataset
+    - Remove rows with `event = prog`  and `status = 0` (non-terminal event)
+    - Recode `status = 2` for death events
+
+```{r}
+#| code-fold: true
+#| code-summary: Solution
+df7 |> 
+  filter(
+    !(event == "prog" & status == 0) # remove non-occurrence of non-terminal events
+    ) |> 
+  mutate(
+    status = if_else(event == "death" & status == 1, 2, status) # recode death status
+  ) 
+# # A tibble: 5 × 4
+#      id event  time status
+#   <int> <chr> <dbl>  <dbl>
+# 1     1 prog     10      1
+# 2     1 death    15      0
+# 3     2 death    20      2
+# 4     3 prog     30      1
+# 5     3 death    35      2
+```
+
+- More on reshaping data
+    - [tidyr](https://tidyr.tidyverse.org/) official documentation
+    - R for Data Science: [Data tidying](https://r4ds.hadley.nz/data-tidy.html)
+    
+# Visualizing Follow-Up Data
 
