@@ -51,7 +51,7 @@ In a tidyverse approach, we apply consistent data workflows to survival analysis
 
 -   **2. Data Manipulation with Tidyverse** (45 min)
     -   2.1 Importing and cleaning survival data
-    -   2.2 Using `dplyr` for data manipulation
+    -   2.2 Tidying survival data
     -   2.3 Simple visualization of follow-up data with `ggplot2`
     -   2.4 "Table 1" with `gtsummary`
     

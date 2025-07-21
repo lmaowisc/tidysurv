@@ -58,6 +58,72 @@ include-in-header:
 library(tidyverse)
 ```
 
+## Basic Functionalities
+
+-  **Data manipulation**: using `dplyr` verbs
+    - `mutate()` to create new variables (e.g., age group, log-transformed labs)
+    - `filter()` to subset by treatment or age
+    - `select()` and `rename()` for variable formatting
+    - `arrange()` to sort
+    - `group_by()` and `summarize()` for descriptive summaries by arm
+
+-  **Data reshaping**: using `tidyr` functions
+    - `pivot_longer()` to convert wide to long format
+    - `pivot_wider()` to convert long to wide format
+    - `nest()` and `unnest()` for hierarchical data
+
+## A Simple Example
+
+- **Example dataset**
+
+```{r}
+#| eval: true
+# Simulated data example
+df1 <- tibble(
+  id = 1:6,
+  trt = c("A", "A", "B", "B", "A", "B"),
+  age = c(65, 70, 58, 60, 64, 59),
+  time = c(5, 8, 12, 3, 2, 6),
+  status = c(1, 0, 1, 1, 0, 0)  # 1 = event, 0 = censored
+)
+df1
+```
+
+## Native Pipe Operator: `|>`
+
+- **What is `|>`**
+    - Introduced in **R 4.1**
+    - Passes the result of one expression into the first argument of the next
+    - Same idea as `%>%`, but **built into base R**
+
+- **Example**
+
+```{r}
+#| eval: true
+df1 |> # passes tibble data frame df1 to the next function
+  mutate(age_group = if_else(age >= 65, "older", "younger")) |> # create age group
+  filter(trt == "A") |> # filter for treatment A
+  arrange(time) # sort by time
+```
+
+## Summarizing and Grouping
+
+
+- Survival-specific summaries (e.g., number of events)
+    - `group_by()` and `summarize()` for descriptive summaries by arm
+```{r}
+#| eval: true
+df1 |> 
+  group_by(trt) |> # group by treatment arm
+  summarize( # summarize each group
+    n = n(), # count number of rows (subjects)
+    events = sum(status), # sum of events (status = 1)
+    median_time = median(time) # median survival time
+  )
+
+```
+
+  
 ## What Does “Tidy” Mean?
 
 > A dataset is tidy if:
@@ -81,6 +147,60 @@ library(tidyverse)
 - **Messy data challenges:**
     - Time in rows, covariates in columns
     - Multiple data types in one column
+    - Separte randomization and event/censoring dates
     - Missing/censored values inconsistently coded
 
+## Tidy Survival Data
+
+- **Possible pre-processing steps**
+    - Calculate survival time from start to event/censoring
+    - Creating the $(X, \delta)$ structure expected by `Surv()`
+    - Reshaping data to long format in case of multiple events
+
+- **An Example**
+
+```{r}
+#| eval: true
+# Load GBC data
+gbc <- read.table("data/gbc.txt", header = TRUE)
+head(gbc)
+
+```
+
+# Tidying Survival Data
+
+## Calendar vs. Event Times
+
+- **Time from start to event/censoring** ($X$)
+
+![](images/cal_surv_time.png){fig-align="center" width="60%"}
+
+
+## Parse Dates and Calculate Difference
+
+- **A data example**
+```{r}
+#| eval: true
+# Example: raw dates as character strings
+trial_df <- tibble(
+  id = 1:3,
+  rand_date = c("2022-01-01", "2022-01-15", "2022-01-20"),
+  end_date = c("2022-04-01", "2022-06-01", "2022-03-15"),
+  status = c("dead", "censored", "dead")
+)
+trial_df
+```
+
+```{r}
+
+# Parse dates and calculate time/status
+trial_df <- trial_df |> 
+  mutate(
+    rand_date = ymd(rand_date),
+    end_date = ymd(end_date),
+    censor_date = ymd(censor_date),
+    status = if_else(status == "dead", 1, 0)
+  )
+
+```
 

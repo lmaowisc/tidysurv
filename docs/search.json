@@ -385,7 +385,7 @@
     "href": "sec2.html#why-tidy-data",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Why Tidy Data?",
-    "text": "Why Tidy Data?\n\nTidy data principles\n\nEasy to reshape and transform\nCompatible with ggplot2, dplyr, tidyr, and modeling tools\nEncourages modular and reproducible code\n\nMessy data challenges:\n\nTime in rows, covariates in columns\nMultiple data types in one column\nMissing/censored values inconsistently coded"
+    "text": "Why Tidy Data?\n\nTidy data principles\n\nEasy to reshape and transform\nCompatible with ggplot2, dplyr, tidyr, and modeling tools\nEncourages modular and reproducible code\n\nMessy data challenges:\n\nTime in rows, covariates in columns\nMultiple data types in one column\nSeparte randomization and event/censoring dates\nMissing/censored values inconsistently coded"
   },
   {
     "objectID": "sec2.html",
@@ -393,5 +393,103 @@
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "",
     "text": "Motivation: tidy data for reproducible analysis\nKey packages\n\ndplyr (filtering, mutating, grouping, summarizing)\ntidyr (pivoting, nesting, reshaping)\ntibble (modern data frames)\nreadr / haven (importing .csv or .sas7bdat)\nlubridate (handling time variables)\nggplot2 (visualization)\n\n\n\n# Load core tidyverse packages\nlibrary(tidyverse)\n\n── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──\n✔ dplyr     1.1.4     ✔ readr     2.1.5\n✔ forcats   1.0.0     ✔ stringr   1.5.1\n✔ ggplot2   3.5.1     ✔ tibble    3.2.1\n✔ lubridate 1.9.3     ✔ tidyr     1.3.1\n✔ purrr     1.0.2     \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter() masks stats::filter()\n✖ dplyr::lag()    masks stats::lag()\nℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors\n\n\n\n\n\n\nA dataset is tidy if:\n\nEach variable is a column\nEach observation is a row\nEach type of observational unit is a table\n\n— Hadley Wickham, Tidy Data (2014)\nhttps://www.jstatsoft.org/article/view/v059i10\n\n\n\n\n\nTidy data principles\n\nEasy to reshape and transform\nCompatible with ggplot2, dplyr, tidyr, and modeling tools\nEncourages modular and reproducible code\n\nMessy data challenges:\n\nTime in rows, covariates in columns\nMultiple data types in one column\nMissing/censored values inconsistently coded"
+  },
+  {
+    "objectID": "sec2.html#tidy-survival-data",
+    "href": "sec2.html#tidy-survival-data",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Tidy Survival Data",
+    "text": "Tidy Survival Data\n\nPossible pre-processing steps\n\nCalculate survival time from start to event/censoring\nCreating the \\((X, \\delta)\\) structure expected by Surv()\nReshaping data to long format in case of multiple events\n\nAn Example\n\n\n# Load GBC data\ngbc &lt;- read.table(\"data/gbc.txt\", header = TRUE)\nhead(gbc)\n\n  id     time status hormone age meno size grade nodes prog estrg\n1  1 43.83607      1       1  38    1   18     3     5  141   105\n2  1 74.81967      0       1  38    1   18     3     5  141   105\n3  2 46.55738      1       1  52    1   20     1     1   78    14\n4  2 65.77049      0       1  52    1   20     1     1   78    14\n5  3 41.93443      1       1  47    1   30     2     1  422    89\n6  3 47.73770      2       1  47    1   30     2     1  422    89"
+  },
+  {
+    "objectID": "sec2.html#calculate-survival-time",
+    "href": "sec2.html#calculate-survival-time",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Calculate Survival Time",
+    "text": "Calculate Survival Time"
+  },
+  {
+    "objectID": "sec2.html#calculate-survival-time-i",
+    "href": "sec2.html#calculate-survival-time-i",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Calculate Survival Time (I)",
+    "text": "Calculate Survival Time (I)\n\nTime from start to event/censoring (\\(X\\))\n\n\n\nAn example\n\n\n# Example: raw dates as character strings\ntrial_df &lt;- tibble(\n  id = 1:3,\n  rand_date = c(\"2022-01-01\", \"2022-01-15\", \"2022-01-20\"),\n  event_date = c(\"2022-04-01\", NA, \"2022-03-15\"),\n  censor_date = c(NA, \"2022-06-01\", NA)\n)"
+  },
+  {
+    "objectID": "sec2.html#calendar",
+    "href": "sec2.html#calendar",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Calendar",
+    "text": "Calendar\n\nTime from start to event/censoring (\\(X\\))"
+  },
+  {
+    "objectID": "sec2.html#calculate-survival-time-ii",
+    "href": "sec2.html#calculate-survival-time-ii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Calculate Survival Time (II)",
+    "text": "Calculate Survival Time (II)\n\nA data example\n\n\n# Example: raw dates as character strings\ntrial_df &lt;- tibble(\n  id = 1:3,\n  rand_date = c(\"2022-01-01\", \"2022-01-15\", \"2022-01-20\"),\n  end_date = c(\"2022-04-01\", \"2022-06-01\", \"2022-03-15\"),\n  status = c(\"dead\", \"censored\", \"dead\")\n)\ntrial_df"
+  },
+  {
+    "objectID": "sec2.html#calendar-vs.-eventcensoring-times",
+    "href": "sec2.html#calendar-vs.-eventcensoring-times",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Calendar vs. Event/Censoring Times",
+    "text": "Calendar vs. Event/Censoring Times\n\nTime from start to event/censoring (\\(X\\))"
+  },
+  {
+    "objectID": "sec2.html#parse-dates-and-calculate-times",
+    "href": "sec2.html#parse-dates-and-calculate-times",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Parse Dates and Calculate Times",
+    "text": "Parse Dates and Calculate Times\n\nA data example\n\n\n# Example: raw dates as character strings\ntrial_df &lt;- tibble(\n  id = 1:3,\n  rand_date = c(\"2022-01-01\", \"2022-01-15\", \"2022-01-20\"),\n  end_date = c(\"2022-04-01\", \"2022-06-01\", \"2022-03-15\"),\n  status = c(\"dead\", \"censored\", \"dead\")\n)\ntrial_df"
+  },
+  {
+    "objectID": "sec2.html#calendar-vs.-event-times",
+    "href": "sec2.html#calendar-vs.-event-times",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Calendar vs. Event Times",
+    "text": "Calendar vs. Event Times\n\nTime from start to event/censoring (\\(X\\))"
+  },
+  {
+    "objectID": "sec2.html#parse-dates-and-calculate-difference",
+    "href": "sec2.html#parse-dates-and-calculate-difference",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Parse Dates and Calculate Difference",
+    "text": "Parse Dates and Calculate Difference\n\nA data example\n\n\n# Example: raw dates as character strings\ntrial_df &lt;- tibble(\n  id = 1:3,\n  rand_date = c(\"2022-01-01\", \"2022-01-15\", \"2022-01-20\"),\n  end_date = c(\"2022-04-01\", \"2022-06-01\", \"2022-03-15\"),\n  status = c(\"dead\", \"censored\", \"dead\")\n)\ntrial_df\n\n# A tibble: 3 × 4\n     id rand_date  end_date   status  \n  &lt;int&gt; &lt;chr&gt;      &lt;chr&gt;      &lt;chr&gt;   \n1     1 2022-01-01 2022-04-01 dead    \n2     2 2022-01-15 2022-06-01 censored\n3     3 2022-01-20 2022-03-15 dead    \n\n\n\n# Parse dates and calculate time/status\ntrial_df &lt;- trial_df |&gt; \n  mutate(\n    rand_date = ymd(rand_date),\n    end_date = ymd(end_date),\n    censor_date = ymd(censor_date),\n    status = if_else(status == \"dead\", 1, 0)\n  )"
+  },
+  {
+    "objectID": "sec2.html#basic-functionalities",
+    "href": "sec2.html#basic-functionalities",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Basic Functionalities",
+    "text": "Basic Functionalities\n\nData manipulation: using dplyr verbs\n\nmutate() to create new variables (e.g., age group, log-transformed labs)\nfilter() to subset by treatment or age\nselect() and rename() for variable formatting\narrange() to sort\ngroup_by() and summarize() for descriptive summaries by arm\n\nData reshaping: using tidyr functions\n\npivot_longer() to convert wide to long format\npivot_wider() to convert long to wide format\nnest() and unnest() for hierarchical data"
+  },
+  {
+    "objectID": "sec2.html#a-simple-example",
+    "href": "sec2.html#a-simple-example",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "A Simple Example",
+    "text": "A Simple Example\n\nExample dataset\n\n\n# Simulated data example\ndf1 &lt;- tibble(\n  id = 1:6,\n  trt = c(\"A\", \"A\", \"B\", \"B\", \"A\", \"B\"),\n  age = c(65, 70, 58, 60, 64, 59),\n  time = c(5, 8, 12, 3, 2, 6),\n  status = c(1, 0, 1, 1, 0, 0)  # 1 = event, 0 = censored\n)\ndf1\n\n# A tibble: 6 × 5\n     id trt     age  time status\n  &lt;int&gt; &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;\n1     1 A        65     5      1\n2     2 A        70     8      0\n3     3 B        58    12      1\n4     4 B        60     3      1\n5     5 A        64     2      0\n6     6 B        59     6      0"
+  },
+  {
+    "objectID": "sec2.html#the-native-pipe-operator",
+    "href": "sec2.html#the-native-pipe-operator",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "The Native Pipe Operator: |>",
+    "text": "The Native Pipe Operator: |&gt;\n\nWhat is |&gt;\n\nIntroduced in R 4.1\nPasses the result of one expression into the first argument of the next\nSame idea as %&gt;%, but built into base R\n\nExample\n\n\ndf1 |&gt; \n  mutate(age_group = if_else(age &gt;= 65, \"older\", \"younger\")) %&gt;%\n  filter(trt == \"A\") %&gt;%\n  arrange(desc(time))\n\n# A tibble: 3 × 6\n     id trt     age  time status age_group\n  &lt;int&gt; &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;    \n1     5 A        64     9      0 younger  \n2     2 A        70     8      0 older    \n3     1 A        65     5      1 older"
+  },
+  {
+    "objectID": "sec2.html#native-pipe-operator",
+    "href": "sec2.html#native-pipe-operator",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Native Pipe Operator: |>",
+    "text": "Native Pipe Operator: |&gt;\n\nWhat is |&gt;\n\nIntroduced in R 4.1\nPasses the result of one expression into the first argument of the next\nSame idea as %&gt;%, but built into base R\n\nExample\n\n\ndf1 |&gt; # passes tibble data frame df1 to the next function\n  mutate(age_group = if_else(age &gt;= 65, \"older\", \"younger\")) |&gt; # create age group\n  filter(trt == \"A\") |&gt; # filter for treatment A\n  arrange(time) # sort by time\n\n# A tibble: 3 × 6\n     id trt     age  time status age_group\n  &lt;int&gt; &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;    \n1     5 A        64     2      0 younger  \n2     1 A        65     5      1 older    \n3     2 A        70     8      0 older"
+  },
+  {
+    "objectID": "sec2.html#summarizing-and-grouping",
+    "href": "sec2.html#summarizing-and-grouping",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Summarizing and Grouping",
+    "text": "Summarizing and Grouping\n\nSurvival-specific summaries (e.g., number of events)\n\ngroup_by() and summarize() for descriptive summaries by arm\n\n\n\ndf1 |&gt; \n  group_by(trt) |&gt; # group by treatment arm\n  summarize( # summarize each group\n    n = n(), # count number of rows (subjects)\n    events = sum(status), # sum of events (status = 1)\n    median_time = median(time) # median survival time\n  )\n\n# A tibble: 2 × 4\n  trt       n events median_time\n  &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt;       &lt;dbl&gt;\n1 A         3      1           5\n2 B         3      2           6"
   }
 ]

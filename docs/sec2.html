@@ -229,6 +229,7 @@ Lu Mao
 <h2 id="toc-title">Table of contents</h2>
 <ul>
 <li><a href="#/overview-of-tidyverse" id="/toc-overview-of-tidyverse">Overview of Tidyverse</a></li>
+<li><a href="#/tidying-survival-data" id="/toc-tidying-survival-data">Tidying Survival Data</a></li>
 </ul>
 </nav>
 </section>
@@ -254,6 +255,104 @@ Lu Mao
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="co"># Load core tidyverse packages</span></span>
 <span id="cb1-2"><a></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="basic-functionalities" class="slide level2">
+<h2>Basic Functionalities</h2>
+<ul>
+<li><strong>Data manipulation</strong>: using <code>dplyr</code> verbs
+<ul>
+<li><code>mutate()</code> to create new variables (e.g., age group, log-transformed labs)</li>
+<li><code>filter()</code> to subset by treatment or age</li>
+<li><code>select()</code> and <code>rename()</code> for variable formatting</li>
+<li><code>arrange()</code> to sort</li>
+<li><code>group_by()</code> and <code>summarize()</code> for descriptive summaries by arm</li>
+</ul></li>
+<li><strong>Data reshaping</strong>: using <code>tidyr</code> functions
+<ul>
+<li><code>pivot_longer()</code> to convert wide to long format</li>
+<li><code>pivot_wider()</code> to convert long to wide format</li>
+<li><code>nest()</code> and <code>unnest()</code> for hierarchical data</li>
+</ul></li>
+</ul>
+</section>
+<section id="a-simple-example" class="slide level2">
+<h2>A Simple Example</h2>
+<ul>
+<li><strong>Example dataset</strong></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a><span class="co"># Simulated data example</span></span>
+<span id="cb2-2"><a></a>df1 <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb2-3"><a></a>  <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>,</span>
+<span id="cb2-4"><a></a>  <span class="at">trt =</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"B"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>),</span>
+<span id="cb2-5"><a></a>  <span class="at">age =</span> <span class="fu">c</span>(<span class="dv">65</span>, <span class="dv">70</span>, <span class="dv">58</span>, <span class="dv">60</span>, <span class="dv">64</span>, <span class="dv">59</span>),</span>
+<span id="cb2-6"><a></a>  <span class="at">time =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">8</span>, <span class="dv">12</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">6</span>),</span>
+<span id="cb2-7"><a></a>  <span class="at">status =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>)  <span class="co"># 1 = event, 0 = censored</span></span>
+<span id="cb2-8"><a></a>)</span>
+<span id="cb2-9"><a></a>df1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 5
+     id trt     age  time status
+  &lt;int&gt; &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+1     1 A        65     5      1
+2     2 A        70     8      0
+3     3 B        58    12      1
+4     4 B        60     3      1
+5     5 A        64     2      0
+6     6 B        59     6      0</code></pre>
+</div>
+</div>
+</section>
+<section id="native-pipe-operator" class="slide level2">
+<h2>Native Pipe Operator: <code>|&gt;</code></h2>
+<ul>
+<li><strong>What is <code>|&gt;</code></strong>
+<ul>
+<li>Introduced in <strong>R 4.1</strong></li>
+<li>Passes the result of one expression into the first argument of the next</li>
+<li>Same idea as <code>%&gt;%</code>, but <strong>built into base R</strong></li>
+</ul></li>
+<li><strong>Example</strong></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a>df1 <span class="sc">|&gt;</span> <span class="co"># passes tibble data frame df1 to the next function</span></span>
+<span id="cb4-2"><a></a>  <span class="fu">mutate</span>(<span class="at">age_group =</span> <span class="fu">if_else</span>(age <span class="sc">&gt;=</span> <span class="dv">65</span>, <span class="st">"older"</span>, <span class="st">"younger"</span>)) <span class="sc">|&gt;</span> <span class="co"># create age group</span></span>
+<span id="cb4-3"><a></a>  <span class="fu">filter</span>(trt <span class="sc">==</span> <span class="st">"A"</span>) <span class="sc">|&gt;</span> <span class="co"># filter for treatment A</span></span>
+<span id="cb4-4"><a></a>  <span class="fu">arrange</span>(time) <span class="co"># sort by time</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 6
+     id trt     age  time status age_group
+  &lt;int&gt; &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;    
+1     5 A        64     2      0 younger  
+2     1 A        65     5      1 older    
+3     2 A        70     8      0 older    </code></pre>
+</div>
+</div>
+</section>
+<section id="summarizing-and-grouping" class="slide level2">
+<h2>Summarizing and Grouping</h2>
+<ul>
+<li>Survival-specific summaries (e.g., number of events)
+<ul>
+<li><code>group_by()</code> and <code>summarize()</code> for descriptive summaries by arm</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a>df1 <span class="sc">|&gt;</span> </span>
+<span id="cb6-2"><a></a>  <span class="fu">group_by</span>(trt) <span class="sc">|&gt;</span> <span class="co"># group by treatment arm</span></span>
+<span id="cb6-3"><a></a>  <span class="fu">summarize</span>( <span class="co"># summarize each group</span></span>
+<span id="cb6-4"><a></a>    <span class="at">n =</span> <span class="fu">n</span>(), <span class="co"># count number of rows (subjects)</span></span>
+<span id="cb6-5"><a></a>    <span class="at">events =</span> <span class="fu">sum</span>(status), <span class="co"># sum of events (status = 1)</span></span>
+<span id="cb6-6"><a></a>    <span class="at">median_time =</span> <span class="fu">median</span>(time) <span class="co"># median survival time</span></span>
+<span id="cb6-7"><a></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 4
+  trt       n events median_time
+  &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt;       &lt;dbl&gt;
+1 A         3      1           5
+2 B         3      2           6</code></pre>
+</div>
 </div>
 </section>
 <section id="what-does-tidy-mean" class="slide level2">
@@ -282,9 +381,82 @@ Lu Mao
 <ul>
 <li>Time in rows, covariates in columns</li>
 <li>Multiple data types in one column</li>
+<li>Separte randomization and event/censoring dates</li>
 <li>Missing/censored values inconsistently coded</li>
 </ul></li>
 </ul>
+</section>
+<section id="tidy-survival-data" class="slide level2">
+<h2>Tidy Survival Data</h2>
+<ul>
+<li><strong>Possible pre-processing steps</strong>
+<ul>
+<li>Calculate survival time from start to event/censoring</li>
+<li>Creating the <span class="math inline">\((X, \delta)\)</span> structure expected by <code>Surv()</code></li>
+<li>Reshaping data to long format in case of multiple events</li>
+</ul></li>
+<li><strong>An Example</strong></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a><span class="co"># Load GBC data</span></span>
+<span id="cb8-2"><a></a>gbc <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">"data/gbc.txt"</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-3"><a></a><span class="fu">head</span>(gbc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  id     time status hormone age meno size grade nodes prog estrg
+1  1 43.83607      1       1  38    1   18     3     5  141   105
+2  1 74.81967      0       1  38    1   18     3     5  141   105
+3  2 46.55738      1       1  52    1   20     1     1   78    14
+4  2 65.77049      0       1  52    1   20     1     1   78    14
+5  3 41.93443      1       1  47    1   30     2     1  422    89
+6  3 47.73770      2       1  47    1   30     2     1  422    89</code></pre>
+</div>
+</div>
+</section></section>
+<section>
+<section id="tidying-survival-data" class="title-slide slide level1 center">
+<h1>Tidying Survival Data</h1>
+
+</section>
+<section id="calendar-vs.-event-times" class="slide level2">
+<h2>Calendar vs.&nbsp;Event Times</h2>
+<ul>
+<li><strong>Time from start to event/censoring</strong> (<span class="math inline">\(X\)</span>)</li>
+</ul>
+
+<img data-src="images/cal_surv_time.png" class="quarto-figure quarto-figure-center r-stretch" style="width:60.0%"></section>
+<section id="parse-dates-and-calculate-difference" class="slide level2">
+<h2>Parse Dates and Calculate Difference</h2>
+<ul>
+<li><strong>A data example</strong></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a><span class="co"># Example: raw dates as character strings</span></span>
+<span id="cb10-2"><a></a>trial_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb10-3"><a></a>  <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,</span>
+<span id="cb10-4"><a></a>  <span class="at">rand_date =</span> <span class="fu">c</span>(<span class="st">"2022-01-01"</span>, <span class="st">"2022-01-15"</span>, <span class="st">"2022-01-20"</span>),</span>
+<span id="cb10-5"><a></a>  <span class="at">end_date =</span> <span class="fu">c</span>(<span class="st">"2022-04-01"</span>, <span class="st">"2022-06-01"</span>, <span class="st">"2022-03-15"</span>),</span>
+<span id="cb10-6"><a></a>  <span class="at">status =</span> <span class="fu">c</span>(<span class="st">"dead"</span>, <span class="st">"censored"</span>, <span class="st">"dead"</span>)</span>
+<span id="cb10-7"><a></a>)</span>
+<span id="cb10-8"><a></a>trial_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 4
+     id rand_date  end_date   status  
+  &lt;int&gt; &lt;chr&gt;      &lt;chr&gt;      &lt;chr&gt;   
+1     1 2022-01-01 2022-04-01 dead    
+2     2 2022-01-15 2022-06-01 censored
+3     3 2022-01-20 2022-03-15 dead    </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a><span class="co"># Parse dates and calculate time/status</span></span>
+<span id="cb12-2"><a></a>trial_df <span class="ot">&lt;-</span> trial_df <span class="sc">|&gt;</span> </span>
+<span id="cb12-3"><a></a>  <span class="fu">mutate</span>(</span>
+<span id="cb12-4"><a></a>    <span class="at">rand_date =</span> <span class="fu">ymd</span>(rand_date),</span>
+<span id="cb12-5"><a></a>    <span class="at">end_date =</span> <span class="fu">ymd</span>(end_date),</span>
+<span id="cb12-6"><a></a>    <span class="at">censor_date =</span> <span class="fu">ymd</span>(censor_date),</span>
+<span id="cb12-7"><a></a>    <span class="at">status =</span> <span class="fu">if_else</span>(status <span class="sc">==</span> <span class="st">"dead"</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb12-8"><a></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 
 
 </section></section>
