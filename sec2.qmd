@@ -452,7 +452,7 @@ fig8 + facet_wrap(~ group, scales = "free") + # facet by group (using different 
 
 ```
 
-# “Table 1” with `gtsummary`
+# Creating “Table 1” 
 
 ## Descriptive Statistics
 
@@ -512,5 +512,182 @@ df9 |>
   )
 ```
 
+## Exercise: Summarize GBC Data (I)
+
+- **Task**: Summarize the GBC mortality data (`gbc_mort.txt`) like below
+
+
+```{r}
+#| eval: true
+#| echo: false
+
+# Load GBC mortality data (one record per patient)
+gbc_mort <- read.table("data/gbc_mort.txt")
+# Create the summary table
+gbc_mort |> 
+  mutate( # relabel hormone and menopausal status
+    hormone = if_else(hormone == 1, "No Hormone", "Hormone"),
+    meno = if_else(meno == 1, "No", "Yes") 
+  ) |> 
+  tbl_summary( # create table
+    by = hormone, # summarize by hormone therapy
+    include = ! id, # exclude id from summary
+    # Label variables
+    label = list(
+      time = "Follow-up time (months)",
+      status = "Death",
+      hormone = "Hormone therapy",
+      age = "Age (years)",
+      meno = "Menopausal status",
+      size = "Tumor size (mm)",
+      grade = "Tumor grade",
+      nodes = "Number of nodes",
+      prog = "Progesterone (fmol/mg)",
+      estrg = "Estrogen (fmol/mg)"
+    ),
+  ) |>
+  add_overall(last = TRUE) # Add overall column, at the end
+```
     
+
+## Exercise: Summarize GBC Data (II)
+
+- **Points to note**
+    - Summarize by hormone therapy (`hormone`)
+    - Include variables: `time`, `status`, `age`, `meno`, `size`, `grade`, `nodes`, `prog`, `estrg`
+    - Label variables appropriately
+    - Add overall summary column at the end
+
+
+## Exercise: Summarize GBC Data (III) 
+
+```{r}
+#| code-fold: true
+#| code-summary: Solution
+
+# Load GBC mortality data (one record per patient)
+gbc_mort <- read.table("data/gbc_mort.txt")
+# Create the summary table
+gbc_mort |> 
+  mutate( # relabel hormone and menopausal status
+    hormone = if_else(hormone == 1, "No Hormone", "Hormone"),
+    meno = if_else(meno == 1, "No", "Yes") 
+  ) |> 
+  tbl_summary( # create table
+    by = hormone, # summarize by hormone therapy
+    include = ! id, # exclude id from summary
+    # Label variables
+    label = list(
+      time = "Follow-up time (months)",
+      status = "Death",
+      hormone = "Hormone therapy",
+      age = "Age (years)",
+      meno = "Menopausal status",
+      size = "Tumor size (mm)",
+      grade = "Tumor grade",
+      nodes = "Number of nodes",
+      prog = "Progesterone (fmol/mg)",
+      estrg = "Estrogen (fmol/mg)"
+    ),
+  ) |>
+  add_overall(last = TRUE) # Add overall column, at the end
+
+```
+
+
+## Exercise: Summarize GBC Data (IV)
+
+- **Task**: summarize *relapse* and death data from `gbc.txt`
+    - Hint: `group_by(id)` and `summarize()`
+
+```{r}
+#| eval: true
+#| echo: false
+# Load GBC relapse and death data (long format)
+gbc <- read.table("data/gbc.txt")
+# Create the summary table
+gbc |> 
+  group_by(id, hormone) |> 
+  summarize(
+    rel = any(status == 1), # boolean for existence of a relapse (status=1)
+    death = any(status == 2), # boolean for existence of a death (status=2)
+    comp = rel | death,  # boolean for existence of either relapse or death
+    both = rel & death, # boolean for existence of both relapse and death
+  ) |> 
+  mutate(
+    hormone = if_else(hormone == 1, "No Hormone", "Hormone") # relabel hormone therapy
+  ) |> 
+  tbl_summary( # create table
+    by = hormone, # summarize by hormone therapy
+    include = c(rel, death, comp, both), # include specific variables
+    # Label variables
+    label = list(
+      rel = "Relapse",
+      death = "Death",
+      comp = "Composite",
+      both = "Relapse then death"
+    )
+  ) |> 
+  add_overall(last = TRUE) # Add overall column, at the end
+  
+```
+
+## Exercise: Summarize GBC Data (V)
+
+```{r}
+#| code-fold: true
+#| code-summary: Solution
+
+# Load GBC relapse and death data (long format)
+gbc <- read.table("data/gbc.txt")
+# Create the summary table
+gbc |> 
+  group_by(id, hormone) |> 
+  summarize(
+    rel = any(status == 1), # boolean for existence of a relapse (status=1)
+    death = any(status == 2), # boolean for existence of a death (status=2)
+    comp = rel | death,  # boolean for existence of either relapse or death
+    both = rel & death, # boolean for existence of both relapse and death
+  ) |> 
+  mutate(
+    hormone = if_else(hormone == 1, "No Hormone", "Hormone") # relabel hormone therapy
+  ) |> 
+  tbl_summary( # create table
+    by = hormone, # summarize by hormone therapy
+    include = c(rel, death, comp, both), # include specific variables
+    # Label variables
+    label = list(
+      rel = "Relapse",
+      death = "Death",
+      comp = "Composite",
+      both = "Relapse then death"
+    )
+  ) |> 
+  add_overall(last = TRUE) # Add overall column, at the end
+  
+
+
+```
+
+# Summary
+
+## Key Takeaways
+
+- **Tidyverse** provides powerful tools for data manipulation and visualization
+- **Tidy data** principles simplify analysis and visualization
+- **Survival data** may require pre-processing steps (`dplyr`, `tidyr`,`lubridate`)
+- **Swimmer plots** effectively visualize subject follow-up (`ggplot2`)
+- **Descriptive statistics** can be easily summarized using `gtsummary::tbl_summary()`
+
+## Next Steps
+
+- Format analysis results from the `survival` package:
+  - **Nonparametric estimates** with `survfit()`
+  - **Regression models** with `coxph()`
+
+- Explore advanced visualization techniques:
+  - Kaplan–Meier curves with `ggsurvfit` or `survminer`
+  - Layered plots using `ggplot2`
+  - Annotated plots for publications
+
 

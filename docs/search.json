@@ -624,5 +624,68 @@
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Basic Syntax of tbl_summary()",
     "text": "Basic Syntax of tbl_summary()\n\nCommon arguments\n\nby = \"group\" to summarize by group\ninclude = c(\"variable1\", \"variable2\") to include specific variables\nlabel = list(variable = \"Label\") to customize variable labels\nstatistic = list(variable ~ \"statistic\") to specify statistics\n\nstatistic = list(all_continuous() ~ \"{mean} ({sd})\") for mean and SD\n\ndigits = list(variable ~ 2) to set decimal places"
+  },
+  {
+    "objectID": "sec2.html#exercise-summarize-gbc-data",
+    "href": "sec2.html#exercise-summarize-gbc-data",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Exercise: Summarize GBC Data",
+    "text": "Exercise: Summarize GBC Data\n\nTask: Create a summary table for the GBC mortality data\n\nSummarize by hormone therapy (hormone)\nInclude variables: time, status, age, meno, size, grade, nodes, prog, estrg\nLabel variables appropriately\nAdd overall summary column at the end\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\nHormone, N = 2461\nNo Hormone, N = 4401\nOverall, N = 6861\n\n\n\n\nFollow-up time (months)\n48 (29, 61)\n41 (25, 57)\n44 (26, 60)\n\n\nDeath\n56 (23%)\n115 (26%)\n171 (25%)\n\n\nAge (years)\n58 (50, 63)\n50 (45, 59)\n53 (46, 61)\n\n\nMenopausal status\n187 (76%)\n209 (48%)\n396 (58%)\n\n\nTumor size (mm)\n25 (20, 35)\n25 (20, 35)\n25 (20, 35)\n\n\nTumor grade\n\n\n\n\n\n\n\n\n    1\n33 (13%)\n48 (11%)\n81 (12%)\n\n\n    2\n163 (66%)\n281 (64%)\n444 (65%)\n\n\n    3\n50 (20%)\n111 (25%)\n161 (23%)\n\n\nNumber of nodes\n3 (1, 7)\n3 (1, 7)\n3 (1, 7)\n\n\nProgesterone (fmol/mg)\n35 (7, 133)\n32 (7, 130)\n33 (7, 132)\n\n\nEstrogen (fmol/mg)\n46 (9, 183)\n32 (8, 92)\n36 (8, 114)\n\n\n\n1 Median (IQR); n (%)"
+  },
+  {
+    "objectID": "sec2.html#exercise-summarize-gbc-data-i",
+    "href": "sec2.html#exercise-summarize-gbc-data-i",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Exercise: Summarize GBC Data (I)",
+    "text": "Exercise: Summarize GBC Data (I)\n\nTask: Summarize the GBC mortality data (gbc_mort.txt) like below\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\nHormone, N = 2461\nNo Hormone, N = 4401\nOverall, N = 6861\n\n\n\n\nFollow-up time (months)\n48 (29, 61)\n41 (25, 57)\n44 (26, 60)\n\n\nDeath\n56 (23%)\n115 (26%)\n171 (25%)\n\n\nAge (years)\n58 (50, 63)\n50 (45, 59)\n53 (46, 61)\n\n\nMenopausal status\n187 (76%)\n209 (48%)\n396 (58%)\n\n\nTumor size (mm)\n25 (20, 35)\n25 (20, 35)\n25 (20, 35)\n\n\nTumor grade\n\n\n\n\n\n\n\n\n    1\n33 (13%)\n48 (11%)\n81 (12%)\n\n\n    2\n163 (66%)\n281 (64%)\n444 (65%)\n\n\n    3\n50 (20%)\n111 (25%)\n161 (23%)\n\n\nNumber of nodes\n3 (1, 7)\n3 (1, 7)\n3 (1, 7)\n\n\nProgesterone (fmol/mg)\n35 (7, 133)\n32 (7, 130)\n33 (7, 132)\n\n\nEstrogen (fmol/mg)\n46 (9, 183)\n32 (8, 92)\n36 (8, 114)\n\n\n\n1 Median (IQR); n (%)"
+  },
+  {
+    "objectID": "sec2.html#exercise-summarize-gbc-data-i-1",
+    "href": "sec2.html#exercise-summarize-gbc-data-i-1",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Exercise: Summarize GBC Data (I)",
+    "text": "Exercise: Summarize GBC Data (I)\n\nPoints to note\n\nSummarize by hormone therapy (hormone)\nInclude variables: time, status, age, meno, size, grade, nodes, prog, estrg\nLabel variables appropriately\nAdd overall summary column at the end\n\n\n\n\nSolution\n# Load GBC mortality data (one record per patient)\ngbc_mort &lt;- read.table(\"data/gbc_mort.txt\")\n# Create the summary table\ngbc_mort |&gt; \n  mutate( # relabel hormone and menopausal status\n    hormone = if_else(hormone == 1, \"No Hormone\", \"Hormone\"),\n    meno = if_else(meno == 1, \"No\", \"Yes\") \n  ) |&gt; \n  tbl_summary( # create table\n    by = hormone, # summarize by hormone therapy\n    include = ! id, # exclude id from summary\n    # Label variables\n    label = list(\n      time = \"Follow-up time (months)\",\n      status = \"Death\",\n      hormone = \"Hormone therapy\",\n      age = \"Age (years)\",\n      meno = \"Menopausal status\",\n      size = \"Tumor size (mm)\",\n      grade = \"Tumor grade\",\n      nodes = \"Number of nodes\",\n      prog = \"Progesterone (fmol/mg)\",\n      estrg = \"Estrogen (fmol/mg)\"\n    ),\n  ) |&gt;\n  add_overall(last = TRUE) # Add overall column, at the end"
+  },
+  {
+    "objectID": "sec2.html#exercise-summarize-gbc-data-iii",
+    "href": "sec2.html#exercise-summarize-gbc-data-iii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Exercise: Summarize GBC Data (III)",
+    "text": "Exercise: Summarize GBC Data (III)\n\n\nSolution\n# Load GBC mortality data (one record per patient)\ngbc_mort &lt;- read.table(\"data/gbc_mort.txt\")\n# Create the summary table\ngbc_mort |&gt; \n  mutate( # relabel hormone and menopausal status\n    hormone = if_else(hormone == 1, \"No Hormone\", \"Hormone\"),\n    meno = if_else(meno == 1, \"No\", \"Yes\") \n  ) |&gt; \n  tbl_summary( # create table\n    by = hormone, # summarize by hormone therapy\n    include = ! id, # exclude id from summary\n    # Label variables\n    label = list(\n      time = \"Follow-up time (months)\",\n      status = \"Death\",\n      hormone = \"Hormone therapy\",\n      age = \"Age (years)\",\n      meno = \"Menopausal status\",\n      size = \"Tumor size (mm)\",\n      grade = \"Tumor grade\",\n      nodes = \"Number of nodes\",\n      prog = \"Progesterone (fmol/mg)\",\n      estrg = \"Estrogen (fmol/mg)\"\n    ),\n  ) |&gt;\n  add_overall(last = TRUE) # Add overall column, at the end"
+  },
+  {
+    "objectID": "sec2.html#exercise-summarize-gbc-data-ii",
+    "href": "sec2.html#exercise-summarize-gbc-data-ii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Exercise: Summarize GBC Data (II)",
+    "text": "Exercise: Summarize GBC Data (II)\n\nPoints to note\n\nSummarize by hormone therapy (hormone)\nInclude variables: time, status, age, meno, size, grade, nodes, prog, estrg\nLabel variables appropriately\nAdd overall summary column at the end"
+  },
+  {
+    "objectID": "sec2.html#exercise-summarize-gbc-data-iv",
+    "href": "sec2.html#exercise-summarize-gbc-data-iv",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Exercise: Summarize GBC Data (IV)",
+    "text": "Exercise: Summarize GBC Data (IV)\n\nTask: summarize relapse and death data from gbc.txt\n\nHint: group_by(id) and summarize()\n\n\n\n\n\n\n\n\n\n\nCharacteristic\nHormone, N = 2461\nNo Hormone, N = 4401\nOverall, N = 6861\n\n\n\n\nRelapse\n94 (38%)\n205 (47%)\n299 (44%)\n\n\nDeath\n56 (23%)\n115 (26%)\n171 (25%)\n\n\nComposite\n94 (38%)\n205 (47%)\n299 (44%)\n\n\nRelapse then death\n56 (23%)\n115 (26%)\n171 (25%)\n\n\n\n1 n (%)"
+  },
+  {
+    "objectID": "sec2.html#exercise-summarize-gbc-data-v",
+    "href": "sec2.html#exercise-summarize-gbc-data-v",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Exercise: Summarize GBC Data (V)",
+    "text": "Exercise: Summarize GBC Data (V)\n\n\nSolution\n# Load GBC relapse and death data (long format)\ngbc &lt;- read.table(\"data/gbc.txt\")\n# Create the summary table\ngbc |&gt; \n  group_by(id, hormone) |&gt; \n  summarize(\n    rel = any(status == 1), # boolean for existence of a relapse (status=1)\n    death = any(status == 2), # boolean for existence of a death (status=2)\n    comp = rel | death,  # boolean for existence of either relapse or death\n    both = rel & death, # boolean for existence of both relapse and death\n  ) |&gt; \n  mutate(\n    hormone = if_else(hormone == 1, \"No Hormone\", \"Hormone\") # relabel hormone therapy\n  ) |&gt; \n  tbl_summary( # create table\n    by = hormone, # summarize by hormone therapy\n    include = c(rel, death, comp, both), # include specific variables\n    # Label variables\n    label = list(\n      rel = \"Relapse\",\n      death = \"Death\",\n      comp = \"Composite\",\n      both = \"Relapse then death\"\n    )\n  ) |&gt; \n  add_overall(last = TRUE) # Add overall column, at the end"
+  },
+  {
+    "objectID": "sec2.html#key-takeaways",
+    "href": "sec2.html#key-takeaways",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Key Takeaways",
+    "text": "Key Takeaways\n\nTidyverse provides powerful tools for data manipulation and visualization\nTidy data principles simplify analysis and visualization\nSurvival data may require pre-processing steps (dplyr, tidyr,lubridate)\nSwimmer plots effectively visualize subject follow-up (ggplot2)\nDescriptive statistics can be easily summarized using gtsummary::tbl_summary()"
+  },
+  {
+    "objectID": "sec2.html#next-steps",
+    "href": "sec2.html#next-steps",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Next Steps",
+    "text": "Next Steps\n\nFormat analysis results from the survival package:\n\nNonparametric estimates with survfit()\nRegression models with coxph()\n\nExplore advanced visualization techniques:\n\nKaplan–Meier curves with ggsurvfit or survminer\nLayered plots using ggplot2\nAnnotated plots for publications"
   }
 ]
