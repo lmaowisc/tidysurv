@@ -753,8 +753,8 @@
     "objectID": "sec3.html#raw-output-from-survfit",
     "href": "sec3.html#raw-output-from-survfit",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
-    "section": "Raw Output from Survfit()",
-    "text": "Raw Output from Survfit()\n\nKM estimates by hormone therapy\n\n\nlibrary(survival) # Load survival package\n# Fit KM estimates by hormone group\nkm_fit &lt;- survfit(Surv(time, status) ~ hormone, data = df)\n# summarize the KM fit object\nsummary(km_fit, times = c(6, 12, 24, 36))\n\nCall: survfit(formula = Surv(time, status) ~ hormone, data = df)\n\n                hormone=1 \n time n.risk n.event survival std.err lower 95% CI upper 95% CI\n    6    419       9    0.979 0.00691        0.966        0.993\n   12    379      35    0.897 0.01476        0.868        0.926\n   24    280      73    0.720 0.02203        0.678        0.764\n   36    195      41    0.606 0.02475        0.559        0.656\n\n                hormone=2 \n time n.risk n.event survival std.err lower 95% CI upper 95% CI\n    6    236       4    0.983 0.00826        0.967        1.000\n   12    223       8    0.950 0.01418        0.922        0.978\n   24    177      38    0.785 0.02701        0.733        0.839\n   36    136      16    0.708 0.03047        0.650        0.770"
+    "section": "Raw Output from survfit()",
+    "text": "Raw Output from survfit()\n\nKM estimates by hormone therapy\n\n\nlibrary(survival) # Load survival package\n# Fit KM estimates by hormone group\nkm_fit &lt;- survfit(Surv(time, status) ~ hormone, data = df)\n# summarize the KM fit object\nsummary(km_fit, times = c(6, 12, 24, 36))\n\nCall: survfit(formula = Surv(time, status) ~ hormone, data = df)\n\n                hormone=1 \n time n.risk n.event survival std.err lower 95% CI upper 95% CI\n    6    419       9    0.979 0.00691        0.966        0.993\n   12    379      35    0.897 0.01476        0.868        0.926\n   24    280      73    0.720 0.02203        0.678        0.764\n   36    195      41    0.606 0.02475        0.559        0.656\n\n                hormone=2 \n time n.risk n.event survival std.err lower 95% CI upper 95% CI\n    6    236       4    0.983 0.00826        0.967        1.000\n   12    223       8    0.950 0.01418        0.922        0.978\n   24    177      38    0.785 0.02701        0.733        0.839\n   36    136      16    0.708 0.03047        0.650        0.770"
   },
   {
     "objectID": "sec3.html#extracting-survival-estimates",
@@ -839,5 +839,12 @@
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Tabulation with gtsummary::tbl_survfit()",
     "text": "Tabulation with gtsummary::tbl_survfit()\n\nMain function: tbl_survfit()\n\nTakes on survfit object\nCreates a table of survival estimates with confidence intervals\nAutomatically handles stratification and time points\n\n\n\nlibrary(gtsummary) # Load gtsummary package\n# Create a table of survival estimates\ntbl_survfit(km_fit,                        # `survfit` object\n             label = \"Hormone\",           # Row label: \"Hormone\"\n             times = c(6, 12, 24, 36),     # Time points for estimates\n             label_header = \"Month {time}\" # Column label: \"Month xx\"\n             ) \n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\nMonth 6\nMonth 12\nMonth 24\nMonth 36\n\n\n\n\nHormone\n\n\n\n\n\n\n\n\n\n\n    1\n98% (97%, 99%)\n90% (87%, 93%)\n72% (68%, 76%)\n61% (56%, 66%)\n\n\n    2\n98% (97%, 100%)\n95% (92%, 98%)\n78% (73%, 84%)\n71% (65%, 77%)"
+  },
+  {
+    "objectID": "sec3.html#tabulation-with-gtsummary",
+    "href": "sec3.html#tabulation-with-gtsummary",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Tabulation with gtsummary",
+    "text": "Tabulation with gtsummary\n\nMain function: tbl_survfit()\n\nTakes on survfit object\nCreates a table of survival estimates with confidence intervals\nAutomatically handles stratification and time points\n\n\n\nlibrary(gtsummary) # Load gtsummary package\n# Create a table of survival estimates\ntbl_survfit(km_fit,                        # `survfit` object\n             label = \"Hormone\",           # Row label: \"Hormone\"\n             times = c(6, 12, 24, 36),     # Time points for estimates\n             label_header = \"Month {time}\" # Column label: \"Month xx\"\n             ) \n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\nMonth 6\nMonth 12\nMonth 24\nMonth 36\n\n\n\n\nHormone\n\n\n\n\n\n\n\n\n\n\n    1\n98% (97%, 99%)\n90% (87%, 93%)\n72% (68%, 76%)\n61% (56%, 66%)\n\n\n    2\n98% (97%, 100%)\n95% (92%, 98%)\n78% (73%, 84%)\n71% (65%, 77%)"
   }
 ]

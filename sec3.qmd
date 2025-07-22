@@ -58,7 +58,7 @@ df <- gbc |>  # calculate time to first event (relapse or death)
 head(df) 
 ```
 
-## Raw Output from `Survfit()`
+## Raw Output from `survfit()`
 
 - **KM estimates by hormone therapy**
 
@@ -98,7 +98,7 @@ tidy(km_fit) # Tidy the KM fit object
 
 
 
-## Tabulation with `gtsummary::tbl_survfit()` 
+## Tabulation with `gtsummary` 
 
 - **Main function: `tbl_survfit()`**
     - Takes on `survfit` object
