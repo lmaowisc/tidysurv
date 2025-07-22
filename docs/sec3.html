@@ -21,6 +21,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -174,6 +208,12 @@ window.Quarto = {
  <span class="menu-text">Module 2. Data Manipulation with Tidyverse</span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./np.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module 3. Nonparametric Survival Analysis</span></a>
+  </div>
+</li>
     </ul>
     </div>
 </nav>
@@ -184,8 +224,16 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#overview-of-tidyverse" id="toc-overview-of-tidyverse" class="nav-link active" data-scroll-target="#overview-of-tidyverse">Overview of Tidyverse</a></li>
-  <li><a href="#tabulating-survival-estimates" id="toc-tabulating-survival-estimates" class="nav-link" data-scroll-target="#tabulating-survival-estimates">Tabulating survival estimates</a></li>
+  <li><a href="#tabulating-survival-estimates" id="toc-tabulating-survival-estimates" class="nav-link active" data-scroll-target="#tabulating-survival-estimates">Tabulating Survival Estimates</a>
+  <ul>
+  <li><a href="#gbc-relapse-free-survival" id="toc-gbc-relapse-free-survival" class="nav-link" data-scroll-target="#gbc-relapse-free-survival">GBC: Relapse-Free Survival</a></li>
+  <li><a href="#raw-output-from-survfit" id="toc-raw-output-from-survfit" class="nav-link" data-scroll-target="#raw-output-from-survfit">Raw Output from <code>Survfit()</code></a></li>
+  <li><a href="#extracting-survival-estimates" id="toc-extracting-survival-estimates" class="nav-link" data-scroll-target="#extracting-survival-estimates">Extracting Survival Estimates</a></li>
+  <li><a href="#format-by-gtsummarytbl_survfit" id="toc-format-by-gtsummarytbl_survfit" class="nav-link" data-scroll-target="#format-by-gtsummarytbl_survfit">Format by <code>gtsummary::tbl_survfit()</code></a></li>
+  <li><a href="#grouping-by-multiple-variables" id="toc-grouping-by-multiple-variables" class="nav-link" data-scroll-target="#grouping-by-multiple-variables">Grouping by Multiple Variables</a></li>
+  <li><a href="#customizing-the-table" id="toc-customizing-the-table" class="nav-link" data-scroll-target="#customizing-the-table">Customizing the Table</a></li>
+  <li><a href="#tabulating-quantile-estimates" id="toc-tabulating-quantile-estimates" class="nav-link" data-scroll-target="#tabulating-quantile-estimates">Tabulating Quantile Estimates</a></li>
+  </ul></li>
   <li><a href="#visualizing-kaplan-meier-curves" id="toc-visualizing-kaplan-meier-curves" class="nav-link" data-scroll-target="#visualizing-kaplan-meier-curves">Visualizing Kaplan-Meier curves</a></li>
   <li><a href="#tidy-analysis-of-competing-risks" id="toc-tidy-analysis-of-competing-risks" class="nav-link" data-scroll-target="#tidy-analysis-of-competing-risks">Tidy analysis of competing risks</a></li>
   <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a>
@@ -237,11 +285,1176 @@ window.Quarto = {
 </header>
 
 
-<section id="overview-of-tidyverse" class="level1">
-<h1>Overview of Tidyverse</h1>
-</section>
 <section id="tabulating-survival-estimates" class="level1">
-<h1>Tabulating survival estimates</h1>
+<h1>Tabulating Survival Estimates</h1>
+<section id="gbc-relapse-free-survival" class="level2">
+<h2 class="anchored" data-anchor-id="gbc-relapse-free-survival">GBC: Relapse-Free Survival</h2>
+<ul>
+<li>Use <code>dplyr</code> to get time-to-first event</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse) <span class="co"># Load tidyverse packages</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+✔ lubridate 1.9.3     ✔ tidyr     1.3.1
+✔ purrr     1.0.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load mortality + relapse data</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>gbc <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">"data/gbc.txt"</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> gbc <span class="sc">|&gt;</span>  <span class="co"># calculate time to first event (relapse or death)</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(id) <span class="sc">|&gt;</span> <span class="co"># group by id</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(time) <span class="sc">|&gt;</span> <span class="co"># sort rows by time</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="dv">1</span>) <span class="sc">|&gt;</span>      <span class="co"># get the first row within each id</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()     <span class="co"># remove grouping</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the first few rows of the data</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 11
+     id  time status hormone   age  meno  size grade nodes  prog estrg
+  &lt;int&gt; &lt;dbl&gt;  &lt;int&gt;   &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;
+1     1 43.8       1       1    38     1    18     3     5   141   105
+2     2 46.6       1       1    52     1    20     1     1    78    14
+3     3 41.9       1       1    47     1    30     2     1   422    89
+4     4  4.85      0       1    40     1    24     1     3    25    11
+5     5 61.1       0       2    64     2    19     2     1    19     9
+6     6 63.4       0       2    49     2    56     1     3   356    64</code></pre>
+</div>
+</div>
+</section>
+<section id="raw-output-from-survfit" class="level2">
+<h2 class="anchored" data-anchor-id="raw-output-from-survfit">Raw Output from <code>Survfit()</code></h2>
+<ul>
+<li><strong>KM estimates by hormone therapy</strong></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survival) <span class="co"># Load survival package</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'survival' was built under R version 4.4.1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit KM estimates by hormone group</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>km_fit <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> hormone, <span class="at">data =</span> df)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># summarize the KM fit object</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(km_fit, <span class="at">times =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">12</span>, <span class="dv">24</span>, <span class="dv">36</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call: survfit(formula = Surv(time, status) ~ hormone, data = df)
+
+                hormone=1 
+ time n.risk n.event survival std.err lower 95% CI upper 95% CI
+    6    419       9    0.979 0.00691        0.966        0.993
+   12    379      35    0.897 0.01476        0.868        0.926
+   24    280      73    0.720 0.02203        0.678        0.764
+   36    195      41    0.606 0.02475        0.559        0.656
+
+                hormone=2 
+ time n.risk n.event survival std.err lower 95% CI upper 95% CI
+    6    236       4    0.983 0.00826        0.967        1.000
+   12    223       8    0.950 0.01418        0.922        0.978
+   24    177      38    0.785 0.02701        0.733        0.839
+   36    136      16    0.708 0.03047        0.650        0.770</code></pre>
+</div>
+</div>
+</section>
+<section id="extracting-survival-estimates" class="level2">
+<h2 class="anchored" data-anchor-id="extracting-survival-estimates">Extracting Survival Estimates</h2>
+<ul>
+<li><strong>Elements in <code>survfit</code> object</strong>
+<ul>
+<li><code>time</code>: time points of the survival estimates</li>
+<li><code>surv</code>: survival probabilities at the time points</li>
+<li><code>lower, upper</code>: confidence intervals for the survival estimates</li>
+<li><code>strata</code>: stratification information (if applicable)</li>
+</ul></li>
+</ul>
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Exercise
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Create a table of survival estimates with 95% confidence intervals at 6, 12, 24, and 36 months for each hormone therapy group using <code>dplyr</code> and <code>tibble</code>.</p>
+</div>
+</div>
+</section>
+<section id="format-by-gtsummarytbl_survfit" class="level2">
+<h2 class="anchored" data-anchor-id="format-by-gtsummarytbl_survfit">Format by <code>gtsummary::tbl_survfit()</code></h2>
+<ul>
+<li><strong>Main function: <code>tbl_survfit()</code></strong>
+<ul>
+<li>Takes on <code>survfit</code> object</li>
+<li>Creates a table of survival estimates with confidence intervals</li>
+<li>Automatically handles stratification and time points</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gtsummary) <span class="co"># Load gtsummary package</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a table of survival estimates</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tbl_survfit</span>(km_fit,                        <span class="co"># `survfit` object</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">label =</span> <span class="st">"Hormone"</span>,           <span class="co"># Row label: "Hormone"</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">times =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">12</span>, <span class="dv">24</span>, <span class="dv">36</span>),     <span class="co"># Time points for estimates</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">label_header =</span> <span class="st">"Month {time}"</span> <span class="co"># Column label: "Month xx"</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>             ) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="lcbkgxsmgz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#lcbkgxsmgz table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#lcbkgxsmgz thead, #lcbkgxsmgz tbody, #lcbkgxsmgz tfoot, #lcbkgxsmgz tr, #lcbkgxsmgz td, #lcbkgxsmgz th {
+  border-style: none;
+}
+
+#lcbkgxsmgz p {
+  margin: 0;
+  padding: 0;
+}
+
+#lcbkgxsmgz .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#lcbkgxsmgz .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#lcbkgxsmgz .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#lcbkgxsmgz .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#lcbkgxsmgz .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#lcbkgxsmgz .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lcbkgxsmgz .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#lcbkgxsmgz .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#lcbkgxsmgz .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#lcbkgxsmgz .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#lcbkgxsmgz .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#lcbkgxsmgz .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#lcbkgxsmgz .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#lcbkgxsmgz .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#lcbkgxsmgz .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#lcbkgxsmgz .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#lcbkgxsmgz .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#lcbkgxsmgz .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#lcbkgxsmgz .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lcbkgxsmgz .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#lcbkgxsmgz .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#lcbkgxsmgz .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#lcbkgxsmgz .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lcbkgxsmgz .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#lcbkgxsmgz .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#lcbkgxsmgz .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lcbkgxsmgz .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lcbkgxsmgz .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#lcbkgxsmgz .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lcbkgxsmgz .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#lcbkgxsmgz .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lcbkgxsmgz .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#lcbkgxsmgz .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lcbkgxsmgz .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#lcbkgxsmgz .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lcbkgxsmgz .gt_left {
+  text-align: left;
+}
+
+#lcbkgxsmgz .gt_center {
+  text-align: center;
+}
+
+#lcbkgxsmgz .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#lcbkgxsmgz .gt_font_normal {
+  font-weight: normal;
+}
+
+#lcbkgxsmgz .gt_font_bold {
+  font-weight: bold;
+}
+
+#lcbkgxsmgz .gt_font_italic {
+  font-style: italic;
+}
+
+#lcbkgxsmgz .gt_super {
+  font-size: 65%;
+}
+
+#lcbkgxsmgz .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#lcbkgxsmgz .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#lcbkgxsmgz .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#lcbkgxsmgz .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#lcbkgxsmgz .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#lcbkgxsmgz .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#lcbkgxsmgz .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="gt_col_headings header">
+<th id="<strong>Characteristic</strong>" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Characteristic</strong></th>
+<th id="Month 6" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">Month 6</th>
+<th id="Month 12" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">Month 12</th>
+<th id="Month 24" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">Month 24</th>
+<th id="Month 36" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">Month 36</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">Hormone</td>
+<td class="gt_row gt_center" headers="stat_1"><br>
+</td>
+<td class="gt_row gt_center" headers="stat_2"><br>
+</td>
+<td class="gt_row gt_center" headers="stat_3"><br>
+</td>
+<td class="gt_row gt_center" headers="stat_4"><br>
+</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;1</td>
+<td class="gt_row gt_center" headers="stat_1">98% (97%, 99%)</td>
+<td class="gt_row gt_center" headers="stat_2">90% (87%, 93%)</td>
+<td class="gt_row gt_center" headers="stat_3">72% (68%, 76%)</td>
+<td class="gt_row gt_center" headers="stat_4">61% (56%, 66%)</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;2</td>
+<td class="gt_row gt_center" headers="stat_1">98% (97%, 100%)</td>
+<td class="gt_row gt_center" headers="stat_2">95% (92%, 98%)</td>
+<td class="gt_row gt_center" headers="stat_3">78% (73%, 84%)</td>
+<td class="gt_row gt_center" headers="stat_4">71% (65%, 77%)</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="grouping-by-multiple-variables" class="level2">
+<h2 class="anchored" data-anchor-id="grouping-by-multiple-variables">Grouping by Multiple Variables</h2>
+<ul>
+<li><strong>Pass raw data to <code>tbl_survfit()</code></strong></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span>                                       <span class="co"># Use raw data</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tbl_survfit</span>(<span class="at">y =</span> <span class="fu">Surv</span>(time, status),       <span class="co"># Survival object</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">include =</span> <span class="fu">c</span>(meno, grade),     <span class="co"># Include variables: menopause, grade</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">label =</span> <span class="fu">list</span>(<span class="at">meno =</span> <span class="st">"Menopause"</span>, <span class="co"># Row labels</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>                          <span class="at">grade =</span> <span class="st">"Tumor grade"</span>),</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">times =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">12</span>, <span class="dv">24</span>, <span class="dv">36</span>),     <span class="co"># Time points for estimates</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>              <span class="at">label_header =</span> <span class="st">"Month {time}"</span> <span class="co"># Column label: "Month xx"</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>             ) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="ediulqsxam" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#ediulqsxam table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#ediulqsxam thead, #ediulqsxam tbody, #ediulqsxam tfoot, #ediulqsxam tr, #ediulqsxam td, #ediulqsxam th {
+  border-style: none;
+}
+
+#ediulqsxam p {
+  margin: 0;
+  padding: 0;
+}
+
+#ediulqsxam .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#ediulqsxam .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#ediulqsxam .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#ediulqsxam .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#ediulqsxam .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ediulqsxam .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ediulqsxam .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ediulqsxam .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#ediulqsxam .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#ediulqsxam .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#ediulqsxam .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#ediulqsxam .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#ediulqsxam .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#ediulqsxam .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#ediulqsxam .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#ediulqsxam .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#ediulqsxam .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#ediulqsxam .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#ediulqsxam .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ediulqsxam .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#ediulqsxam .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#ediulqsxam .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#ediulqsxam .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ediulqsxam .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#ediulqsxam .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#ediulqsxam .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ediulqsxam .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ediulqsxam .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#ediulqsxam .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ediulqsxam .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#ediulqsxam .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ediulqsxam .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ediulqsxam .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ediulqsxam .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ediulqsxam .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ediulqsxam .gt_left {
+  text-align: left;
+}
+
+#ediulqsxam .gt_center {
+  text-align: center;
+}
+
+#ediulqsxam .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#ediulqsxam .gt_font_normal {
+  font-weight: normal;
+}
+
+#ediulqsxam .gt_font_bold {
+  font-weight: bold;
+}
+
+#ediulqsxam .gt_font_italic {
+  font-style: italic;
+}
+
+#ediulqsxam .gt_super {
+  font-size: 65%;
+}
+
+#ediulqsxam .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#ediulqsxam .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#ediulqsxam .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#ediulqsxam .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#ediulqsxam .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#ediulqsxam .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#ediulqsxam .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="gt_col_headings header">
+<th id="<strong>Characteristic</strong>" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Characteristic</strong></th>
+<th id="Month 6" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">Month 6</th>
+<th id="Month 12" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">Month 12</th>
+<th id="Month 24" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">Month 24</th>
+<th id="Month 36" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">Month 36</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">Menopause</td>
+<td class="gt_row gt_center" headers="stat_1"><br>
+</td>
+<td class="gt_row gt_center" headers="stat_2"><br>
+</td>
+<td class="gt_row gt_center" headers="stat_3"><br>
+</td>
+<td class="gt_row gt_center" headers="stat_4"><br>
+</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;1</td>
+<td class="gt_row gt_center" headers="stat_1">98% (96%, 99%)</td>
+<td class="gt_row gt_center" headers="stat_2">90% (86%, 93%)</td>
+<td class="gt_row gt_center" headers="stat_3">73% (68%, 78%)</td>
+<td class="gt_row gt_center" headers="stat_4">65% (59%, 71%)</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;2</td>
+<td class="gt_row gt_center" headers="stat_1">98% (97%, 100%)</td>
+<td class="gt_row gt_center" headers="stat_2">93% (90%, 96%)</td>
+<td class="gt_row gt_center" headers="stat_3">75% (71%, 80%)</td>
+<td class="gt_row gt_center" headers="stat_4">64% (59%, 69%)</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">Tumor grade</td>
+<td class="gt_row gt_center" headers="stat_1"><br>
+</td>
+<td class="gt_row gt_center" headers="stat_2"><br>
+</td>
+<td class="gt_row gt_center" headers="stat_3"><br>
+</td>
+<td class="gt_row gt_center" headers="stat_4"><br>
+</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;1</td>
+<td class="gt_row gt_center" headers="stat_1">100% (100%, 100%)</td>
+<td class="gt_row gt_center" headers="stat_2">100% (100%, 100%)</td>
+<td class="gt_row gt_center" headers="stat_3">93% (87%, 99%)</td>
+<td class="gt_row gt_center" headers="stat_4">84% (75%, 93%)</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;2</td>
+<td class="gt_row gt_center" headers="stat_1">98% (97%, 100%)</td>
+<td class="gt_row gt_center" headers="stat_2">92% (90%, 95%)</td>
+<td class="gt_row gt_center" headers="stat_3">75% (71%, 80%)</td>
+<td class="gt_row gt_center" headers="stat_4">64% (60%, 69%)</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;3</td>
+<td class="gt_row gt_center" headers="stat_1">96% (93%, 99%)</td>
+<td class="gt_row gt_center" headers="stat_2">85% (80%, 91%)</td>
+<td class="gt_row gt_center" headers="stat_3">63% (55%, 71%)</td>
+<td class="gt_row gt_center" headers="stat_4">55% (48%, 64%)</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="customizing-the-table" class="level2">
+<h2 class="anchored" data-anchor-id="customizing-the-table">Customizing the Table</h2>
+<ul>
+<li><strong>Customize table appearance</strong>
+<ul>
+<li><code>label_header</code>: change column names</li>
+<li><code>label</code>: change row labels</li>
+<li><code>statistic</code>: customize statistics displayed</li>
+</ul></li>
+<li>For more on <code>gtsummary</code> table customization, see the <a href="https://www.danieldsjoberg.com/gtsummary/articles/tables.html">gtsummary documentation</a>.</li>
+</ul>
+</section>
+<section id="tabulating-quantile-estimates" class="level2">
+<h2 class="anchored" data-anchor-id="tabulating-quantile-estimates">Tabulating Quantile Estimates</h2>
+<ul>
+<li><strong>Quantile estimates</strong>: Median survival time, quartiles, etc.
+<ul>
+<li>Specify <code>probs</code> argument in <code>tbl_survfit()</code></li>
+</ul></li>
+</ul>
+</section>
 </section>
 <section id="visualizing-kaplan-meier-curves" class="level1">
 <h1>Visualizing Kaplan-Meier curves</h1>

@@ -37,9 +37,105 @@ include-in-header:
 #   data-background-position: 2% 2%
 ---
 
-# Overview of Tidyverse
 
-# Tabulating survival estimates
+# Tabulating Survival Estimates
+
+## GBC: Relapse-Free Survival
+
+- Use `dplyr` to get time-to-first event
+
+```{r}
+#| eval: true
+library(tidyverse) # Load tidyverse packages
+# Load mortality + relapse data
+gbc <- read.table("data/gbc.txt", header = TRUE)
+df <- gbc |>  # calculate time to first event (relapse or death)
+  group_by(id) |> # group by id
+  arrange(time) |> # sort rows by time
+  slice(1) |>      # get the first row within each id
+  ungroup()     # remove grouping
+# Display the first few rows of the data
+head(df) 
+```
+
+## Raw Output from `Survfit()`
+
+- **KM estimates by hormone therapy**
+
+```{r}
+#| eval: true
+library(survival) # Load survival package
+# Fit KM estimates by hormone group
+km_fit <- survfit(Surv(time, status) ~ hormone, data = df)
+# summarize the KM fit object
+summary(km_fit, times = c(6, 12, 24, 36))
+```
+
+## Extracting Survival Estimates
+
+- **Elements in `survfit` object**
+    - `time`: time points of the survival estimates
+    - `surv`: survival probabilities at the time points
+    - `lower, upper`: confidence intervals for the survival estimates
+    - `strata`: stratification information (if applicable)
+
+::: {.callout-note appearance="minimal"}
+## Exercise
+Create a table of survival estimates with 95\% confidence intervals at 6, 12, 24, and 36 months for each hormone therapy group using `dplyr` and `tibble`.
+:::
+
+## Format by `gtsummary::tbl_survfit()` 
+
+- **Main function: `tbl_survfit()`**
+    - Takes on `survfit` object
+    - Creates a table of survival estimates with confidence intervals
+    - Automatically handles stratification and time points
+```{r}
+#| eval: true
+library(gtsummary) # Load gtsummary package
+# Create a table of survival estimates
+tbl_survfit(km_fit,                        # `survfit` object
+             label = "Hormone",           # Row label: "Hormone"
+             times = c(6, 12, 24, 36),     # Time points for estimates
+             label_header = "Month {time}" # Column label: "Month xx"
+             ) 
+```
+
+## Grouping by Multiple Variables
+
+- **Pass raw data to `tbl_survfit()`**
+
+```{r}
+#| eval: true
+df |>                                       # Use raw data
+  tbl_survfit(y = Surv(time, status),       # Survival object
+              include = c(meno, grade),     # Include variables: menopause, grade
+              label = list(meno = "Menopause", # Row labels
+                          grade = "Tumor grade"),
+              times = c(6, 12, 24, 36),     # Time points for estimates
+              label_header = "Month {time}" # Column label: "Month xx"
+             ) 
+```
+
+
+
+## Customizing the Table
+
+- **Customize table appearance**
+    - `label_header`: change column names
+    - `label`: change row labels
+    - `statistic`: customize statistics displayed
+
+- For more on `gtsummary` table customization, see the [gtsummary documentation](https://www.danieldsjoberg.com/gtsummary/articles/tables.html).
+
+
+
+## Tabulating Quantile Estimates
+
+- **Quantile estimates**: Median survival time, quartiles, etc.
+    - Specify `probs` argument in `tbl_survfit()`
+
+
 
 # Visualizing Kaplan-Meier curves
 
