@@ -18,6 +18,7 @@ website:
     contents:
       - intro.qmd
       - tidy.qmd
+      - np.qmd
 csl: apa.csl
 format:
   html:

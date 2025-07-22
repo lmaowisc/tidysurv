@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Lu Mao">
 
-<title>Welcome to the workshop – Tidy Survival Analysis — A Workshop</title>
+<title>Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data – Tidy Survival Analysis — A Workshop</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -66,6 +67,11 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<style type="text/css">
+ul li ul li {
+  font-size: 0.78em;
+}
+</style>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -98,8 +104,9 @@ window.Quarto = {
 </script>
 
 <link rel="stylesheet" href="styles.css">
-<meta name="twitter:title" content="Welcome to the workshop – Tidy Survival Analysis — A Workshop">
-<meta name="twitter:description" content="">
+<link rel="stylesheet" href="style.css">
+<meta name="twitter:title" content="Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data – Tidy Survival Analysis — A Workshop">
+<meta name="twitter:description" content="Module 3. Nonparametric Survival Analysis">
 <meta name="twitter:card" content="summary">
 </head>
 
@@ -121,7 +128,7 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
 </ul>
@@ -135,7 +142,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Welcome to the workshop</li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data</li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -167,12 +174,6 @@ window.Quarto = {
  <span class="menu-text">Module 2. Data Manipulation with Tidyverse</span></a>
   </div>
 </li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./np.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Module 3. Nonparametric Survival Analysis</span></a>
-  </div>
-</li>
     </ul>
     </div>
 </nav>
@@ -183,26 +184,50 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#time-and-place" id="toc-time-and-place" class="nav-link active" data-scroll-target="#time-and-place">Time and Place</a></li>
-  <li><a href="#instructor-profile" id="toc-instructor-profile" class="nav-link" data-scroll-target="#instructor-profile">Instructor Profile</a></li>
-  <li><a href="#learning-outcomes" id="toc-learning-outcomes" class="nav-link" data-scroll-target="#learning-outcomes">Learning Outcomes</a></li>
-  <li><a href="#outline" id="toc-outline" class="nav-link" data-scroll-target="#outline">Outline</a></li>
+  <li><a href="#overview-of-tidyverse" id="toc-overview-of-tidyverse" class="nav-link active" data-scroll-target="#overview-of-tidyverse">Overview of Tidyverse</a></li>
+  <li><a href="#tabulating-survival-estimates" id="toc-tabulating-survival-estimates" class="nav-link" data-scroll-target="#tabulating-survival-estimates">Tabulating survival estimates</a></li>
+  <li><a href="#visualizing-kaplan-meier-curves" id="toc-visualizing-kaplan-meier-curves" class="nav-link" data-scroll-target="#visualizing-kaplan-meier-curves">Visualizing Kaplan-Meier curves</a></li>
+  <li><a href="#tidy-analysis-of-competing-risks" id="toc-tidy-analysis-of-competing-risks" class="nav-link" data-scroll-target="#tidy-analysis-of-competing-risks">Tidy analysis of competing risks</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a>
+  <ul>
+  <li><a href="#key-takeaways" id="toc-key-takeaways" class="nav-link" data-scroll-target="#key-takeaways">Key Takeaways</a></li>
+  </ul></li>
   </ul>
-</nav>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="sec3.html"><i class="bi bi-file-slides"></i>RevealJS</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Welcome to the workshop</h1>
+<h1 class="title">Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data</h1>
+<p class="subtitle lead">Module 3. Nonparametric Survival Analysis</p>
 </div>
 
 
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliations</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author">Lu Mao <a href="mailto:lmao@biostat.wisc.edu" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> </p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            Department of Biostatistics &amp; Medical Informatics
+          </p>
+        <p class="affiliation">
+            University of Wisconsin-Madison
+          </p>
+        <p class="affiliation">
+            Aug 2, 2025
+          </p>
+      </div>
+  </div>
 
 <div class="quarto-title-meta">
 
-    
+      
   
     
   </div>
@@ -212,91 +237,26 @@ window.Quarto = {
 </header>
 
 
-<p>This site presents materials for the short course <strong>Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data</strong> to be taught at the 2025 Joint Statistical Meetings (JSM) in Nashville, TN.</p>
-<p><strong>This course</strong> aims to equip participants with the skills to apply tidy principles to survival analysis, fostering a more organized and reproducible approach to data analysis in R.</p>
-<p>In a tidyverse approach, we apply consistent data workflows to survival analysis tasks. This means using tibble data frames and <code>dplyr</code> for data preparation, keeping outputs tidy (one row per observation or estimate), and leveraging <code>ggplot2</code> for visualization. For example, one might create the survival outcome as a new column using <code>Surv(time, status)</code> within a <code>dplyr</code> pipeline, fit models and then use broom to <code>tidy()</code> model outputs into data frames, and produce publication-quality plots with <code>ggplot2</code> or <code>ggsurvfit</code>. The goal is a reproducible workflow where raw data are transformed, analyzed, and visualized seamlessly.</p>
-<p><strong>Target Audience</strong>: Statisticians, data analysts, researchers, and students interested in survival analysis who are familiar with R and the Tidyverse.</p>
-<section id="time-and-place" class="level2">
-<h2 class="anchored" data-anchor-id="time-and-place">Time and Place</h2>
-<ul>
-<li>Sunday, Aug 3: 8:30 AM - 12:30 PM</li>
-<li>Music City Center | Room: CC-110A</li>
-</ul>
+<section id="overview-of-tidyverse" class="level1">
+<h1>Overview of Tidyverse</h1>
 </section>
-<section id="instructor-profile" class="level2">
-<h2 class="anchored" data-anchor-id="instructor-profile">Instructor Profile</h2>
-<section id="lu-mao-phd" class="level5">
-<h5 class="anchored" data-anchor-id="lu-mao-phd"><a href="https://lmaowisc.github.io/" target="_blank">Lu Mao, PhD</a></h5>
-<ul>
-<li>Associate Professor of Biostatistics at UW-Madison</li>
-<li>Methodologic research
-<ul>
-<li><a href="https://reporter.nih.gov/search/9aSu5u3xlE26GrjbF_4cBg/project-details/10734551" target="_blank">R01HL149875</a>: <em>Novel Statistical Methods for Complex Time-to-Event Data in Cardiovascular Clinical Trials</em> (12/01/2019 – 07/31/2028)</li>
-<li><a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2015526" target="_blank">DMS2015526</a>: <em>Randomized Trials with Non-Compliance</em> (07/01/2020 – 06/30/2024)</li>
-</ul></li>
-<li>Collaborative research
-<ul>
-<li>Cardiovascular disease, cancer, radiology, behavioral health interventions</li>
-</ul></li>
-<li>Teaching
-<ul>
-<li><a href="https://lmaowisc.github.io/BMI741" target="_blank">Survival Analysis: Theory and Methods</a> (UW; 2020 - 2025)</li>
-</ul></li>
-<li>Editorial service
-<ul>
-<li><a href="https://www.jacc.org/journal/heart-failure/editorial-board" target="_blank">Statistical Editor</a>, <em>JACC Journals</em></li>
-<li><a href="https://www.tandfonline.com/action/journalInformation?show=editorialBoard&amp;journalCode=usbr20" target="_blank">Associate Editor</a>, <em>Statistics for Biopharmaceutical Research</em></li>
-</ul></li>
-</ul>
+<section id="tabulating-survival-estimates" class="level1">
+<h1>Tabulating survival estimates</h1>
 </section>
+<section id="visualizing-kaplan-meier-curves" class="level1">
+<h1>Visualizing Kaplan-Meier curves</h1>
 </section>
-<section id="learning-outcomes" class="level2">
-<h2 class="anchored" data-anchor-id="learning-outcomes">Learning Outcomes</h2>
-<ol type="1">
-<li>Understand the fundamentals of survival analysis, including key concepts such as censored data, survival functions, and hazard functions.</li>
-<li>Utilize R’s Tidyverse packages to manipulate, visualize, and analyze survival data.</li>
-<li>Fit and interpret survival models using the survival and survminer packages in conjunction with Tidyverse functions.</li>
-<li>Create clear and informative visualizations of survival data, including Kaplan-Meier curves and survival distributions.</li>
-<li>Communicate survival analysis results effectively using tidy principles.</li>
-</ol>
+<section id="tidy-analysis-of-competing-risks" class="level1">
+<h1>Tidy analysis of competing risks</h1>
 </section>
-<section id="outline" class="level2">
-<h2 class="anchored" data-anchor-id="outline">Outline</h2>
-<ul>
-<li><strong>1. Introduction to Survival Analysis</strong> (30 min)
-<ul>
-<li>1.1 Key concepts: survival functions, hazard functions, and censoring</li>
-<li>1.2 German breast cancer study: a working example</li>
-<li>1.3 Overview of survival analysis with <code>survival</code> package</li>
-</ul></li>
-<li><strong>2. Data Manipulation with Tidyverse</strong> (45 min)
-<ul>
-<li>2.1 Overview of Tidyverse</li>
-<li>2.2 Tidying survival data</li>
-<li>2.3 Visualizing Subject Follow-Up with <code>ggplot2</code></li>
-<li>2.4 Creating “Table 1” with <code>gtsummary</code></li>
-</ul></li>
-<li><strong>3. Nonparametric Survival Analysis</strong> (50 min)
-<ul>
-<li>3.1 Tabulating survival estimates with <code>gtsummary</code></li>
-<li>3.2 Visualizing Kaplan-Meier curves with <code>ggsurvfit</code> (or <code>survminer</code>)</li>
-<li>3.3 Tidy analysis of competing risks using <code>tidycmprsk</code></li>
-</ul></li>
-<li><strong>4. Cox proportional hazards regression</strong> (40 min)
-<ul>
-<li>4.1 Tabulating regression results with <code>gtsummary</code></li>
-<li>4.2 Model diagnostics and residual plots with <code>survminer</code></li>
-<li>4.3 Fine-Gray model for competing risks with <code>tidycmprsk</code></li>
-</ul></li>
-<li><strong>5. Machine learning using <code>tidymodels</code></strong> (50 min)
-<ul>
-<li>5.1 Modeling basics</li>
-<li>5.2 Using the <code>censored</code> package for survival models</li>
-</ul></li>
-</ul>
+<section id="summary" class="level1">
+<h1>Summary</h1>
+<section id="key-takeaways" class="level2">
+<h2 class="anchored" data-anchor-id="key-takeaways">Key Takeaways</h2>
 
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

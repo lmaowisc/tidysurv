@@ -1,8 +1,8 @@
-# Module 2. Data Manipulation with Tidyverse
+# Module 3. Nonparametric Survival Analysis
 
 ## Slides
 
-Section slides [here](sec2.html){target="_blank"}. (To convert html to pdf, press E $\to$ Print $\to$ Destination: Save to pdf)
+Section slides [here](sec3.html){target="_blank"}. (To convert html to pdf, press E $\to$ Print $\to$ Destination: Save to pdf)
 
 ## R code
 
@@ -12,7 +12,7 @@ Section slides [here](sec2.html){target="_blank"}. (To convert html to pdf, pres
 #| eval: false
 
 # -------------------------------------------
-# Survival Analysis: Module 2 Code
+# Survival Analysis: Module 3 Code
 # -------------------------------------------
 
 # Load necessary package

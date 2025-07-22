@@ -1,0 +1,52 @@
+---
+title: "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data"
+subtitle: "Module 3. Nonparametric Survival Analysis"
+css: style.css
+# csl: apa.csl
+author:
+  name: Lu Mao
+  affiliations: 
+    - name: Department of Biostatistics & Medical Informatics
+    - University of Wisconsin-Madison
+    - Aug 2, 2025
+  email: lmao@biostat.wisc.edu
+format: 
+  revealjs:
+    theme: simple
+    # auto-stretch: false
+    # incremental: true
+    toc: true
+    toc-depth: 1
+    # small: true
+editor: visual
+execute: 
+  eval: false
+  echo: true
+  # cache: true
+include-in-header:
+  - text: |
+      <style type="text/css">
+      ul li ul li {
+        font-size: 0.78em;
+      }
+      </style>
+# bibliography: references.bib
+# title-slide-attributes: 
+#   data-background-image: jsm_logo.png
+#   data-background-size: 20%
+#   data-background-position: 2% 2%
+---
+
+# Overview of Tidyverse
+
+# Tabulating survival estimates
+
+# Visualizing Kaplan-Meier curves
+
+# Tidy analysis of competing risks
+
+# Summary
+
+## Key Takeaways
+
+

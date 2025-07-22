@@ -32,7 +32,7 @@
     "href": "index.html#outline",
     "title": "Welcome to the workshop",
     "section": "Outline",
-    "text": "Outline\n\n1. Introduction to Survival Analysis (30 min)\n\n1.1 Key concepts: survival functions, hazard functions, and censoring\n1.2 German breast cancer study: a working example\n1.3 Overview of survival analysis with survival package\n\n2. Data Manipulation with Tidyverse (45 min)\n\n2.1 Importing and cleaning survival data\n2.2 Using dplyr for data manipulation\n2.3 Simple visualization of follow-up data with ggplot2\n2.4 “Table 1” with gtsummary\n\n3. Nonparametric Survival Analysis (50 min)\n\n3.1 Tabulation of summary statistics with gtsummary\n3.2 Visualing Kaplan-Meier curves with ggsurvfit (or survminer)\n3.3 Tidy analysis of competing risks using tidycmprsk\n\n4. Cox proportional hazards regression (40 min)\n\n4.1 Tabulating regression results with gtsummary\n4.2 Model diagnostics and residual plots with survminer\n4.3 Fine-Gray model for competing risks with tidycmprsk\n\n5. Machine learning using tidymodels (50 min)\n\n5.1 Modeling basics\n5.2 Using the censored package for survival models"
+    "text": "Outline\n\n1. Introduction to Survival Analysis (30 min)\n\n1.1 Key concepts: survival functions, hazard functions, and censoring\n1.2 German breast cancer study: a working example\n1.3 Overview of survival analysis with survival package\n\n2. Data Manipulation with Tidyverse (45 min)\n\n2.1 Overview of Tidyverse\n2.2 Tidying survival data\n2.3 Visualizing Subject Follow-Up with ggplot2\n2.4 Creating “Table 1” with gtsummary\n\n3. Nonparametric Survival Analysis (50 min)\n\n3.1 Tabulating survival estimates with gtsummary\n3.2 Visualizing Kaplan-Meier curves with ggsurvfit (or survminer)\n3.3 Tidy analysis of competing risks using tidycmprsk\n\n4. Cox proportional hazards regression (40 min)\n\n4.1 Tabulating regression results with gtsummary\n4.2 Model diagnostics and residual plots with survminer\n4.3 Fine-Gray model for competing risks with tidycmprsk\n\n5. Machine learning using tidymodels (50 min)\n\n5.1 Modeling basics\n5.2 Using the censored package for survival models"
   },
   {
     "objectID": "intro.html",
@@ -85,8 +85,8 @@
     "objectID": "sec1.html#time-to-event-data",
     "href": "sec1.html#time-to-event-data",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
-    "section": "Time-to-Event Data",
-    "text": "Time-to-Event Data\n\nA common type of outcome in medical and clinical studies\n\nStarting point: Randomization, diagnosis, enrollment, birth, etc.\n\nEndpoint (Event of interest): Death, disease onset, hospitalization, etc.\n\nEngineering: Failure times of machines or components (reliability)\nSocial sciences: Time to job change, dropout, or event occurrence\n\n\nRight censoring:\n\nEvent not observed within the follow-up period\nDue to study ending, dropout, or loss to follow-up\nWe only know:\n\\[\nT &gt; C\n\\] where \\(T\\) is event time and \\(C\\) is censoring time"
+    "section": "",
+    "text": "A common type of outcome in medical and clinical studies\n\nStarting point: Randomization, diagnosis, enrollment, birth, etc.\n\nEndpoint (Event of interest): Death, disease onset, hospitalization, etc.\n\nEngineering: Failure times of machines or components (reliability)\nSocial sciences: Time to job change, dropout, or event occurrence\n\n\nRight censoring:\n\nEvent not observed within the follow-up period\nDue to study ending, dropout, or loss to follow-up\nWe only know:\n\\[\nT &gt; C\n\\] where \\(T\\) is event time and \\(C\\) is censoring time"
   },
   {
     "objectID": "sec1.html#censoring",
@@ -99,22 +99,22 @@
     "objectID": "sec1.html#follow-up-swimmer-plot",
     "href": "sec1.html#follow-up-swimmer-plot",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
-    "section": "Follow-up (Swimmer) Plot",
-    "text": "Follow-up (Swimmer) Plot\n\nA rat tumorigenicity study"
+    "section": "",
+    "text": "A rat tumorigenicity study"
   },
   {
     "objectID": "sec1.html#basic-estimands",
     "href": "sec1.html#basic-estimands",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
-    "section": "Basic Estimands",
-    "text": "Basic Estimands\n\nSurvival function: \\(S(t) = \\Pr(T &gt; t)\\)\n\nProbability subject survives beyond time \\(t\\)\n\nHazard function:\n\\[\n\\lambda(t) = \\lim_{\\Delta t \\to 0} \\frac{\\Pr(t \\leq T &lt; t + \\Delta t \\mid T \\geq t)}{\\Delta t}\n\\]\n\nInstantaneous risk of failure at time \\(t\\)\n\nRelationship \\[\nS(t) = \\exp\\left(-\\int_0^t \\lambda(u) \\mathrm{d}u\\right)\n\\]\n\nCumulative hazard function: \\(\\Lambda(t) = \\int_0^t \\lambda(u) \\mathrm{d}u\\)"
+    "section": "",
+    "text": "Survival function: \\(S(t) = \\Pr(T &gt; t)\\)\n\nProbability subject survives beyond time \\(t\\)\n\nHazard function:\n\\[\n\\lambda(t) = \\lim_{\\Delta t \\to 0} \\frac{\\Pr(t \\leq T &lt; t + \\Delta t \\mid T \\geq t)}{\\Delta t}\n\\]\n\nInstantaneous risk of failure at time \\(t\\)\n\nRelationship \\[\nS(t) = \\exp\\left(-\\int_0^t \\lambda(u) \\mathrm{d}u\\right)\n\\]\n\nCumulative hazard function: \\(\\Lambda(t) = \\int_0^t \\lambda(u) \\mathrm{d}u\\)"
   },
   {
     "objectID": "sec1.html#observed-censored-data",
     "href": "sec1.html#observed-censored-data",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
-    "section": "Observed (Censored) Data",
-    "text": "Observed (Censored) Data\n\nNotation: \\((X, \\delta)\\)\n\n\\(X=\\min(T, C)\\): observation time (event or censoring)\n\\(\\delta = I(T\\leq C)\\): event indicator (1 for event, 0 for censoring)\n\nData format\n\n# time = X, status = delta (tidy format)\n    id    time status\n1     1     5     1\n2     2     3     0\n3     3     8     1\n4     4     2     0\n5     5     6     1\n# Alternatively \n    id    time \n1     1     5   \n2     2     3+  \n3     3     8  \n4     4     2+  \n5     5     6"
+    "section": "",
+    "text": "Notation: \\((X, \\delta)\\)\n\n\\(X=\\min(T, C)\\): observation time (event or censoring)\n\\(\\delta = I(T\\leq C)\\): event indicator (1 for event, 0 for censoring)\n\nData format\n\n# time = X, status = delta (tidy format)\n    id    time status\n1     1     5     1\n2     2     3     0\n3     3     8     1\n4     4     2     0\n5     5     6     1\n# Alternatively \n    id    time \n1     1     5   \n2     2     3+  \n3     3     8  \n4     4     2+  \n5     5     6"
   },
   {
     "objectID": "sec1.html#s",
@@ -184,7 +184,7 @@
     "href": "sec1.html#kaplan-meier-curves-i",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Kaplan-Meier Curves (I)",
-    "text": "Kaplan-Meier Curves (I)\n\nFit Kaplan-Meier survival curves\n\n\nlibrary(survival) \n# Fit KM curves by hormone treatment group\nkm_fit &lt;- survfit(Surv(time, status) ~ hormone, data = df)\nkm_fit\n\nCall: survfit(formula = Surv(time, status) ~ hormone, data = df)\n\n            n events median 0.95LCL 0.95UCL\nhormone=1 440    205   50.1    42.5    59.5\nhormone=2 246     94   66.2    62.9      NA"
+    "text": "Kaplan-Meier Curves (I)\n\nFit Kaplan-Meier survival curves\n\n\nlibrary(survival) \n\nWarning: package 'survival' was built under R version 4.4.1\n\n# Fit KM curves by hormone treatment group\nkm_fit &lt;- survfit(Surv(time, status) ~ hormone, data = df)\nkm_fit\n\nCall: survfit(formula = Surv(time, status) ~ hormone, data = df)\n\n            n events median 0.95LCL 0.95UCL\nhormone=1 440    205   50.1    42.5    59.5\nhormone=2 246     94   66.2    62.9      NA"
   },
   {
     "objectID": "sec1.html#kaplan-meier-curves-ii",
@@ -205,7 +205,7 @@
     "href": "sec1.html#log-rank-test",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Log-Rank Test",
-    "text": "Log-Rank Test\n\nCompare survival curves between groups\n\n\nlgr_obj &lt;- survdiff(Surv(time, status) ~ hormone, data = df)\nlgr_obj # Print log-rank test results\n\nCall:\nsurvdiff(formula = Surv(time, status) ~ hormone, data = df)\n\n            N Observed Expected (O-E)^2/E (O-E)^2/V\nhormone=1 440      205      180      3.37      8.56\nhormone=2 246       94      119      5.12      8.56\n\n Chisq= 8.6  on 1 degrees of freedom, p= 0.003 \n\nlgr_obj$pvalue # Extract p-value\n\n[1] 0.003427282\n\n\n\n\n\nExercise\n\n\nPerform a log-rank test on treatment stratified by patient menopausal status meno.\n\n\nSolution\nsurvdiff(Surv(time, status) ~ hormone + strata(meno), data = df)"
+    "text": "Log-Rank Test\n\nCompare survival curves between groups\n\n\nlgr_obj &lt;- survdiff(Surv(time, status) ~ hormone, data = df)\nlgr_obj # Print log-rank test results\n\nCall:\nsurvdiff(formula = Surv(time, status) ~ hormone, data = df)\n\n            N Observed Expected (O-E)^2/E (O-E)^2/V\nhormone=1 440      205      180      3.37      8.56\nhormone=2 246       94      119      5.12      8.56\n\n Chisq= 8.6  on 1 degrees of freedom, p= 0.003 \n\nlgr_obj$pvalue # Extract p-value\n\n[1] 0.003427282\n\n\n\n\n\n\n\n\nExercise\n\n\n\nPerform a log-rank test on treatment stratified by patient menopausal status meno.\n\n\nSolution\nsurvdiff(Surv(time, status) ~ hormone + strata(meno), data = df)"
   },
   {
     "objectID": "sec1.html#key-takeaways",
@@ -303,21 +303,21 @@
     "href": "sec1.html#cox-model---check-ph-assumptions-ii",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Cox Model - Check PH Assumptions (II)",
-    "text": "Cox Model - Check PH Assumptions (II)\n\nGraphical check of PH assumptions\n\nPlot Schoenfeld residuals against time\n\n\n\npar(mfrow= c(2, 4)) # Set up 2x4 plotting area for 7 covariates\nplot(ph_test, se = TRUE, col = \"blue\", lwd = 2) # Plot Schoenfeld residuals"
+    "text": "Cox Model - Check PH Assumptions (II)\n\nGraphical check of PH assumptions\n\nPlot Schoenfeld residuals against time\n\n\n\npar(mfrow= c(2, 4)) # Set up 2x4 plotting area for 7 covariates\nplot(ph_test, se = TRUE, col = \"blue\", lwd = 2) # Plot Schoenfeld residuals\n\nWarning in seq.default(from = min(xx), to = max(xx), length = nsmo): partial\nargument match of 'length' to 'length.out'\n\n\nWarning in seq.default(min(xx), max(xx), length = 17): partial argument match\nof 'length' to 'length.out'\n\n\nWarning in rep(col, length = 2): partial argument match of 'length' to\n'length.out'\n\n\nWarning in rep(lwd, length = 2): partial argument match of 'length' to\n'length.out'\n\n\nWarning in rep(lty, length = 2): partial argument match of 'length' to\n'length.out'"
   },
   {
     "objectID": "sec1.html#cox-model---check-covariate-forms",
     "href": "sec1.html#cox-model---check-covariate-forms",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Cox Model - Check Covariate Forms",
-    "text": "Cox Model - Check Covariate Forms\n\nCheck linearity of covariate effects\n\nPlot martingale residuals against (quantitative) covariates\n\n\n\n# Extract martingale residuals \nmart_resid &lt;- residuals(cox_fit, type = 'martingale')\n\n\n\nPlotting\npar(mfrow= c(1, 4))  # Set up 1x4 plotting area for 4 covariates\n# Plot martingale residuals against age\nplot(df$age, mart_resid, xlab = \"Age\", ylab = \"Martingale Residuals\",\n     main = \"Age\")\n# Add smoothed line\nlines(lowess(df$age, mart_resid), col = \"blue\", lwd = 2)\nabline(h = 0, col = \"red\", lty = 2) # Add horizontal line at 0\n\n# Repeat for other covariates\nplot(df$size, mart_resid, xlab = \"Tumor Size\", ylab = \"Martingale Residuals\",\n     main = \"Tumor Size\")\nlines(lowess(df$size, mart_resid), col = \"blue\", lwd = 2)\nabline(h = 0, col = \"red\", lty = 2) # Add horizontal line at 0\nplot(df$prog, mart_resid, xlab = \"Progesterone Receptor\", ylab = \"Martingale Residuals\",\n     main = \"Progesterone Receptor\")\nlines(lowess(df$prog, mart_resid), col = \"blue\", lwd = 2)\nabline(h = 0, col = \"red\", lty = 2) # Add horizontal line at 0\nplot(df$estrg, mart_resid, xlab = \"Estrogen Receptor\", ylab = \"Martingale Residuals\",\n     main = \"Estrogen Receptor\")\nlines(lowess(df$estrg, mart_resid), col = \"blue\", lwd = 2)\nabline(h = 0, col = \"red\", lty = 2) # Add horizontal line at 0"
+    "text": "Cox Model - Check Covariate Forms\n\nCheck linearity of covariate effects\n\nPlot martingale residuals against (quantitative) covariates\n\n\n# Extract martingale residuals \nmart_resid &lt;- residuals(cox_fit, type = 'martingale')\n\n\n\nPlotting\npar(mfrow= c(1, 4))  # Set up 1x4 plotting area for 4 covariates\n# Plot martingale residuals against age\nplot(df$age, mart_resid, xlab = \"Age\", ylab = \"Martingale Residuals\",\n     main = \"Age\")\n# Add smoothed line\nlines(lowess(df$age, mart_resid), col = \"blue\", lwd = 2)\nabline(h = 0, col = \"red\", lty = 2) # Add horizontal line at 0\n\n# Repeat for other covariates\nplot(df$size, mart_resid, xlab = \"Tumor Size\", ylab = \"Martingale Residuals\",\n     main = \"Tumor Size\")\nlines(lowess(df$size, mart_resid), col = \"blue\", lwd = 2)\nabline(h = 0, col = \"red\", lty = 2) # Add horizontal line at 0\nplot(df$prog, mart_resid, xlab = \"Progesterone Receptor\", ylab = \"Martingale Residuals\",\n     main = \"Progesterone Receptor\")\nlines(lowess(df$prog, mart_resid), col = \"blue\", lwd = 2)\nabline(h = 0, col = \"red\", lty = 2) # Add horizontal line at 0\nplot(df$estrg, mart_resid, xlab = \"Estrogen Receptor\", ylab = \"Martingale Residuals\",\n     main = \"Estrogen Receptor\")\nlines(lowess(df$estrg, mart_resid), col = \"blue\", lwd = 2)\nabline(h = 0, col = \"red\", lty = 2) # Add horizontal line at 0"
   },
   {
     "objectID": "sec1.html#coding-exercise",
     "href": "sec1.html#coding-exercise",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Coding Exercise",
-    "text": "Coding Exercise\n\n\n\nExercise\n\n\nResidual analyses show that the proportional hazards assumption is violated for tumor grade, and that the effect of age is not linear.\nFit a different model to address these issues.\n\n\nSample solution\n# Dichotomize age at 40\ndf$age40 &lt;- ifelse(df$age &lt; 40, 0, 1)\n# Fit Cox model stratified by tumor grade and with binary age \ncox_fit2 &lt;- coxph(Surv(time, status) ~ hormone + meno + age40 + size + prog + estrg + \n                   strata(grade), data = df)\nsummary(cox_fit2) # Print model summary"
+    "text": "Coding Exercise\n\n\n\n\n\n\nExercise\n\n\n\nResidual analyses show that the proportional hazards assumption is violated for tumor grade, and that the effect of age is not linear.\nFit a different model to address these issues.\n\n\nSample solution\n# Dichotomize age at 40\ndf$age40 &lt;- ifelse(df$age &lt; 40, 0, 1)\n# Fit Cox model stratified by tumor grade and with binary age \ncox_fit2 &lt;- coxph(Surv(time, status) ~ hormone + meno + age40 + size + prog + estrg + \n                   strata(grade), data = df)\nsummary(cox_fit2) # Print model summary"
   },
   {
     "objectID": "sec1.html#open-questions",
@@ -483,14 +483,14 @@
     "href": "sec2.html#native-pipe-operator",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Native Pipe Operator: |>",
-    "text": "Native Pipe Operator: |&gt;\n\nWhat is |&gt;\n\nIntroduced in R 4.1\nPasses the result of one expression into the first argument of the next\nSame idea as %&gt;%, but built into base R\n\nExample\n\n\ndf1 |&gt; # passes tibble data frame df1 to the next function\n  mutate(age_group = if_else(age &gt;= 65, \"older\", \"younger\")) |&gt; # create age group\n  filter(trt == \"A\") |&gt; # filter for treatment A\n  arrange(time) # sort by time\n\n# A tibble: 3 × 6\n     id trt     age  time status age_group\n  &lt;int&gt; &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;    \n1     5 A        64     2      0 younger  \n2     1 A        65     5      1 older    \n3     2 A        70     8      0 older"
+    "text": "Native Pipe Operator: |&gt;\n\nWhat is |&gt;\n\nIntroduced in R 4.1 (hot key: Ctrl + Shift + M)\nPasses the result of one expression into the first argument of the next\nSame idea as %&gt;%, but built into base R\n\nExample\n\n\ndf1 |&gt; # passes tibble data frame df1 to the next function \n  mutate(age_group = if_else(age &gt;= 65, \"older\", \"younger\")) |&gt; # create age group\n  filter(trt == \"A\") |&gt; # filter for treatment A\n  arrange(time) # sort by time\n\n# A tibble: 3 × 6\n     id trt     age  time status age_group\n  &lt;int&gt; &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;    \n1     5 A        64     2      0 younger  \n2     1 A        65     5      1 older    \n3     2 A        70     8      0 older"
   },
   {
     "objectID": "sec2.html#summarizing-and-grouping",
     "href": "sec2.html#summarizing-and-grouping",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Summarizing and Grouping",
-    "text": "Summarizing and Grouping\n\nSurvival-specific summaries (e.g., number of events)\n\ngroup_by() and summarize() for descriptive summaries by arm\n\n\n\ndf1 |&gt; \n  group_by(trt) |&gt; # group by treatment arm\n  summarize( # summarize each group\n    n = n(), # count number of rows (subjects)\n    events = sum(status), # sum of events (status = 1)\n    median_time = median(time) # median survival time\n  )\n\n# A tibble: 2 × 4\n  trt       n events median_time\n  &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt;       &lt;dbl&gt;\n1 A         3      1           5\n2 B         3      2           6"
+    "text": "Summarizing and Grouping\n\nSurvival-specific summaries (e.g., number of events)\n\ngroup_by() and summarize() for descriptive summaries by arm\n\n\ndf1 |&gt; \n  group_by(trt) |&gt; # group by treatment arm\n  summarize( # summarize each group\n    n = n(), # count number of rows (subjects)\n    events = sum(status), # sum of events (status = 1)\n    median_time = median(time) # median survival time\n  )\n\n# A tibble: 2 × 4\n  trt       n events median_time\n  &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt;       &lt;dbl&gt;\n1 A         3      1           5\n2 B         3      2           6"
   },
   {
     "objectID": "sec2.html#dates-to-time-difference",
@@ -504,7 +504,7 @@
     "href": "sec2.html#parsing-dates-and-calculating-time",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Parsing Dates and Calculating Time",
-    "text": "Parsing Dates and Calculating Time\n\nUsing lubridate to parse dates\n\nymd() for “year-month-day” format\nmdy() for “month-day-year” format\n\n\n\n# Parse dates and calculate time/status\ndf2 |&gt; \n  mutate(\n    rand_date = ymd(rand_date), # convert character to Date\n    end_date = ymd(end_date), # convert character to Date\n    time = as.numeric(end_date - rand_date), # calculate time in days\n    status = if_else(status == \"dead\", 1, 0) # convert status to 1/0\n  )\n\n# A tibble: 3 × 5\n     id rand_date  end_date   status  time\n  &lt;int&gt; &lt;date&gt;     &lt;date&gt;      &lt;dbl&gt; &lt;dbl&gt;\n1     1 2022-01-01 2022-04-01      1    90\n2     2 2022-01-15 2022-06-01      0   137\n3     3 2022-01-20 2022-03-15      1    54"
+    "text": "Parsing Dates and Calculating Time\n\nUsing lubridate to parse dates\n\nymd() for “year-month-day” format\nmdy() for “month-day-year” format\n\n\n# Parse dates and calculate time/status\ndf2 |&gt; \n  mutate(\n    rand_date = ymd(rand_date), # convert character to Date\n    end_date = ymd(end_date), # convert character to Date\n    time = as.numeric(end_date - rand_date), # calculate time in days\n    status = if_else(status == \"dead\", 1, 0) # convert status to 1/0\n  )\n\n# A tibble: 3 × 5\n     id rand_date  end_date   status  time\n  &lt;int&gt; &lt;date&gt;     &lt;date&gt;      &lt;dbl&gt; &lt;dbl&gt;\n1     1 2022-01-01 2022-04-01      1    90\n2     2 2022-01-15 2022-06-01      0   137\n3     3 2022-01-20 2022-03-15      1    54"
   },
   {
     "objectID": "sec2.html#exercise-calculate-survival-time",
@@ -532,7 +532,7 @@
     "href": "sec2.html#parsing-censored-observations",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Parsing Censored Observations",
-    "text": "Parsing Censored Observations\n\nAlternative formats for censored times\n\n\"32+\", \"&gt;17\", etc\nparse_number() for get time; str_detect() for status\n\n\n\n# Example data: relapse times with \"+\" indicating censoring\nMP &lt;- c(10,  \"32+\", 23, \"25+\")\n# Convert to (time, status) format\ndf4 &lt;- tibble(\n  MP = MP,                               # Original data\n  time = parse_number(MP),               # Extract numeric part\n  status = 1 - str_detect(MP, \"\\\\+\")     # Censored if \"+\" detected\n)\ndf4\n\n# A tibble: 4 × 3\n  MP     time status\n  &lt;chr&gt; &lt;dbl&gt;  &lt;dbl&gt;\n1 10       10      1\n2 32+      32      0\n3 23       23      1\n4 25+      25      0"
+    "text": "Parsing Censored Observations\n\nAlternative formats for censored times\n\n\"32+\", \"&gt;17\", etc\nparse_number() for get time; str_detect() for status\n\n\n# Example data: relapse times with \"+\" indicating censoring\nMP &lt;- c(10,  \"32+\", 23, \"25+\")\n# Convert to (time, status) format\ndf4 &lt;- tibble(\n  MP = MP,                               # Original data\n  time = parse_number(MP),               # Extract numeric part\n  status = 1 - str_detect(MP, \"\\\\+\")     # Censored if \"+\" detected\n)\ndf4\n\n# A tibble: 4 × 3\n  MP     time status\n  &lt;chr&gt; &lt;dbl&gt;  &lt;dbl&gt;\n1 10       10      1\n2 32+      32      0\n3 23       23      1\n4 25+      25      0"
   },
   {
     "objectID": "sec2.html#exercise-parse-censored-times",
@@ -687,5 +687,52 @@
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Next Steps",
     "text": "Next Steps\n\nFormat analysis results from the survival package:\n\nNonparametric estimates with survfit()\nRegression models with coxph()\n\nExplore advanced visualization techniques:\n\nKaplan–Meier curves with ggsurvfit or survminer\nLayered plots using ggplot2\nAnnotated plots for publications"
+  },
+  {
+    "objectID": "sec3.html#key-takeaways",
+    "href": "sec3.html#key-takeaways",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Key Takeaways",
+    "text": "Key Takeaways"
+  },
+  {
+    "objectID": "sec1.html",
+    "href": "sec1.html",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "",
+    "text": "A common type of outcome in medical and clinical studies\n\nStarting point: Randomization, diagnosis, enrollment, birth, etc.\n\nEndpoint (Event of interest): Death, disease onset, hospitalization, etc.\n\nEngineering: Failure times of machines or components (reliability)\nSocial sciences: Time to job change, dropout, or event occurrence\n\n\nRight censoring:\n\nEvent not observed within the follow-up period\nDue to study ending, dropout, or loss to follow-up\nWe only know:\n\\[\nT &gt; C\n\\] where \\(T\\) is event time and \\(C\\) is censoring time\n\n\n\n\n\n\nA rat tumorigenicity study\n\n\n\n\n\n\n\n\n\n\nSurvival function: \\(S(t) = \\Pr(T &gt; t)\\)\n\nProbability subject survives beyond time \\(t\\)\n\nHazard function:\n\\[\n\\lambda(t) = \\lim_{\\Delta t \\to 0} \\frac{\\Pr(t \\leq T &lt; t + \\Delta t \\mid T \\geq t)}{\\Delta t}\n\\]\n\nInstantaneous risk of failure at time \\(t\\)\n\nRelationship \\[\nS(t) = \\exp\\left(-\\int_0^t \\lambda(u) \\mathrm{d}u\\right)\n\\]\n\nCumulative hazard function: \\(\\Lambda(t) = \\int_0^t \\lambda(u) \\mathrm{d}u\\)\n\n\n\n\n\n\nNotation: \\((X, \\delta)\\)\n\n\\(X=\\min(T, C)\\): observation time (event or censoring)\n\\(\\delta = I(T\\leq C)\\): event indicator (1 for event, 0 for censoring)\n\nData format\n\n# time = X, status = delta (tidy format)\n    id    time status\n1     1     5     1\n2     2     3     0\n3     3     8     1\n4     4     2     0\n5     5     6     1\n# Alternatively \n    id    time \n1     1     5   \n2     2     3+  \n3     3     8  \n4     4     2+  \n5     5     6"
+  },
+  {
+    "objectID": "np.html",
+    "href": "np.html",
+    "title": "Module 3. Nonparametric Survival Analysis",
+    "section": "",
+    "text": "Section slides here. (To convert html to pdf, press E \\(\\to\\) Print \\(\\to\\) Destination: Save to pdf)\n\n\n\n\n\nShow the code\n# -------------------------------------------\n# Survival Analysis: Module 3 Code\n# -------------------------------------------\n\n# Load necessary package\nlibrary(survival)\n\n# ---------------------------\n# 1. Load Datasets\n# ---------------------------\n\n# Load mortality-only data\ngbc_mort &lt;- read.table(\"data/gbc_mort.txt\", header = TRUE)\nhead(gbc_mort)\n\n# Load mortality + relapse data\ngbc &lt;- read.table(\"data/gbc.txt\", header = TRUE)\nhead(gbc)\n\n# ---------------------------\n# 2. Prepare Dataset for Relapse-Free Survival\n# ---------------------------\n\n# Sort by subject ID and event time\ngbc &lt;- gbc[order(gbc$id, gbc$time), ]\n\n# Keep first event per subject\ndf &lt;- gbc[!duplicated(gbc$id), ]\n\n# Collapse relapse/death to single composite outcome\ndf$status &lt;- ifelse(df$status &gt; 0, 1, 0)\nhead(df)\n\n# ---------------------------\n# 3. Kaplan-Meier Estimation\n# ---------------------------\n\n# Fit Kaplan-Meier curves by hormone treatment\nkm_fit &lt;- survfit(Surv(time, status) ~ hormone, data = df)\n\n# Print KM summary\nsummary(km_fit, times = c(6, 12, 24, 36))\n\n# Plot KM curves with CI\nplot(km_fit, ylim = c(0, 1), xlab = \"Time (months)\",\n     ylab = \"Relapse-free survival probability\",\n     col = c(\"red\", \"blue\"), conf.int = TRUE)\nlegend(\"bottomleft\", col = c(\"red\", \"blue\"), lty = 1,\n       legend = c(\"No hormone\", \"Hormone\"))\n\n# ---------------------------\n# 4. Log-Rank Test\n# ---------------------------\n\n# Compare survival curves by treatment\nlgr_obj &lt;- survdiff(Surv(time, status) ~ hormone, data = df)\nlgr_obj\n\n# Stratified test by menopausal status\nsurvdiff(Surv(time, status) ~ hormone + strata(meno), data = df)\n\n# ---------------------------\n# 5. Cox Proportional Hazards Model\n# ---------------------------\n\n# Fit Cox PH model with multiple covariates\ncox_fit &lt;- coxph(Surv(time, status) ~ hormone + meno + age + grade +\n                   size + prog + estrg, data = df)\nsummary(cox_fit)\n\n# Extract estimates and covariance matrix\nbeta &lt;- cox_fit$coefficients\nvbeta &lt;- vcov(cox_fit)\ncoef(summary(cox_fit))\n\n# ---------------------------\n# 6. Survival Prediction\n# ---------------------------\n\n# Define new subject's covariates\nnew_data &lt;- data.frame(hormone = 1, meno = 1, \n                       age = 45, grade = 2,\n                       size = 20, prog = 100,\n                       estrg = 100)\n\n# Predict survival probabilities\npredicted_survival &lt;- survfit(cox_fit, newdata = new_data,\n                              times = c(6, 12, 24, 36))\nsummary(predicted_survival)\n\n# Plot predicted survival function\nplot(predicted_survival, ylim = c(0, 1), xlab = \"Time (months)\",\n     ylab = \"Predicted survival probability\", conf.int = TRUE)\n\n# ---------------------------\n# 7. Model Diagnostics\n# ---------------------------\n\n# Test proportional hazards assumption\nph_test &lt;- cox.zph(cox_fit)\nph_test\n\n# Plot Schoenfeld residuals\npar(mfrow = c(2, 4))  # 2 rows, 4 columns\nplot(ph_test, se = TRUE, col = \"blue\", lwd = 2)\n\n# ---------------------------\n# 8. Check Functional Form of Covariates\n# ---------------------------\n\n# Extract martingale residuals\nmart_resid &lt;- residuals(cox_fit, type = \"martingale\")\n\n# Plot residuals vs quantitative covariates\npar(mfrow = c(1, 4))  # 1 row, 4 plots\n\nplot(df$age, mart_resid, xlab = \"Age\", ylab = \"Martingale Residuals\",\n     main = \"Age\")\nlines(lowess(df$age, mart_resid), col = \"blue\", lwd = 2)\nabline(h = 0, lty = 2, col = \"red\")\n\nplot(df$size, mart_resid, xlab = \"Tumor Size\", ylab = \"Martingale Residuals\",\n     main = \"Tumor Size\")\nlines(lowess(df$size, mart_resid), col = \"blue\", lwd = 2)\nabline(h = 0, lty = 2, col = \"red\")\n\nplot(df$prog, mart_resid, xlab = \"Progesterone\", ylab = \"Martingale Residuals\",\n     main = \"Progesterone\")\nlines(lowess(df$prog, mart_resid), col = \"blue\", lwd = 2)\nabline(h = 0, lty = 2, col = \"red\")\n\nplot(df$estrg, mart_resid, xlab = \"Estrogen\", ylab = \"Martingale Residuals\",\n     main = \"Estrogen\")\nlines(lowess(df$estrg, mart_resid), col = \"blue\", lwd = 2)\nabline(h = 0, lty = 2, col = \"red\")\n\n# ---------------------------\n# 9. Addressing Violations\n# ---------------------------\n\n# Dichotomize age at 40, stratify on grade\ndf$age40 &lt;- ifelse(df$age &lt; 40, 0, 1)\n\ncox_fit2 &lt;- coxph(Surv(time, status) ~ hormone + meno + age40 +\n                    size + prog + estrg + strata(grade), data = df)\nsummary(cox_fit2)",
+    "crumbs": [
+      "Home",
+      "Module 3. Nonparametric Survival Analysis"
+    ]
+  },
+  {
+    "objectID": "np.html#slides",
+    "href": "np.html#slides",
+    "title": "Module 3. Nonparametric Survival Analysis",
+    "section": "",
+    "text": "Section slides here. (To convert html to pdf, press E \\(\\to\\) Print \\(\\to\\) Destination: Save to pdf)",
+    "crumbs": [
+      "Home",
+      "Module 3. Nonparametric Survival Analysis"
+    ]
+  },
+  {
+    "objectID": "np.html#r-code",
+    "href": "np.html#r-code",
+    "title": "Module 3. Nonparametric Survival Analysis",
+    "section": "",
+    "text": "Show the code\n# -------------------------------------------\n# Survival Analysis: Module 3 Code\n# -------------------------------------------\n\n# Load necessary package\nlibrary(survival)\n\n# ---------------------------\n# 1. Load Datasets\n# ---------------------------\n\n# Load mortality-only data\ngbc_mort &lt;- read.table(\"data/gbc_mort.txt\", header = TRUE)\nhead(gbc_mort)\n\n# Load mortality + relapse data\ngbc &lt;- read.table(\"data/gbc.txt\", header = TRUE)\nhead(gbc)\n\n# ---------------------------\n# 2. Prepare Dataset for Relapse-Free Survival\n# ---------------------------\n\n# Sort by subject ID and event time\ngbc &lt;- gbc[order(gbc$id, gbc$time), ]\n\n# Keep first event per subject\ndf &lt;- gbc[!duplicated(gbc$id), ]\n\n# Collapse relapse/death to single composite outcome\ndf$status &lt;- ifelse(df$status &gt; 0, 1, 0)\nhead(df)\n\n# ---------------------------\n# 3. Kaplan-Meier Estimation\n# ---------------------------\n\n# Fit Kaplan-Meier curves by hormone treatment\nkm_fit &lt;- survfit(Surv(time, status) ~ hormone, data = df)\n\n# Print KM summary\nsummary(km_fit, times = c(6, 12, 24, 36))\n\n# Plot KM curves with CI\nplot(km_fit, ylim = c(0, 1), xlab = \"Time (months)\",\n     ylab = \"Relapse-free survival probability\",\n     col = c(\"red\", \"blue\"), conf.int = TRUE)\nlegend(\"bottomleft\", col = c(\"red\", \"blue\"), lty = 1,\n       legend = c(\"No hormone\", \"Hormone\"))\n\n# ---------------------------\n# 4. Log-Rank Test\n# ---------------------------\n\n# Compare survival curves by treatment\nlgr_obj &lt;- survdiff(Surv(time, status) ~ hormone, data = df)\nlgr_obj\n\n# Stratified test by menopausal status\nsurvdiff(Surv(time, status) ~ hormone + strata(meno), data = df)\n\n# ---------------------------\n# 5. Cox Proportional Hazards Model\n# ---------------------------\n\n# Fit Cox PH model with multiple covariates\ncox_fit &lt;- coxph(Surv(time, status) ~ hormone + meno + age + grade +\n                   size + prog + estrg, data = df)\nsummary(cox_fit)\n\n# Extract estimates and covariance matrix\nbeta &lt;- cox_fit$coefficients\nvbeta &lt;- vcov(cox_fit)\ncoef(summary(cox_fit))\n\n# ---------------------------\n# 6. Survival Prediction\n# ---------------------------\n\n# Define new subject's covariates\nnew_data &lt;- data.frame(hormone = 1, meno = 1, \n                       age = 45, grade = 2,\n                       size = 20, prog = 100,\n                       estrg = 100)\n\n# Predict survival probabilities\npredicted_survival &lt;- survfit(cox_fit, newdata = new_data,\n                              times = c(6, 12, 24, 36))\nsummary(predicted_survival)\n\n# Plot predicted survival function\nplot(predicted_survival, ylim = c(0, 1), xlab = \"Time (months)\",\n     ylab = \"Predicted survival probability\", conf.int = TRUE)\n\n# ---------------------------\n# 7. Model Diagnostics\n# ---------------------------\n\n# Test proportional hazards assumption\nph_test &lt;- cox.zph(cox_fit)\nph_test\n\n# Plot Schoenfeld residuals\npar(mfrow = c(2, 4))  # 2 rows, 4 columns\nplot(ph_test, se = TRUE, col = \"blue\", lwd = 2)\n\n# ---------------------------\n# 8. Check Functional Form of Covariates\n# ---------------------------\n\n# Extract martingale residuals\nmart_resid &lt;- residuals(cox_fit, type = \"martingale\")\n\n# Plot residuals vs quantitative covariates\npar(mfrow = c(1, 4))  # 1 row, 4 plots\n\nplot(df$age, mart_resid, xlab = \"Age\", ylab = \"Martingale Residuals\",\n     main = \"Age\")\nlines(lowess(df$age, mart_resid), col = \"blue\", lwd = 2)\nabline(h = 0, lty = 2, col = \"red\")\n\nplot(df$size, mart_resid, xlab = \"Tumor Size\", ylab = \"Martingale Residuals\",\n     main = \"Tumor Size\")\nlines(lowess(df$size, mart_resid), col = \"blue\", lwd = 2)\nabline(h = 0, lty = 2, col = \"red\")\n\nplot(df$prog, mart_resid, xlab = \"Progesterone\", ylab = \"Martingale Residuals\",\n     main = \"Progesterone\")\nlines(lowess(df$prog, mart_resid), col = \"blue\", lwd = 2)\nabline(h = 0, lty = 2, col = \"red\")\n\nplot(df$estrg, mart_resid, xlab = \"Estrogen\", ylab = \"Martingale Residuals\",\n     main = \"Estrogen\")\nlines(lowess(df$estrg, mart_resid), col = \"blue\", lwd = 2)\nabline(h = 0, lty = 2, col = \"red\")\n\n# ---------------------------\n# 9. Addressing Violations\n# ---------------------------\n\n# Dichotomize age at 40, stratify on grade\ndf$age40 &lt;- ifelse(df$age &lt; 40, 0, 1)\n\ncox_fit2 &lt;- coxph(Surv(time, status) ~ hormone + meno + age40 +\n                    size + prog + estrg + strata(grade), data = df)\nsummary(cox_fit2)",
+    "crumbs": [
+      "Home",
+      "Module 3. Nonparametric Survival Analysis"
+    ]
   }
 ]

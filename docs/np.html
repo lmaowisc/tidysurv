@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>tidy – Tidy Survival Analysis --- A Workshop</title>
+<title>np – Tidy Survival Analysis --- A Workshop</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -168,7 +168,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./tidy.html">Module 2. Data Manipulation with Tidyverse</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./np.html">Module 3. Nonparametric Survival Analysis</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -196,13 +196,13 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./tidy.html" class="sidebar-item-text sidebar-link active">
+  <a href="./tidy.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Module 2. Data Manipulation with Tidyverse</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./np.html" class="sidebar-item-text sidebar-link">
+  <a href="./np.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Module 3. Nonparametric Survival Analysis</span></a>
   </div>
 </li>
@@ -216,7 +216,7 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#module-2.-data-manipulation-with-tidyverse" id="toc-module-2.-data-manipulation-with-tidyverse" class="nav-link active" data-scroll-target="#module-2.-data-manipulation-with-tidyverse">Module 2. Data Manipulation with Tidyverse</a>
+  <li><a href="#module-3.-nonparametric-survival-analysis" id="toc-module-3.-nonparametric-survival-analysis" class="nav-link active" data-scroll-target="#module-3.-nonparametric-survival-analysis">Module 3. Nonparametric Survival Analysis</a>
   <ul>
   <li><a href="#slides" id="toc-slides" class="nav-link" data-scroll-target="#slides">Slides</a></li>
   <li><a href="#r-code" id="toc-r-code" class="nav-link" data-scroll-target="#r-code">R code</a></li>
@@ -230,11 +230,11 @@ window.Quarto = {
 
 
 
-<section id="module-2.-data-manipulation-with-tidyverse" class="level1">
-<h1>Module 2. Data Manipulation with Tidyverse</h1>
+<section id="module-3.-nonparametric-survival-analysis" class="level1">
+<h1>Module 3. Nonparametric Survival Analysis</h1>
 <section id="slides" class="level2">
 <h2 class="anchored" data-anchor-id="slides">Slides</h2>
-<p>Section slides <a href="sec2.html" target="_blank">here</a>. (To convert html to pdf, press E <span class="math inline">\(\to\)</span> Print <span class="math inline">\(\to\)</span> Destination: Save to pdf)</p>
+<p>Section slides <a href="sec3.html" target="_blank">here</a>. (To convert html to pdf, press E <span class="math inline">\(\to\)</span> Print <span class="math inline">\(\to\)</span> Destination: Save to pdf)</p>
 </section>
 <section id="r-code" class="level2">
 <h2 class="anchored" data-anchor-id="r-code">R code</h2>
@@ -242,7 +242,7 @@ window.Quarto = {
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------------------</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Survival Analysis: Module 2 Code</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Survival Analysis: Module 3 Code</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------------------</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Load necessary package</span></span>

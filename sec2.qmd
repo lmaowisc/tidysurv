@@ -60,21 +60,20 @@ library(tidyverse)
 
 ## Basic Functionalities
 
--  **Data manipulation**: using `dplyr` verbs
-    - `mutate()` to create new variables (e.g., age group, log-transformed labs)
-    - `filter()` to subset by treatment or age
-    - `select()` and `rename()` for variable formatting
-    - `arrange()` to sort
-    - `group_by()` and `summarize()` for descriptive summaries by arm
-
--  **Data reshaping**: using `tidyr` functions
-    - `pivot_longer()` to convert wide to long format
-    - `pivot_wider()` to convert long to wide format
-    - `nest()` and `unnest()` for hierarchical data
+-   **Data manipulation**: using `dplyr` verbs
+    -   `mutate()` to create new variables (e.g., age group, log-transformed labs)
+    -   `filter()` to subset by treatment or age
+    -   `select()` and `rename()` for variable formatting
+    -   `arrange()` to sort
+    -   `group_by()` and `summarize()` for descriptive summaries by arm
+-   **Data reshaping**: using `tidyr` functions
+    -   `pivot_longer()` to convert wide to long format
+    -   `pivot_wider()` to convert long to wide format
+    -   `nest()` and `unnest()` for hierarchical data
 
 ## A Simple Example
 
-- **Example dataset**
+-   **Example dataset**
 
 ```{r}
 #| eval: true
@@ -91,16 +90,15 @@ df1
 
 ## Native Pipe Operator: `|>`
 
-- **What is `|>`**
-    - Introduced in **R 4.1**
-    - Passes the result of one expression into the first argument of the next
-    - Same idea as `%>%`, but **built into base R**
-
-- **Example**
+-   **What is `|>`**
+    -   Introduced in **R 4.1** (hot key: `Ctrl + Shift + M`)
+    -   Passes the result of one expression into the first argument of the next
+    -   Same idea as `%>%`, but **built into base R**
+-   **Example**
 
 ```{r}
 #| eval: true
-df1 |> # passes tibble data frame df1 to the next function
+df1 |> # passes tibble data frame df1 to the next function 
   mutate(age_group = if_else(age >= 65, "older", "younger")) |> # create age group
   filter(trt == "A") |> # filter for treatment A
   arrange(time) # sort by time
@@ -108,22 +106,22 @@ df1 |> # passes tibble data frame df1 to the next function
 
 ## Summarizing and Grouping
 
+-   Survival-specific summaries (e.g., number of events)
 
-- Survival-specific summaries (e.g., number of events)
-    - `group_by()` and `summarize()` for descriptive summaries by arm
-```{r}
-#| eval: true
-df1 |> 
-  group_by(trt) |> # group by treatment arm
-  summarize( # summarize each group
-    n = n(), # count number of rows (subjects)
-    events = sum(status), # sum of events (status = 1)
-    median_time = median(time) # median survival time
-  )
+    -   `group_by()` and `summarize()` for descriptive summaries by arm
 
-```
+    ```{r}
+    #| eval: true
+    df1 |> 
+      group_by(trt) |> # group by treatment arm
+      summarize( # summarize each group
+        n = n(), # count number of rows (subjects)
+        events = sum(status), # sum of events (status = 1)
+        median_time = median(time) # median survival time
+      )
 
-  
+    ```
+
 ## What Does “Tidy” Mean?
 
 > A dataset is tidy if:
@@ -132,32 +130,28 @@ df1 |>
 > -   Each **observation** is a row
 > -   Each **type of observational unit** is a table
 >
-> — Hadley Wickham, *Tidy Data* (2014)  
-> [https://www.jstatsoft.org/article/view/v059i10](https://www.jstatsoft.org/article/view/v059i10)
-
+> — Hadley Wickham, *Tidy Data* (2014)\
+> <https://www.jstatsoft.org/article/view/v059i10>
 
 ## Why Tidy Data?
 
-- **Tidy data principles**
-    - Easy to reshape and transform
-    - Compatible with `ggplot2`, `dplyr`, `tidyr`, and modeling tools
-    - Encourages modular and reproducible code
-
-
-- **Messy data challenges:**
-    - Time in rows, covariates in columns
-    - Multiple data types in one column
-    - Separte randomization and event/censoring dates
-    - Missing/censored values inconsistently coded
+-   **Tidy data principles**
+    -   Easy to reshape and transform
+    -   Compatible with `ggplot2`, `dplyr`, `tidyr`, and modeling tools
+    -   Encourages modular and reproducible code
+-   **Messy data challenges:**
+    -   Time in rows, covariates in columns
+    -   Multiple data types in one column
+    -   Separte randomization and event/censoring dates
+    -   Missing/censored values inconsistently coded
 
 ## Tidy Survival Data
 
-- **Possible pre-processing steps**
-    - Calculate survival time from start to event/censoring
-    - Creating the $(X, \delta)$ structure expected by `Surv()`
-    - Reshaping data to long format in case of multiple events
-
-- **An Example**
+-   **Possible pre-processing steps**
+    -   Calculate survival time from start to event/censoring
+    -   Creating the $(X, \delta)$ structure expected by `Surv()`
+    -   Reshaping data to long format in case of multiple events
+-   **An Example**
 
 ```{r}
 #| eval: true
@@ -171,14 +165,14 @@ head(gbc)
 
 ## Calendar vs. Event Times
 
-- **Time from start to event/censoring** ($X$)
+-   **Time from start to event/censoring** ($X$)
 
 ![](images/cal_surv_time.png){fig-align="center" width="60%"}
 
-
 ## Dates to Time Difference
 
-- **A data example**
+-   **A data example**
+
 ```{r}
 #| eval: true
 # Example: raw dates as character strings
@@ -193,26 +187,27 @@ df2
 
 ## Parsing Dates and Calculating Time
 
-- **Using `lubridate` to parse dates**
-    - `ymd()` for "year-month-day" format
-    - `mdy()` for "month-day-year" format
-```{r}
-#| eval: true
-# Parse dates and calculate time/status
-df2 |> 
-  mutate(
-    rand_date = ymd(rand_date), # convert character to Date
-    end_date = ymd(end_date), # convert character to Date
-    time = as.numeric(end_date - rand_date), # calculate time in days
-    status = if_else(status == "dead", 1, 0) # convert status to 1/0
-  )
-```
+-   **Using `lubridate` to parse dates**
 
+    -   `ymd()` for "year-month-day" format
+    -   `mdy()` for "month-day-year" format
+
+    ```{r}
+    #| eval: true
+    # Parse dates and calculate time/status
+    df2 |> 
+      mutate(
+        rand_date = ymd(rand_date), # convert character to Date
+        end_date = ymd(end_date), # convert character to Date
+        time = as.numeric(end_date - rand_date), # calculate time in days
+        status = if_else(status == "dead", 1, 0) # convert status to 1/0
+      )
+    ```
 
 ## Exercise: Calculate Survival Time (I)
 
+-   Calculate `time` and `status` variables for `df3`:
 
-- Calculate `time` and `status` variables for `df3`:
 ```{r}
 #| eval: true
 # create a df3 with dates in the form of month-day-year
@@ -225,10 +220,9 @@ df3 <- tibble(
 df3
 ```
 
-
 ## Exercise: Calculate Survival Time (II)
 
-- **Hint**: use `mdy()` to parse dates
+-   **Hint**: use `mdy()` to parse dates
 
 ```{r}
 #| code-fold: true
@@ -243,36 +237,41 @@ df3 |>
 
 ```
 
-- More about manipulating dates 
-    - [lubridate](https://lubridate.tidyverse.org/) official documentation
-    - R for Data Science: [Dates and times](https://r4ds.hadley.nz/datetimes.html)
+-   More about manipulating dates
+    -   [lubridate](https://lubridate.tidyverse.org/) official documentation
+    -   R for Data Science: [Dates and times](https://r4ds.hadley.nz/datetimes.html)
 
 ## Parsing Censored Observations
 
-- **Alternative formats for censored times**
-    - `"32+"`, `">17"`, etc
-    - `parse_number()` for get `time`; `str_detect()` for `status`
-```{r}
-#| eval: true
-# Example data: relapse times with "+" indicating censoring
-MP <- c(10,  "32+", 23, "25+")
-# Convert to (time, status) format
-df4 <- tibble(
-  MP = MP,                               # Original data
-  time = parse_number(MP),               # Extract numeric part
-  status = 1 - str_detect(MP, "\\+")     # Censored if "+" detected
-)
-df4
-```
+-   **Alternative formats for censored times**
+
+    -   `"32+"`, `">17"`, etc
+    -   `parse_number()` for get `time`; `str_detect()` for `status`
+
+    ```{r}
+    #| eval: true
+    # Example data: relapse times with "+" indicating censoring
+    MP <- c(10,  "32+", 23, "25+")
+    # Convert to (time, status) format
+    df4 <- tibble(
+      MP = MP,                               # Original data
+      time = parse_number(MP),               # Extract numeric part
+      status = 1 - str_detect(MP, "\\+")     # Censored if "+" detected
+    )
+    df4
+    ```
 
 ## Exercise: Parse Censored Times
-- **Task**: Parse `MP` in `df5` to create `time` and `status`
+
+-   **Task**: Parse `MP` in `df5` to create `time` and `status`
+
 ```{r}
 #| eval: true
 df5 <- tibble(
   MP = c(10, "32+", 23, ">25")
 )
 ```
+
 ```{r}
 #| code-fold: true
 #| code-summary: Solution
@@ -283,16 +282,16 @@ df5 |>
   )
 ```
 
-- More on string operation
-    - [stringr](https://stringr.tidyverse.org/) official documentation
-    - R for Data Science: [Strings](https://r4ds.hadley.nz/strings.html)
+-   More on string operation
+    -   [stringr](https://stringr.tidyverse.org/) official documentation
+    -   R for Data Science: [Strings](https://r4ds.hadley.nz/strings.html)
 
 ## Reshaping Data
 
-- **Why reshape?**
-    - Multiple events per subject
-    - Wide format (multiple columns) $\rightarrow$ long format (one row per event)
-    
+-   **Why reshape?**
+    -   Multiple events per subject
+    -   Wide format (multiple columns) $\rightarrow$ long format (one row per event)
+
 ```{r}
 #| eval: true
 # Example: wide format with multiple events
@@ -311,9 +310,9 @@ df6
 
 ## Wide to Long
 
-- **Using `pivot_longer()`**
-    - Convert wide format to long format
-    - Specify `names_to` and `values_to` for new columns
+-   **Using `pivot_longer()`**
+    -   Convert wide format to long format
+    -   Specify `names_to` and `values_to` for new columns
 
 ```{r}
 #| eval: true
@@ -329,9 +328,9 @@ df7
 
 ## Exercise: Clean Up
 
-- **Task**: Clean up `df7` to create a tidy survival dataset
-    - Remove rows with `event = prog`  and `status = 0` (non-terminal event)
-    - Recode `status = 2` for death events
+-   **Task**: Clean up `df7` to create a tidy survival dataset
+    -   Remove rows with `event = prog` and `status = 0` (non-terminal event)
+    -   Recode `status = 2` for death events
 
 ```{r}
 #| code-fold: true
@@ -353,29 +352,29 @@ df7 |>
 # 5     3 death    35      2
 ```
 
-- More on reshaping data
-    - [tidyr](https://tidyr.tidyverse.org/) official documentation
-    - R for Data Science: [Data tidying](https://r4ds.hadley.nz/data-tidy.html)
-    
-# Visualizing Subject Follow-Up 
+-   More on reshaping data
+    -   [tidyr](https://tidyr.tidyverse.org/) official documentation
+    -   R for Data Science: [Data tidying](https://r4ds.hadley.nz/data-tidy.html)
+
+# Visualizing Subject Follow-Up
 
 ## Swimmer Plot
 
-- **What is a swimmer plot?**
-    - Visualizes subject follow-up
-    - Each row represents a subject
-    - Horizontal lines show time to event/censoring
+-   **What is a swimmer plot?**
+    -   Visualizes subject follow-up
+    -   Each row represents a subject
+    -   Horizontal lines show time to event/censoring
 
 ![](images/rat_swim.png){fig-align="center" width="60%"}
 
 ## Swimmer Plot Basics
 
-- **Using `ggplot2`**
-    - `geom_linerange()` for horizontal lines
-    - `geom_point()` for events
-    - `facet_wrap()` for treatment arms (optional)
+-   **Using `ggplot2`**
+    -   `geom_linerange()` for horizontal lines
+    -   `geom_point()` for events
+    -   `facet_wrap()` for treatment arms (optional)
+-   **A data example**
 
-- **A data example**
 ```{r}
 #| eval: true
 # Example data: rat survival times
@@ -390,9 +389,10 @@ df8 <- tibble(
   )
 ```
 
-## Creating a Swimmer Plot 
+## Creating a Swimmer Plot
 
-- Code to reproduce previous plot
+-   Code to reproduce previous plot
+
 ```{r}
 #| eval: true
 # Specify the plot
@@ -429,9 +429,9 @@ fig8
 
 ## Exercise: Swimmer Plot by Group
 
-- **Task**: Create a swimmer plot for `df8` by `group`
-    - Use `facet_wrap()` to create separate panels for each group
-    - Add a title "Swimmer Plot of Rat Survival Times"
+-   **Task**: Create a swimmer plot for `df8` by `group`
+    -   Use `facet_wrap()` to create separate panels for each group
+    -   Add a title "Swimmer Plot of Rat Survival Times"
 
 ```{r}
 #| eval: true
@@ -442,7 +442,6 @@ fig8 + facet_wrap(~ group, scales = "free") + # facet by group (using different 
   labs(title = "Swimmer Plot of Rat Survival Times") # add title
 ```
 
-    
 ```{r}
 #| code-fold: true
 #| code-summary: Solution
@@ -452,32 +451,33 @@ fig8 + facet_wrap(~ group, scales = "free") + # facet by group (using different 
 
 ```
 
-# Creating “Table 1” 
+# Creating “Table 1”
 
 ## Descriptive Statistics
 
-- **Importance of Table 1**
-    - Summarizes baseline characteristics
-    - Provides context for formal analysis
-- **Using `gtsummary`**
-    - `tbl_summary()` for descriptive statistics
-    - `add_p()` for p-values comparing groups (not recommended for randomized trials)
-    - `add_overall` to add overall summary
-    - `modify_header()` to customize table headers
+-   **Importance of Table 1**
+    -   Summarizes baseline characteristics
+    -   Provides context for formal analysis
+-   **Using `gtsummary`**
+    -   `tbl_summary()` for descriptive statistics
+    -   `add_p()` for p-values comparing groups (not recommended for randomized trials)
+    -   `add_overall` to add overall summary
+    -   `modify_header()` to customize table headers
 
 ## Basic Syntax of `tbl_summary()`
 
-- **Common arguments**
-    - `by = "group"` to summarize by group
-    - `include = c("variable1", "variable2")` to include specific variables
-    - `label = list(variable = "Label")` to customize variable labels
-    - `statistic = list(variable ~ "statistic")` to specify statistics
-        - `statistic = list(all_continuous() ~ "{mean} ({sd})")` for mean and SD
-    - `digits = list(variable ~ 2)` to set decimal places
-    
+-   **Common arguments**
+    -   `by = "group"` to summarize by group
+    -   `include = c("variable1", "variable2")` to include specific variables
+    -   `label = list(variable = "Label")` to customize variable labels
+    -   `statistic = list(variable ~ "statistic")` to specify statistics
+        -   `statistic = list(all_continuous() ~ "{mean} ({sd})")` for mean and SD
+    -   `digits = list(variable ~ 2)` to set decimal places
+
 ## A Simple Example
 
-- **Example dataset**
+-   **Example dataset**
+
 ```{r}
 #| eval: true
 
@@ -492,7 +492,6 @@ df9 <- tibble(
 )
 head(df9)
 ```
-
 
 ## Creating a Summary Table
 
@@ -514,8 +513,7 @@ df9 |>
 
 ## Exercise: Summarize GBC Data (I)
 
-- **Task**: Summarize the GBC mortality data (`gbc_mort.txt`) like below
-
+-   **Task**: Summarize the GBC mortality data (`gbc_mort.txt`) like below
 
 ```{r}
 #| eval: true
@@ -548,18 +546,16 @@ gbc_mort |>
   ) |>
   add_overall(last = TRUE) # Add overall column, at the end
 ```
-    
 
 ## Exercise: Summarize GBC Data (II)
 
-- **Points to note**
-    - Summarize by hormone therapy (`hormone`)
-    - Include variables: `time`, `status`, `age`, `meno`, `size`, `grade`, `nodes`, `prog`, `estrg`
-    - Label variables appropriately
-    - Add overall summary column at the end
+-   **Points to note**
+    -   Summarize by hormone therapy (`hormone`)
+    -   Include variables: `time`, `status`, `age`, `meno`, `size`, `grade`, `nodes`, `prog`, `estrg`
+    -   Label variables appropriately
+    -   Add overall summary column at the end
 
-
-## Exercise: Summarize GBC Data (III) 
+## Exercise: Summarize GBC Data (III)
 
 ```{r}
 #| code-fold: true
@@ -594,11 +590,10 @@ gbc_mort |>
 
 ```
 
-
 ## Exercise: Summarize GBC Data (IV)
 
-- **Task**: summarize *relapse* and death data from `gbc.txt`
-    - Hint: `group_by(id)` and `summarize()`
+-   **Task**: summarize *relapse* and death data from `gbc.txt`
+    -   Hint: `group_by(id)` and `summarize()`
 
 ```{r}
 #| eval: true
@@ -673,21 +668,18 @@ gbc |>
 
 ## Key Takeaways
 
-- **Tidyverse** provides powerful tools for data manipulation and visualization
-- **Tidy data** principles simplify analysis and visualization
-- **Survival data** may require pre-processing steps (`dplyr`, `tidyr`,`lubridate`)
-- **Swimmer plots** effectively visualize subject follow-up (`ggplot2`)
-- **Descriptive statistics** can be easily summarized using `gtsummary::tbl_summary()`
+-   **Tidyverse** provides powerful tools for data manipulation and visualization
+-   **Tidy data** principles simplify analysis and visualization
+-   **Survival data** may require pre-processing steps (`dplyr`, `tidyr`,`lubridate`)
+-   **Swimmer plots** effectively visualize subject follow-up (`ggplot2`)
+-   **Descriptive statistics** can be easily summarized using `gtsummary::tbl_summary()`
 
 ## Next Steps
 
-- Format analysis results from the `survival` package:
-  - **Nonparametric estimates** with `survfit()`
-  - **Regression models** with `coxph()`
-
-- Explore advanced visualization techniques:
-  - Kaplan–Meier curves with `ggsurvfit` or `survminer`
-  - Layered plots using `ggplot2`
-  - Annotated plots for publications
-
-
+-   Format analysis results from the `survival` package:
+    -   **Nonparametric estimates** with `survfit()`
+    -   **Regression models** with `coxph()`
+-   Explore advanced visualization techniques:
+    -   Kaplan–Meier curves with `ggsurvfit` or `survminer`
+    -   Layered plots using `ggplot2`
+    -   Annotated plots for publications
