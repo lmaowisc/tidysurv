@@ -84,7 +84,21 @@ summary(km_fit, times = c(6, 12, 24, 36))
 Create a table of survival estimates with 95\% confidence intervals at 6, 12, 24, and 36 months for each hormone therapy group using `dplyr` and `tibble`.
 :::
 
-## Format by `gtsummary::tbl_survfit()` 
+## Tidying `survfit()` Output
+
+- **Use `broom` package to tidy `survfit` objects**
+    - `broom::tidy()` converts the `survfit` object into a tidy data frame
+    - Useful for further analysis or visualization
+
+```{r}
+#| eval: true
+library(broom) # Load broom package
+tidy(km_fit) # Tidy the KM fit object
+```
+
+
+
+## Tabulation with `gtsummary::tbl_survfit()` 
 
 - **Main function: `tbl_survfit()`**
     - Takes on `survfit` object
