@@ -12,151 +12,190 @@ Section slides [here](sec2.html){target="_blank"}. (To convert html to pdf, pres
 #| eval: false
 
 # -------------------------------------------
-# Survival Analysis: Module 2 Code
+# Tidy Survival Analysis: Module 2 Code
 # -------------------------------------------
 
-# Load necessary package
-library(survival)
-
 # ---------------------------
-# 1. Load Datasets
+# 1. Load Required Packages
 # ---------------------------
 
-# Load mortality-only data
-gbc_mort <- read.table("data/gbc_mort.txt", header = TRUE)
-head(gbc_mort)
+library(tidyverse)
 
-# Load mortality + relapse data
+# ---------------------------
+# 2. Simulated Trial Dataset
+# ---------------------------
+
+# Create a toy dataset with treatment assignment, age, follow-up time, and status
+df1 <- tibble(
+  id = 1:6,
+  trt = c("A", "A", "B", "B", "A", "B"),
+  age = c(65, 70, 58, 60, 64, 59),
+  time = c(5, 8, 12, 3, 2, 6),
+  status = c(1, 0, 1, 1, 0, 0)  # 1 = event, 0 = censored
+)
+df1
+
+# ---------------------------
+# 3. Pipe Operator and Basic Manipulation
+# ---------------------------
+
+# Use native pipe |> to add new variable, filter, and sort
+df1 |>
+  mutate(age_group = if_else(age >= 65, "older", "younger")) |>  # categorize age
+  filter(trt == "A") |>                                           # subset treatment A
+  arrange(time)                                                   # sort by time
+
+# ---------------------------
+# 4. Grouped Summary by Treatment Arm
+# ---------------------------
+
+# Grouped summary: number of subjects, number of events, median follow-up
+df1 |> 
+  group_by(trt) |> 
+  summarize(
+    n = n(),                         # total subjects
+    events = sum(status),           # count of events
+    median_time = median(time)      # median survival time
+  )
+
+# ---------------------------
+# 5. Load GBC Dataset
+# ---------------------------
+
+# Load long-format data from the German Breast Cancer study
 gbc <- read.table("data/gbc.txt", header = TRUE)
 head(gbc)
 
 # ---------------------------
-# 2. Prepare Dataset for Relapse-Free Survival
+# 6. Raw Date Variables as Strings
 # ---------------------------
 
-# Sort by subject ID and event time
-gbc <- gbc[order(gbc$id, gbc$time), ]
-
-# Keep first event per subject
-df <- gbc[!duplicated(gbc$id), ]
-
-# Collapse relapse/death to single composite outcome
-df$status <- ifelse(df$status > 0, 1, 0)
-head(df)
-
-# ---------------------------
-# 3. Kaplan-Meier Estimation
-# ---------------------------
-
-# Fit Kaplan-Meier curves by hormone treatment
-km_fit <- survfit(Surv(time, status) ~ hormone, data = df)
-
-# Print KM summary
-summary(km_fit, times = c(6, 12, 24, 36))
-
-# Plot KM curves with CI
-plot(km_fit, ylim = c(0, 1), xlab = "Time (months)",
-     ylab = "Relapse-free survival probability",
-     col = c("red", "blue"), conf.int = TRUE)
-legend("bottomleft", col = c("red", "blue"), lty = 1,
-       legend = c("No hormone", "Hormone"))
+# Create small example dataset with character date fields
+df2 <- tibble(
+  id = 1:3,
+  rand_date = c("2022-01-01", "2022-01-15", "2022-01-20"),
+  end_date = c("2022-04-01", "2022-06-01", "2022-03-15"),
+  status = c("dead", "censored", "dead")
+)
+df2
 
 # ---------------------------
-# 4. Log-Rank Test
+# 7. Parse Dates and Calculate Survival Time
 # ---------------------------
 
-# Compare survival curves by treatment
-lgr_obj <- survdiff(Surv(time, status) ~ hormone, data = df)
-lgr_obj
-
-# Stratified test by menopausal status
-survdiff(Surv(time, status) ~ hormone + strata(meno), data = df)
-
-# ---------------------------
-# 5. Cox Proportional Hazards Model
-# ---------------------------
-
-# Fit Cox PH model with multiple covariates
-cox_fit <- coxph(Surv(time, status) ~ hormone + meno + age + grade +
-                   size + prog + estrg, data = df)
-summary(cox_fit)
-
-# Extract estimates and covariance matrix
-beta <- cox_fit$coefficients
-vbeta <- vcov(cox_fit)
-coef(summary(cox_fit))
+# Convert character dates to Date format and compute time and status
+df2 |>
+  mutate(
+    rand_date = ymd(rand_date),                 # convert randomization date
+    end_date = ymd(end_date),                   # convert event/censoring date
+    time = as.numeric(end_date - rand_date),    # survival time in days
+    status = if_else(status == "dead", 1, 0)    # binary status indicator
+  )
 
 # ---------------------------
-# 6. Survival Prediction
+# 8. Censored Strings Parsing
 # ---------------------------
 
-# Define new subject's covariates
-new_data <- data.frame(hormone = 1, meno = 1, 
-                       age = 45, grade = 2,
-                       size = 20, prog = 100,
-                       estrg = 100)
-
-# Predict survival probabilities
-predicted_survival <- survfit(cox_fit, newdata = new_data,
-                              times = c(6, 12, 24, 36))
-summary(predicted_survival)
-
-# Plot predicted survival function
-plot(predicted_survival, ylim = c(0, 1), xlab = "Time (months)",
-     ylab = "Predicted survival probability", conf.int = TRUE)
+# Handle messy strings like "32+" using stringr functions
+MP <- c(10, "32+", 23, "25+")
+df4 <- tibble(
+  MP = MP,
+  time = parse_number(MP),                # extract numeric portion
+  status = 1 - str_detect(MP, "\\+")      # 0 if "+" present (censored)
+)
+df4
 
 # ---------------------------
-# 7. Model Diagnostics
+# 9. Reshape Wide to Long Format
 # ---------------------------
 
-# Test proportional hazards assumption
-ph_test <- cox.zph(cox_fit)
-ph_test
+# Convert multiple event times to long format using pivot_longer
+df6 <- tibble(
+  id = 1:3,
+  prog_time = c(10, 20, 30),
+  prog_status = c(1, 0, 1),
+  death_time = c(15, 20, 35),
+  death_status = c(0, 1, 1)
+)
 
-# Plot Schoenfeld residuals
-par(mfrow = c(2, 4))  # 2 rows, 4 columns
-plot(ph_test, se = TRUE, col = "blue", lwd = 2)
-
-# ---------------------------
-# 8. Check Functional Form of Covariates
-# ---------------------------
-
-# Extract martingale residuals
-mart_resid <- residuals(cox_fit, type = "martingale")
-
-# Plot residuals vs quantitative covariates
-par(mfrow = c(1, 4))  # 1 row, 4 plots
-
-plot(df$age, mart_resid, xlab = "Age", ylab = "Martingale Residuals",
-     main = "Age")
-lines(lowess(df$age, mart_resid), col = "blue", lwd = 2)
-abline(h = 0, lty = 2, col = "red")
-
-plot(df$size, mart_resid, xlab = "Tumor Size", ylab = "Martingale Residuals",
-     main = "Tumor Size")
-lines(lowess(df$size, mart_resid), col = "blue", lwd = 2)
-abline(h = 0, lty = 2, col = "red")
-
-plot(df$prog, mart_resid, xlab = "Progesterone", ylab = "Martingale Residuals",
-     main = "Progesterone")
-lines(lowess(df$prog, mart_resid), col = "blue", lwd = 2)
-abline(h = 0, lty = 2, col = "red")
-
-plot(df$estrg, mart_resid, xlab = "Estrogen", ylab = "Martingale Residuals",
-     main = "Estrogen")
-lines(lowess(df$estrg, mart_resid), col = "blue", lwd = 2)
-abline(h = 0, lty = 2, col = "red")
+df7 <- df6 |> 
+  pivot_longer(
+    cols = c(prog_time, prog_status, death_time, death_status),
+    names_to = c("event", ".value"),
+    names_pattern = "(.*)_(.*)"
+  )
+df7
 
 # ---------------------------
-# 9. Addressing Violations
+# 10. Clean Long-Format Event Data
 # ---------------------------
 
-# Dichotomize age at 40, stratify on grade
-df$age40 <- ifelse(df$age < 40, 0, 1)
+# Remove non-events and recode death status
+df7 |> 
+  filter(!(event == "prog" & status == 0)) |>        # drop non-events
+  mutate(status = if_else(event == "death" & status == 1, 2, status))  # 2 = death
 
-cox_fit2 <- coxph(Surv(time, status) ~ hormone + meno + age40 +
-                    size + prog + estrg + strata(grade), data = df)
-summary(cox_fit2)
+# ---------------------------
+# 11. Construct a Swimmer Plot
+# ---------------------------
 
+# Create subject-level survival data
+df8 <- tibble(
+  time = c(101, 55, 67, 23, 45, 98, 34, 77, 91, 104, 88),
+  status = c(0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1),
+  group = c("A", "A", "A", "B", "B", "B", "A", "B", "B", "A", "B")
+) |> 
+  mutate(
+    id = row_number(),  # assign subject IDs
+    .before = 1
+  )
+
+# Build swimmer plot using ggplot2
+fig8 <- df8 |> 
+  ggplot(aes(x = time, y = reorder(id, time))) +
+  geom_linerange(aes(xmin = 0, xmax = time)) +
+  geom_point(aes(shape = factor(status)), size = 2.5, fill = "white") +
+  geom_vline(xintercept = 0, linewidth = 1) +
+  theme_minimal() +
+  scale_y_discrete(name = "Rats") +
+  scale_x_continuous(name = "Time (days)", breaks = seq(0, 100, 20),
+                     expand = expansion(c(0, 0.05))) +
+  scale_shape_manual(values = c(23, 19),
+                     labels = c("Censoring", "Tumor development")) +
+  theme(
+    legend.position = "top",
+    legend.title = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    panel.grid.major.y = element_blank(),
+    legend.text = element_text(size = 11)
+  )
+
+# ---------------------------
+# 12. Create Summary Table with gtsummary
+# ---------------------------
+
+# Create example dataset for table
+df9 <- tibble(
+  id = 1:10,
+  time = c(101, 55, 67, 23, 45, 98, 34, 77, 91, 104),
+  status = c(0, 1, 1, 0, 1, 0, 1, 0, 1, 0),
+  trt = c("A", "A", "B", "B", "A", "B", "A", "B", "A", "B"),
+  sex = c("M", "F", "M", "F", "M", "F", "M", "F", "M", "F"),
+  age = c(65, 70, 58, 60, 64, 59, 66, 62, 68, 61)
+)
+
+# Summarize variables by treatment arm
+library(gtsummary)
+
+df9 |> 
+  tbl_summary(
+    by = trt,
+    include = c(sex, age, time, status),
+    label = list(
+      time = "Follow-up time (months)",
+      status = "Events"
+    )
+  )
 
 ```
