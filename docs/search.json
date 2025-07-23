@@ -866,6 +866,76 @@
     "href": "sec3.html#enhanced-graphics-with-ggsurvfit",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Enhanced Graphics with ggsurvfit",
-    "text": "Enhanced Graphics with ggsurvfit\n\nggsurvfit: Provides a ggplot2 interface for survival curves\n\nTakes on survfit object or raw data\nAllows for more customization and aesthetics\nadd_risktable = TRUE adds a risk table below graph"
+    "text": "Enhanced Graphics with ggsurvfit\n\nggsurvfit: Provides a ggplot2 interface for survival curves\n\nTakes on survfit object or raw data\nadd_risktable() adds a risk table below graph\nAllows for more customization and aesthetics\n\n\n\nlibrary(ggsurvfit) # Load ggsurvfit package)\nkm_fit |&gt; ggsurvfit()  # Pass `survfit` object"
+  },
+  {
+    "objectID": "sec3.html#customization-i",
+    "href": "sec3.html#customization-i",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Customization (I)",
+    "text": "Customization (I)\n\nCustomize the plot with ggsurvfit\n\nadd_risktable(): Adds a risk table below the survival curve\nadd_confidence_interval(): Adds confidence intervals to the survival curve\nadd_pvalue(): Adds p-value for log-rank test\nOther ggplot2 functions to further customize the plot\n\nscale_x_continuous(), scale_y_continuous(), theme(), etc."
+  },
+  {
+    "objectID": "sec3.html#customization-ii",
+    "href": "sec3.html#customization-ii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Customization (II)",
+    "text": "Customization (II)\n\nCode\n\n\n# survfit2() fits better with `ggsurvfit`\nkm_fit2 &lt;- survfit2(Surv(time, status &gt; 0) ~ hormone,  \n                    data = df |&gt; # Relabel hormone variable\n                      mutate(hormone = if_else(hormone == 1, \"No hormone\", \"Hormone\")) \n                      ) \nkm_fig &lt;- km_fit2 |&gt;     # Plot KM curves with customization\n  ggsurvfit() +          # Pass `survfit2` object                       \n  add_risktable() +      # Add risk table below the graph\n  add_confidence_interval() +   # Add confidence intervals                \n  add_pvalue(caption = \"Log-rank {p.value}\") +  # Add p-value for log-rank test\n  scale_x_continuous(\"Time (months)\", breaks = seq(0, 84, 12)) + # x-axis format\n  scale_y_continuous(\"Relapse-free survival probability\", limits = c(0, 1)) + # y-axis format\n  theme_classic() + # Use classic theme for this ggplot\n  theme(legend.position = \"top\") # Position legend at the top\n\nggsave(\"images/km_fig.png\", km_fig, width = 7.5, height = 5) # Save the plot"
+  },
+  {
+    "objectID": "sec3.html#risk-table",
+    "href": "sec3.html#risk-table",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Risk Table",
+    "text": "Risk Table\n\nkm_fig +\n  add_risktable(\n    risktable_stats = \"n.risk\"\n  )"
+  },
+  {
+    "objectID": "sec3.html#risk-table-exercise",
+    "href": "sec3.html#risk-table-exercise",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Risk Table Exercise",
+    "text": "Risk Table Exercise\n\nTask: Display only numbers at risk in the risk table\n\nHint: Add risktable_stats = \"n.risk\" argument in add_risktable()\n\n\n\n\nSolution\nkm_fit2 |&gt;     # Plot KM curves with customization\n  ggsurvfit() +          # Pass `survfit2` object                       \n  add_risktable(         # Add risk table below the graph\n    risktable_stats = \"n.risk\" # Show only number at risk\n  ) +      \n  add_confidence_interval() +   # Add confidence intervals                \n  add_pvalue(caption = \"Log-rank {p.value}\") +  # Add p-value for log-rank test\n  scale_x_continuous(\"Time (months)\", breaks = seq(0, 84, 12)) + # x-axis format\n  scale_y_continuous(\"Relapse-free survival probability\", limits = c(0, 1)) + # y-axis format\n  theme_classic() + # Use classic theme for this ggplot\n  theme(legend.position = \"top\") # Position legend at the top"
+  },
+  {
+    "objectID": "sec3.html#add-quantiles-i",
+    "href": "sec3.html#add-quantiles-i",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Add Quantiles (I)",
+    "text": "Add Quantiles (I)\n\nAdd quantile estimates to the plot\n\nUse add_quantile() to add median survival time and other quantiles\nSpecify y_value or x_value arguments for desired quantiles or time points\n\n\n\nkm_fig + add_quantile(\n    y_value = 0.5, # Add median survival time\n  )"
+  },
+  {
+    "objectID": "sec3.html#customization-iii",
+    "href": "sec3.html#customization-iii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Customization (III)",
+    "text": "Customization (III)\n\nResult"
+  },
+  {
+    "objectID": "sec3.html#add-quantiles-ii",
+    "href": "sec3.html#add-quantiles-ii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Add Quantiles (II)",
+    "text": "Add Quantiles (II)\n\nResult"
+  },
+  {
+    "objectID": "sec3.html#exercise-add-time-points",
+    "href": "sec3.html#exercise-add-time-points",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Exercise: Add Time Points",
+    "text": "Exercise: Add Time Points\n\nTask: Add reference lines at 72 months\n\nUse add_quantile() with x_value argument\n\n\n\n\nSolution\nkm_fig + add_quantile(\n   x_value = 72 # Add 72-month reference lines\n  )"
+  },
+  {
+    "objectID": "sec3.html#further-customizations",
+    "href": "sec3.html#further-customizations",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Further Customizations",
+    "text": "Further Customizations\n\nCustomize the plot further\n\nadd_risktable_strata_symbol(...): Use symbols for strata in the risk table\n\nsymbol = NULL, size = 15, face = \"bold\", etc.\n\nadd_censor_mark(...)： Add censor marks to the survival curve\n\nsize = 3, shape = 3, color = \"black\", etc.\n\n\nMore about ggsurvfit\n\nggsurvfit website\nWebinar by Daniel D. Sjoberg"
+  },
+  {
+    "objectID": "sec3.html#competing-risks-overview",
+    "href": "sec3.html#competing-risks-overview",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Competing Risks Overview",
+    "text": "Competing Risks Overview\n\nCompeting risks\n\nSubject may experience at most one of multiple distinct types of event\nE.g., death from different causes; relapse vs. death (before relapse) in cancer studies\n\nNotation: \\((T, \\Delta)\\)\n\n\\(T\\): time to event\n\\(\\Delta\\): event type indicator (e.g., 1 for relapse, 2 for death)\n\nQuantity of interest\n\ncumulative incidence function (CIF), or sub-distribution \\[\n  F_k(t) = P(T \\leq t, \\Delta = k)\n  \\]\n\nCumulative probability of event type \\(k\\) by time \\(t\\)"
   }
 ]
