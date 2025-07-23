@@ -14,7 +14,7 @@ Section slides [here](sec3.html){target="_blank"}. (To convert html to pdf, pres
 #| eval: false
 
 # -------------------------------------------
-# Survival Analysis: Module 3 Code
+# Survival Analysis: Module 3 Code 
 # -------------------------------------------
 
 # Load necessary package
