@@ -754,7 +754,7 @@
     "href": "sec3.html#raw-output-from-survfit",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Raw Output from survfit()",
-    "text": "Raw Output from survfit()\n\nKM estimates by hormone therapy\n\n\nlibrary(survival) # Load survival package\n# Fit KM estimates by hormone group\nkm_fit &lt;- survfit(Surv(time, status) ~ hormone, data = df)\n# summarize the KM fit object\nsummary(km_fit, times = c(6, 12, 24, 36))\n\nCall: survfit(formula = Surv(time, status) ~ hormone, data = df)\n\n                hormone=1 \n time n.risk n.event survival std.err lower 95% CI upper 95% CI\n    6    419       9    0.979 0.00691        0.966        0.993\n   12    379      35    0.897 0.01476        0.868        0.926\n   24    280      73    0.720 0.02203        0.678        0.764\n   36    195      41    0.606 0.02475        0.559        0.656\n\n                hormone=2 \n time n.risk n.event survival std.err lower 95% CI upper 95% CI\n    6    236       4    0.983 0.00826        0.967        1.000\n   12    223       8    0.950 0.01418        0.922        0.978\n   24    177      38    0.785 0.02701        0.733        0.839\n   36    136      16    0.708 0.03047        0.650        0.770"
+    "text": "Raw Output from survfit()\n\nKM estimates by hormone therapy\n\n\nlibrary(survival) # Load survival package\n# Fit KM estimates by hormone group\nkm_fit &lt;- survfit(Surv(time, status &gt; 0) ~ hormone, data = df)\n# summarize the KM fit object\nsummary(km_fit, times = c(6, 12, 24, 36))\n\nCall: survfit(formula = Surv(time, status &gt; 0) ~ hormone, data = df)\n\n                hormone=1 \n time n.risk n.event survival std.err lower 95% CI upper 95% CI\n    6    419       9    0.979 0.00691        0.966        0.993\n   12    379      35    0.897 0.01476        0.868        0.926\n   24    280      73    0.720 0.02203        0.678        0.764\n   36    195      41    0.606 0.02475        0.559        0.656\n\n                hormone=2 \n time n.risk n.event survival std.err lower 95% CI upper 95% CI\n    6    236       4    0.983 0.00826        0.967        1.000\n   12    223       8    0.950 0.01418        0.922        0.978\n   24    177      38    0.785 0.02701        0.733        0.839\n   36    136      16    0.708 0.03047        0.650        0.770"
   },
   {
     "objectID": "sec3.html#extracting-survival-estimates",
@@ -775,14 +775,14 @@
     "href": "sec3.html#customizing-the-table",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Customizing the Table",
-    "text": "Customizing the Table\n\nCustomize table appearance\n\nlabel_header: change column names\nlabel: change row labels\nstatistic: customize statistics displayed\n\nFor more on gtsummary table customization, see the gtsummary documentation."
+    "text": "Customizing the Table\n\nCustomize table appearance\n\nlabel_header: change column names\nlabel: change row labels\nstatistic: customize statistics displayed\n\nstatistic = \"{estimate} ({conf.low}, {conf.high})\" for confidence intervals\n\n\nMore about gtsummary\n\ngtsummary website\ntbl_survfit documentation"
   },
   {
     "objectID": "sec3.html#tabulating-quantile-estimates",
     "href": "sec3.html#tabulating-quantile-estimates",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Tabulating Quantile Estimates",
-    "text": "Tabulating Quantile Estimates\n\nQuantile estimates: Median survival time, quartiles, etc.\n\nSpecify probs argument in tbl_survfit()"
+    "text": "Tabulating Quantile Estimates\n\nQuantile estimates: Median survival time, quartiles, etc.\n\nSpecify probs argument in tbl_survfit()\n\n\n\n# Create a table of quantile estimates\nkm_fit |&gt;                        # Pass `survfit` object\n  tbl_survfit(\n    label = \"Hormone\",           # Row label: \"Hormone\"\n    probs = c(0.25, 0.5, 0.75),  # Quantiles: 25%, 50%, 75%\n              label_header = \"{100 * prob}% quantile\") # Column label: \"xx quantile\"\n\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\n25% quantile\n50% quantile\n75% quantile\n\n\n\n\nHormone\n\n\n\n\n\n\n\n\n    1\n21 (18, 25)\n50 (42, 59)\n81 (81, —)\n\n\n    2\n28 (23, 39)\n66 (63, —)\n— (—, —)"
   },
   {
     "objectID": "sec3.html#stratification-on-multiple-variables",
@@ -845,6 +845,27 @@
     "href": "sec3.html#tabulation-with-gtsummary",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Tabulation with gtsummary",
-    "text": "Tabulation with gtsummary\n\nMain function: tbl_survfit()\n\nTakes on survfit object\nCreates a table of survival estimates with confidence intervals\nAutomatically handles stratification and time points\n\n\n\nlibrary(gtsummary) # Load gtsummary package\n# Create a table of survival estimates\ntbl_survfit(km_fit,                        # `survfit` object\n             label = \"Hormone\",           # Row label: \"Hormone\"\n             times = c(6, 12, 24, 36),     # Time points for estimates\n             label_header = \"Month {time}\" # Column label: \"Month xx\"\n             ) \n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\nMonth 6\nMonth 12\nMonth 24\nMonth 36\n\n\n\n\nHormone\n\n\n\n\n\n\n\n\n\n\n    1\n98% (97%, 99%)\n90% (87%, 93%)\n72% (68%, 76%)\n61% (56%, 66%)\n\n\n    2\n98% (97%, 100%)\n95% (92%, 98%)\n78% (73%, 84%)\n71% (65%, 77%)"
+    "text": "Tabulation with gtsummary\n\nMain function: tbl_survfit()\n\nTakes on survfit object\nCreates a table of survival estimates with confidence intervals\nAutomatically handles stratification and time points\n\n\n\nlibrary(gtsummary) # Load gtsummary package\n# Create a table of survival estimates\nkm_fit |&gt; tbl_survfit(                    # Pass `survfit` object\n             label = \"Hormone\",           # Row label: \"Hormone\"\n             times = c(6, 12, 24, 36),     # Time points for estimates\n             label_header = \"Month {time}\" # Column label: \"Month xx\"\n             ) \n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\nMonth 6\nMonth 12\nMonth 24\nMonth 36\n\n\n\n\nHormone\n\n\n\n\n\n\n\n\n\n\n    1\n98% (97%, 99%)\n90% (87%, 93%)\n72% (68%, 76%)\n61% (56%, 66%)\n\n\n    2\n98% (97%, 100%)\n95% (92%, 98%)\n78% (73%, 84%)\n71% (65%, 77%)"
+  },
+  {
+    "objectID": "sec3.html#exercise-tabulating-quantiles",
+    "href": "sec3.html#exercise-tabulating-quantiles",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Exercise: Tabulating Quantiles",
+    "text": "Exercise: Tabulating Quantiles\n\nCreate the following table\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\n25% quantile\n50% quantile\n75% quantile\n\n\n\n\nMenopause\n\n\n\n\n\n\n\n\n    1\n21 (18, 27)\n66 (52, —)\n— (—, —)\n\n\n    2\n24 (21, 28)\n56 (49, 65)\n— (81, —)\n\n\nTumor grade\n\n\n\n\n\n\n\n\n    1\n48 (38, —)\n— (65, —)\n— (—, —)\n\n\n    2\n24 (21, 28)\n57 (49, 67)\n— (81, —)\n\n\n    3\n16 (13, 19)\n44 (31, —)\n— (67, —)\n\n\n\n\n\n\n\n\n\nSolution\ndf |&gt;                                       # Use raw data\n  tbl_survfit(y = Surv(time, status &gt; 0),   # Survival object\n              include = c(meno, grade),     # Include variables: menopause, tumor grade\n              label = list(meno = \"Menopause\", grade = \"Tumor grade\"), # Row labels\n              probs = c(0.25, 0.5, 0.75),   # Quantiles: 25%, 50%, 75%\n              label_header = \"{100 * prob}% quantile\") # Column label: \"xx quantile\""
+  },
+  {
+    "objectID": "sec3.html#base-plot",
+    "href": "sec3.html#base-plot",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Base Plot",
+    "text": "Base Plot\n\n\nPlot KM curves by hormone group\nplot(km_fit, ylim = c(0,1), xlab = \"Time (months)\", ylab = \"Relapse-free survival probability\",\n     col = c(\"red\", \"blue\"), conf.int = TRUE)\n# Add legend\nlegend(1, 0.2, col=c(\"red\", \"blue\"), lty = 1, c(\"No hormone\", \"Hormone\")) # Legend text\n# p-value for log-rank test\npval &lt;- survdiff(Surv(time, status) ~ hormone, data = df)$pvalue # obtain p-value\ntext(70, 0.8, scales::pvalue(pval, add_p = TRUE)) # Annotate formatted p-value"
+  },
+  {
+    "objectID": "sec3.html#enhanced-graphics-with-ggsurvfit",
+    "href": "sec3.html#enhanced-graphics-with-ggsurvfit",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Enhanced Graphics with ggsurvfit",
+    "text": "Enhanced Graphics with ggsurvfit\n\nggsurvfit: Provides a ggplot2 interface for survival curves\n\nTakes on survfit object or raw data\nAllows for more customization and aesthetics\nadd_risk_table = TRUE adds a risk table below graph"
   }
 ]

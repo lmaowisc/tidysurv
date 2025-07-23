@@ -66,7 +66,7 @@ head(df)
 #| eval: true
 library(survival) # Load survival package
 # Fit KM estimates by hormone group
-km_fit <- survfit(Surv(time, status) ~ hormone, data = df)
+km_fit <- survfit(Surv(time, status > 0) ~ hormone, data = df)
 # summarize the KM fit object
 summary(km_fit, times = c(6, 12, 24, 36))
 ```
@@ -108,7 +108,7 @@ tidy(km_fit) # Tidy the KM fit object
 #| eval: true
 library(gtsummary) # Load gtsummary package
 # Create a table of survival estimates
-tbl_survfit(km_fit,                        # `survfit` object
+km_fit |> tbl_survfit(                    # Pass `survfit` object
              label = "Hormone",           # Row label: "Hormone"
              times = c(6, 12, 24, 36),     # Time points for estimates
              label_header = "Month {time}" # Column label: "Month xx"
@@ -133,27 +133,94 @@ df |>                                       # Use raw data
 
 
 
+## Tabulating Quantile Estimates
+
+- **Quantile estimates**: Median survival time, quartiles, etc.
+    - Specify `probs` argument in `tbl_survfit()`
+
+```{r}
+#| eval: true
+# Create a table of quantile estimates
+km_fit |>                        # Pass `survfit` object
+  tbl_survfit(
+    label = "Hormone",           # Row label: "Hormone"
+    probs = c(0.25, 0.5, 0.75),  # Quantiles: 25%, 50%, 75%
+              label_header = "{100 * prob}% quantile") # Column label: "xx quantile"
+```
+
+
+
+## Exercise: Tabulating Quantiles
+
+- **Create the following table**
+
+```{r}
+#| eval: true
+#| echo: false
+df |>                                       # Use raw data
+  tbl_survfit(y = Surv(time, status),       # Survival object
+              include = c(meno, grade),     # Include variables: menopause, grade
+              label = list(meno = "Menopause", # Row labels
+                          grade = "Tumor grade"),
+              probs = c(0.25, 0.5, 0.75),   # Quantiles: 25%, 50%, 75%
+              label_header = "{100 * prob}% quantile" # Column label: "xx quantile"
+             )
+
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: Solution
+df |>                                       # Use raw data
+  tbl_survfit(y = Surv(time, status > 0),   # Survival object
+              include = c(meno, grade),     # Include variables: menopause, tumor grade
+              label = list(meno = "Menopause", grade = "Tumor grade"), # Row labels
+              probs = c(0.25, 0.5, 0.75),   # Quantiles: 25%, 50%, 75%
+              label_header = "{100 * prob}% quantile") # Column label: "xx quantile"
+
+```
+
+
 ## Customizing the Table
 
 - **Customize table appearance**
     - `label_header`: change column names
     - `label`: change row labels
     - `statistic`: customize statistics displayed
+        - `statistic = "{estimate} ({conf.low}, {conf.high})"` for confidence intervals
 
-- For more on `gtsummary` table customization, see the [gtsummary documentation](https://www.danieldsjoberg.com/gtsummary/articles/tables.html).
-
-
-
-## Tabulating Quantile Estimates
-
-- **Quantile estimates**: Median survival time, quartiles, etc.
-    - Specify `probs` argument in `tbl_survfit()`
+-   More about `gtsummary`
+    -   [gtsummary](https://www.danieldsjoberg.com/gtsummary/) website
+    -   [tbl_survfit documentation](https://www.danieldsjoberg.com/gtsummary/articles/tbl_survfit.html)
 
 
+# Visualizing Kaplan-Meier Curves
 
-# Visualizing Kaplan-Meier curves
+## Base Plot
 
-# Tidy analysis of competing risks
+```{r}
+#| code-fold: true
+#| code-summary: Plot KM curves by hormone group
+#| eval: true
+plot(km_fit, ylim = c(0,1), xlab = "Time (months)", ylab = "Relapse-free survival probability",
+     col = c("red", "blue"), conf.int = TRUE)
+# Add legend
+legend(1, 0.2, col=c("red", "blue"), lty = 1, c("No hormone", "Hormone")) # Legend text
+# p-value for log-rank test
+pval <- survdiff(Surv(time, status) ~ hormone, data = df)$pvalue # obtain p-value
+text(70, 0.8, scales::pvalue(pval, add_p = TRUE)) # Annotate formatted p-value
+```
+
+## Enhanced Graphics with `ggsurvfit`
+
+- **`ggsurvfit`**: Provides a `ggplot2` interface for survival curves
+    - Takes on `survfit` object or raw data
+    - Allows for more customization and aesthetics
+    - `add_risk_table = TRUE` adds a risk table below graph
+
+
+
+# Tidy Analysis of Competing Risks
 
 # Summary
 
