@@ -216,7 +216,7 @@ text(70, 0.8, scales::pvalue(pval, add_p = TRUE)) # Annotate formatted p-value
 - **`ggsurvfit`**: Provides a `ggplot2` interface for survival curves
     - Takes on `survfit` object or raw data
     - Allows for more customization and aesthetics
-    - `add_risk_table = TRUE` adds a risk table below graph
+    - `add_risktable = TRUE` adds a risk table below graph
 
 
 

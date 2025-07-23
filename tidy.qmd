@@ -1,4 +1,6 @@
-# Module 2. Data Manipulation with Tidyverse
+---
+title: Module 2. Data Manipulation with Tidyverse
+---
 
 ## Slides
 

@@ -1,4 +1,7 @@
-# Module 1. Introduction
+---
+title: Module 1. Introduction
+---
+
 
 ## Slides
 

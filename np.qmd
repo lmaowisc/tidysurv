@@ -1,4 +1,6 @@
-# Module 3. Nonparametric Survival Analysis
+---
+title:  Module 3. Nonparametric Survival Analysis
+---
 
 ## Slides
 
