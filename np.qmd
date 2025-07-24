@@ -14,151 +14,179 @@ Section slides [here](sec3.html){target="_blank"}. (To convert html to pdf, pres
 #| eval: false
 
 # -------------------------------------------
-# Survival Analysis: Module 3 Code 
+# Survival Analysis: Module 3 Code
 # -------------------------------------------
 
-# Load necessary package
-library(survival)
+# Load necessary packages
+library(tidyverse)     # For data manipulation
+library(survival)      # For survival analysis functions
+library(broom)         # For tidying model output
+library(gtsummary)     # For tabulating survival estimates
+library(ggsurvfit)     # For tidy survival plotting
+library(tidycmprsk)    # For competing risks analysis
+library(patchwork)     # For combining ggplots
 
 # ---------------------------
-# 1. Load Datasets
+# 1. Load and Prepare Data
 # ---------------------------
-
-# Load mortality-only data
-gbc_mort <- read.table("data/gbc_mort.txt", header = TRUE)
-head(gbc_mort)
 
 # Load mortality + relapse data
 gbc <- read.table("data/gbc.txt", header = TRUE)
-head(gbc)
+
+# Prepare dataset: collapse to time-to-first event
+df <- gbc |>                # Start with raw dataset
+  group_by(id) |>           # Group by subject ID
+  arrange(time) |>          # Sort by time
+  slice(1) |>               # Keep the first event per subject
+  ungroup()                 # Remove grouping
 
 # ---------------------------
-# 2. Prepare Dataset for Relapse-Free Survival
+# 2. Kaplan-Meier Estimation
 # ---------------------------
 
-# Sort by subject ID and event time
-gbc <- gbc[order(gbc$id, gbc$time), ]
+# Fit Kaplan-Meier curves by hormone therapy group
+km_fit <- survfit(Surv(time, status > 0) ~ hormone, data = df)
 
-# Keep first event per subject
-df <- gbc[!duplicated(gbc$id), ]
-
-# Collapse relapse/death to single composite outcome
-df$status <- ifelse(df$status > 0, 1, 0)
-head(df)
-
-# ---------------------------
-# 3. Kaplan-Meier Estimation
-# ---------------------------
-
-# Fit Kaplan-Meier curves by hormone treatment
-km_fit <- survfit(Surv(time, status) ~ hormone, data = df)
-
-# Print KM summary
+# Summarize KM estimates at specific time points
 summary(km_fit, times = c(6, 12, 24, 36))
 
-# Plot KM curves with CI
-plot(km_fit, ylim = c(0, 1), xlab = "Time (months)",
-     ylab = "Relapse-free survival probability",
-     col = c("red", "blue"), conf.int = TRUE)
+# ---------------------------
+# 3. Tabulate Survival Estimates
+# ---------------------------
+
+# Create summary table of survival estimates
+tbl_survfit(
+  km_fit,                          # survfit object
+  label = "Hormone",              # Row label
+  times = c(6, 12, 24, 36),       # Time points
+  label_header = "Month {time}"   # Column label
+)
+
+# Tabulate estimates grouped by menopause and tumor grade
+df |> 
+  tbl_survfit(
+    y = Surv(time, status),                     # Survival object
+    include = c(meno, grade),                   # Grouping variables
+    label = list(meno = "Menopause", 
+                grade = "Tumor grade"),         # Row labels
+    times = c(6, 12, 24, 36),                   # Time points
+    label_header = "Month {time}"              # Column label
+  )
+
+# Tabulate quantiles (median, quartiles)
+tbl_survfit(
+  km_fit,                                      # survfit object
+  label = "Hormone",                           # Row label
+  probs = c(0.25, 0.5, 0.75),                  # Quantiles
+  label_header = "{100 * prob}% quantile"      # Column label
+)
+
+# ---------------------------
+# 4. Visualize KM Curves (Base R)
+# ---------------------------
+
+# Plot KM curves with confidence intervals
+plot(km_fit, ylim = c(0, 1),
+     xlab = "Time (months)",                   # x-axis label
+     ylab = "Relapse-free survival probability", # y-axis label
+     col = c("red", "blue"),                   # Line colors
+     conf.int = TRUE)                          # Show confidence intervals
+
+# Add legend to the plot
 legend("bottomleft", col = c("red", "blue"), lty = 1,
        legend = c("No hormone", "Hormone"))
 
 # ---------------------------
-# 4. Log-Rank Test
+# 5. Enhanced KM Plot with ggsurvfit
 # ---------------------------
 
-# Compare survival curves by treatment
-lgr_obj <- survdiff(Surv(time, status) ~ hormone, data = df)
-lgr_obj
+# Fit KM curves with relabeled hormone variable
+km_fit2 <- survfit2(Surv(time, status > 0) ~ hormone,
+                    data = df |> 
+                      mutate(hormone = if_else(hormone == 1, "No hormone", "Hormone")))
 
-# Stratified test by menopausal status
-survdiff(Surv(time, status) ~ hormone + strata(meno), data = df)
+# Customize and plot KM curves
+km_fig <- km_fit2 |> 
+  ggsurvfit() +                                 # Base plot
+  add_risktable() +                             # Add risk table
+  add_confidence_interval() +                   # Add confidence bands
+  add_pvalue(caption = "Log-rank {p.value}") +  # Add log-rank p-value
+  scale_x_continuous("Time (months)", breaks = seq(0, 84, 12)) +  # x-axis
+  scale_y_continuous("Relapse-free survival probability", limits = c(0, 1)) +  # y-axis
+  theme_classic() +                             # Classic ggplot theme
+  theme(legend.position = "top")                # Move legend to top
 
-# ---------------------------
-# 5. Cox Proportional Hazards Model
-# ---------------------------
-
-# Fit Cox PH model with multiple covariates
-cox_fit <- coxph(Surv(time, status) ~ hormone + meno + age + grade +
-                   size + prog + estrg, data = df)
-summary(cox_fit)
-
-# Extract estimates and covariance matrix
-beta <- cox_fit$coefficients
-vbeta <- vcov(cox_fit)
-coef(summary(cox_fit))
+# Save KM plot to file
+ggsave("images/km_fig.png", km_fig, width = 7.5, height = 5)
 
 # ---------------------------
-# 6. Survival Prediction
+# 6. Competing Risks Analysis
 # ---------------------------
 
-# Define new subject's covariates
-new_data <- data.frame(hormone = 1, meno = 1, 
-                       age = 45, grade = 2,
-                       size = 20, prog = 100,
-                       estrg = 100)
+# Load sample trial data from tidycmprsk package
+data("trial", package = "tidycmprsk")
 
-# Predict survival probabilities
-predicted_survival <- survfit(cox_fit, newdata = new_data,
-                              times = c(6, 12, 24, 36))
-summary(predicted_survival)
-
-# Plot predicted survival function
-plot(predicted_survival, ylim = c(0, 1), xlab = "Time (months)",
-     ylab = "Predicted survival probability", conf.int = TRUE)
+# Fit CIF using Gray's estimator for competing risks
+cif_fit <- cuminc(Surv(ttdeath, death_cr) ~ trt, trial)
 
 # ---------------------------
-# 7. Model Diagnostics
+# 7. Tabulate CIF Estimates
 # ---------------------------
 
-# Test proportional hazards assumption
-ph_test <- cox.zph(cox_fit)
-ph_test
-
-# Plot Schoenfeld residuals
-par(mfrow = c(2, 4))  # 2 rows, 4 columns
-plot(ph_test, se = TRUE, col = "blue", lwd = 2)
-
-# ---------------------------
-# 8. Check Functional Form of Covariates
-# ---------------------------
-
-# Extract martingale residuals
-mart_resid <- residuals(cox_fit, type = "martingale")
-
-# Plot residuals vs quantitative covariates
-par(mfrow = c(1, 4))  # 1 row, 4 plots
-
-plot(df$age, mart_resid, xlab = "Age", ylab = "Martingale Residuals",
-     main = "Age")
-lines(lowess(df$age, mart_resid), col = "blue", lwd = 2)
-abline(h = 0, lty = 2, col = "red")
-
-plot(df$size, mart_resid, xlab = "Tumor Size", ylab = "Martingale Residuals",
-     main = "Tumor Size")
-lines(lowess(df$size, mart_resid), col = "blue", lwd = 2)
-abline(h = 0, lty = 2, col = "red")
-
-plot(df$prog, mart_resid, xlab = "Progesterone", ylab = "Martingale Residuals",
-     main = "Progesterone")
-lines(lowess(df$prog, mart_resid), col = "blue", lwd = 2)
-abline(h = 0, lty = 2, col = "red")
-
-plot(df$estrg, mart_resid, xlab = "Estrogen", ylab = "Martingale Residuals",
-     main = "Estrogen")
-lines(lowess(df$estrg, mart_resid), col = "blue", lwd = 2)
-abline(h = 0, lty = 2, col = "red")
+# Tabulate CIF estimates with confidence intervals and p-values
+tbl_cuminc(
+  cif_fit,                                            # cuminc object
+  outcomes = c("death from cancer", "death other causes"), # Outcomes
+  times = c(10, 15, 20),                              # Time points
+  label_header = "Month {time}"                       # Column label
+) |>
+  add_p()                                             # Add Gray's test p-values
 
 # ---------------------------
-# 9. Addressing Violations
+# 8. Plot CIF Curves
 # ---------------------------
 
-# Dichotomize age at 40, stratify on grade
-df$age40 <- ifelse(df$age < 40, 0, 1)
+# Plot CIF for cancer-related death with customization
+cif_fit |> 
+  ggcuminc(outcome = "death from cancer") +           # Specify outcome
+  add_confidence_interval() +                         # Confidence bands
+  add_risktable() +                                   # Risk table
+  add_pvalue(caption = "Gray's test {p.value}") +     # P-value annotation
+  scale_x_continuous("Time (months)", breaks = seq(0, 24, 6)) + # x-axis
+  scale_y_continuous("Cumulative incidence function", limits = c(0, 0.5)) + # y-axis
+  ggtitle("Death from cancer") +                      # Title
+  theme_classic() +                                   # Theme
+  theme(legend.position = "top")                      # Legend at top
 
-cox_fit2 <- coxph(Surv(time, status) ~ hormone + meno + age40 +
-                    size + prog + estrg + strata(grade), data = df)
-summary(cox_fit2)
+# Save CIF plot to file
+ggsave("images/cif_fig.png", width = 7.5, height = 5)
+
+# ---------------------------
+# 9. Combine CIF Plots by Outcome
+# ---------------------------
+
+# Define helper function to generate CIF plots
+cif_plot <- function(cif_fit, outcome){
+  cif_fit |> 
+    ggcuminc(outcome = outcome) +
+    add_confidence_interval() +
+    scale_x_continuous("Time (months)", breaks = seq(0, 24, 6)) +
+    scale_y_continuous("Cumulative incidence function", limits = c(0, 0.5)) +
+    ggtitle(str_to_sentence(outcome)) +
+    theme_classic() +
+    theme(legend.position = "top")
+}
+
+# Create plots for each event type
+cif_cancer_plot <- cif_plot(cif_fit, "death from cancer")
+cif_other_plot  <- cif_plot(cif_fit, "death other causes")
+
+# Combine plots into single display
+cif_trial <- cif_cancer_plot + cif_other_plot + 
+  plot_layout(guides = "collect") & theme(legend.position = "top")
+
+# Save combined plot to file
+ggsave("images/cif_combined_fig.png", cif_trial, width = 8, height = 4)
 
 
 ```
