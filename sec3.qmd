@@ -354,7 +354,7 @@ km_fig + add_quantile(
 
 - **Competing risks**
     - Subject may experience at most one of multiple distinct types of event
-    - E.g., death from different causes; relapse vs. death (before relapse) in cancer studies
+    - E.g., death from different causes; relapse vs. death in remission (before relapse)
 
 - **Notation**: $(T, \Delta)$
     - $T$: time to event
@@ -367,10 +367,258 @@ km_fig + add_quantile(
     $$
         - Cumulative probability of event type $k$ by time $t$
 
+## `tidycmprsk` Package
+
+- **Analysis of CIF** implemented in `cmprsk` package`
+    - A "tidy" version is available in `tidycmprsk` package
+    - Simple interface, plays 
+    - Input data: `status`: must be a factor, with the first level indicating censoring and subsequent levels the competing risks
+
+```{r}
+#| eval: true
+
+library(tidycmprsk) # Load tidycmprsk package
+data("trial", package = "tidycmprsk") # Load trial data from tidycmprsk package
+head(trial) # Display the first few rows of the data
+```
+
+## Nonpametric Inference
+
+- **Gray's estimator and test**
+
+```{r}
+#| eval: true
+#| echo: false
+# Fit cumulative incidence function (CIF) for competing risks
+cif_fit <- cuminc(Surv(ttdeath, death_cr) ~ trt, trial)
+```
+
+
+```{r}
+# Fit cumulative incidence function (CIF) for competing risks
+cif_fit <- cuminc(Surv(ttdeath, death_cr) ~ trt, trial)
+cif_fit # print results
+#> • Failure type "death from cancer"
+#> strata   time   n.risk   estimate   std.error   95% CI          
+#> Drug A   5.00   97       0.000      0.000       NA, NA          
+#> Drug A   10.0   94       0.020      0.014       0.004, 0.065    
+#> Drug A   15.0   83       0.071      0.026       0.031, 0.134    
+#> Drug A   20.0   61       0.173      0.039       0.106, 0.255    
+#> Drug B   5.00   102      0.000      0.000       NA, NA          
+#> Drug B   10.0   95       0.039      0.019       0.013, 0.090    
+#> Drug B   15.0   75       0.167      0.037       0.102, 0.246    
+#> Drug B   20.0   55       0.255      0.043       0.175, 0.343 
+```
+
+
+## Raw Output
+
+- **Raw output from `cuminc()` continued**
+
+```{r}
+
+#> • Failure type "death other causes"
+#> strata   time   n.risk   estimate   std.error   95% CI          
+#> Drug A   5.00   97       0.010      0.010       0.001, 0.050    
+#> Drug A   10.0   94       0.020      0.014       0.004, 0.065    
+#> Drug A   15.0   83       0.082      0.028       0.038, 0.147    
+#> Drug A   20.0   61       0.204      0.041       0.131, 0.289    
+#> Drug B   5.00   102      0.000      0.000       NA, NA          
+#> Drug B   10.0   95       0.029      0.017       0.008, 0.077    
+#> Drug B   15.0   75       0.098      0.030       0.050, 0.165    
+#> Drug B   20.0   55       0.206      0.040       0.133, 0.289    
+#> 
+#> • Tests
+#> outcome              statistic   df     p.value    
+#> death from cancer    1.99        1.00   0.16       
+#> death other causes   0.089       1.00   0.77       
+
+```
+
+## Tidy Output in `tibble`
+
+- **Use `broom` to tidy `cuminc` object**
+    - Useful for further analysis or visualization
+
+```{r}
+#| eval: true
+
+tidy_cif <- tidy(cif_fit) # Tidy the CIF fit object
+head(tidy_cif) # Display the first few rows of the tidy data
+```
+
+::: {.callout-note appearance="minimal"}
+## Exercise
+Tabulate CIF estimates with 95\% confidence intervals at 5, 10, 15, and 20 months for each risk.
+:::
+
+## Tabulating CIF Estimates (I)
+
+- **Use `tbl_cuminc()` to create a table of CIF estimates**
+    - Similar syntax to `tbl_survfit()`
+    - `times`: time points for estimates
+    - `outcomes`: specify outcomes to include in the table (Default is the first outcome)
+
+```{r}
+# Tabulate CIF estimates with 95% confidence intervals
+cif_fit |> # Pass `tidycuminc` object
+  tbl_cuminc(
+    outcomes = c("death from cancer", "death other causes"), # Specify outcomes
+    times = c(10, 15, 20), # Time points for estimates
+    label_header = "Month {time}" # Column label: "Month xx"
+  )|> 
+  add_p() # Add p-values from Gray's test
+```
+
+
+## Tabulating CIF Estimates (II)
+
+- **Result**
+
+```{r}
+#| echo: false
+#| eval: true
+# Tabulate CIF estimates with 95% confidence intervals
+cif_fit |> # Pass `tidycuminc` object
+  tbl_cuminc(
+    outcomes = c("death from cancer", "death other causes"), # Specify outcomes
+    times = c(10, 15, 20), # Time points for estimates
+    label_header = "Month {time}" # Column label: "Month xx"
+  ) |> 
+  add_p() # Add p-values from Gray's test
+```
+
+## CIF Graphics (I)
+
+- **Plot CIF estimates with `ggsurvfit::ggcuminc()`**
+    - Similar syntax to `ggsurvfit()`
+    - `outcome`: specify outcome to plot
+    
+```{r}
+cif_fit |> # Pass `tidycuminc` object
+  ggcuminc(outcome = "death from cancer") + # Plot CIF for "death from cancer"
+  add_confidence_interval() + # Add confidence intervals
+  add_risktable() + # Add risk table below the graph
+  add_pvalue(caption = "Gray's test {p.value}") + # Add p-value for Gray's test
+  scale_x_continuous("Time (months)", breaks = seq(0, 24, 6)) + # x-axis format
+  scale_y_continuous("Cumulative incidence function", limits = c(0, 0.5)) + # y-axis format
+  ggtitle("Death from cancer") + # Title
+  theme_classic() + # Use classic theme for this ggplot
+  theme(legend.position = "top") # Position legend at the top
+```
+
+```{r}
+#| echo: false
+
+ggsave("images/cif_fig.png", cif_fit |> # Pass `tidycuminc` object
+  ggcuminc(outcome = "death from cancer") + # Plot CIF for "death from cancer"
+  add_confidence_interval() + # Add confidence intervals
+  add_risktable() + # Add risk table below the graph
+  add_pvalue(caption = "Gray's test {p.value}") + # Add p-value for Gray's test
+  scale_x_continuous("Time (months)", breaks = seq(0, 24, 6)) + # x-axis format
+  scale_y_continuous("Cumulative incidence function", limits = c(0, 0.5)) + # y-axis format
+  ggtitle("Death from cancer") + # Title
+  theme_classic() + # Use classic theme for this ggplot
+  theme(legend.position = "top"), width = 7.5, height = 5) # Save the plot
+```
+
+
+## CIF Graphics (II) 
+    
+- **Result**
+
+![](images/cif_fig.png){fig-align="center" width="100%"}
+
+## CIF Graphics Exercise (I)
+
+- **Task**: create the figure below
+    - **Hint**: plot separate figures for each outcome and use `patchwork` to combine them
+
+
+```{r}
+#| echo: false
+# Function to create CIF plot for a given outcome
+cif_plot <- function(cif_fit, outcome){
+  cif_fit |> # Pass `tidycuminc` object
+    ggcuminc(outcome = outcome) + # Plot CIF for "death from cancer"
+    add_confidence_interval() + # Add confidence intervals
+    # add_risktable(risktable_stats = "n.risk") + # Add risk table below the graph
+    # add_pvalue(caption = "Gray's test {p.value}") + # Add p-value for Gray's test
+    scale_x_continuous("Time (months)", breaks = seq(0, 24, 6)) + # x-axis format
+    scale_y_continuous("Cumulative incidence function", limits = c(0, 0.5)) + # y-axis format
+    ggtitle(str_to_sentence(outcome)) + # Title by capitalizing initial of first word in outcome
+    theme_classic() + # Use classic theme for this ggplot
+    theme(legend.position = "top") # Position legend at the top
+  
+}
+
+cif_cancer_plot <- cif_plot(cif_fit, "death from cancer") # Plot for "death from cancer" 
+cif_other_plot <- cif_plot(cif_fit, "death other causes") # Plot for "death other causes"
+
+library(patchwork) # Load patchwork package
+# Combine the two plots with patchwork
+cif_trial <- cif_cancer_plot + cif_other_plot + plot_layout(guides = "collect") &
+  theme(legend.position = "top") # Collect legends and position at the top
+
+ggsave("images/cif_combined_fig.png", cif_trial, width = 8, height = 4) # Save the combined plot
+```
+
+![](images/cif_combined_fig.png){fig-align="center" width="100%"}
+
+## CIF Graphics Exercise (II)
+
+```{r}
+#| code-fold: true
+#| code-summary: Solution
+# Function to create CIF plot for a given outcome
+cif_plot <- function(cif_fit, outcome){
+  cif_fit |> # Pass `tidycuminc` object
+    ggcuminc(outcome = outcome) + # Plot CIF for specified outcome
+    add_confidence_interval() + # Add confidence intervals
+    scale_x_continuous("Time (months)", breaks = seq(0, 24, 6)) + # x-axis format
+    scale_y_continuous("Cumulative incidence function", limits = c(0, 0.5)) + # y-axis format
+    ggtitle(str_to_sentence(outcome)) + # Title by capitalizing initial of first word in outcome
+    theme_classic() + # Use classic theme for this ggplot
+    theme(legend.position = "top") # Position legend at the top
+  
+}
+
+cif_cancer_plot <- cif_plot(cif_fit, "death from cancer") # Plot for "death from cancer" 
+cif_other_plot <- cif_plot(cif_fit, "death other causes") # Plot for "death other causes"
+
+library(patchwork) # Load patchwork package
+# Combine the two plots with patchwork
+cif_trial <- cif_cancer_plot + cif_other_plot + plot_layout(guides = "collect") &
+  theme(legend.position = "top") # Collect legends and position at the top
+```
+
+- More about `tidycmprsk`
+    - [tidycmprsk](https://www.danieldsjoberg.com/tidycmprsk/) website
 
 
 # Summary
 
 ## Key Takeaways
 
+- **Nonparametric survival analysis**
+    -  Use `survival::survfit()` for Kaplan-Meier estimates
+    -  Use `tidycmprsk::cuminc()` for CIF of competing risks 
 
+- **Tidy outputs**
+    - Use `broom::tidy()` to convert `survfit` and `tidycuminc` objects into tidy data frames
+
+- **Tabulation and visualization**
+    - Use `gtsummary::tbl_survfit()` and `tidycumprsk::tbl_cuminc()` for tabulating survival estimates
+    - Use `ggsurvfit::ggsurvfit()` and `ggsurvfit::ggcuminc()` for visualizing survival curves and CIF
+
+## Next Steps
+
+- **Cox regression analysis**
+    - Tidy and format results from `survival::coxph()` 
+    - Visualize prediction results
+    
+- **Competing risks**
+    - Proportional sub-distribution hazards (Fine-Gray) regression
+    - Tabulation and graphics
+    
+    

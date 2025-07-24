@@ -693,7 +693,7 @@
     "href": "sec3.html#key-takeaways",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Key Takeaways",
-    "text": "Key Takeaways"
+    "text": "Key Takeaways\n\nNonparametric survival analysis\n\nUse survival::survfit() for Kaplan-Meier estimates\nUse tidycmprsk::cuminc() for CIF of competing risks\n\nTidy outputs\n\nUse broom::tidy() to convert survfit and tidycuminc objects into tidy data frames\n\nTabulation and visualization\n\nUse gtsummary::tbl_survfit() and tidycumprsk::tbl_cuminc() for tabulating survival estimates\nUse ggsurvfit::ggsurvfit() and ggsurvfit::ggcuminc() for visualizing survival curves and CIF"
   },
   {
     "objectID": "sec1.html",
@@ -936,6 +936,125 @@
     "href": "sec3.html#competing-risks-overview",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Competing Risks Overview",
-    "text": "Competing Risks Overview\n\nCompeting risks\n\nSubject may experience at most one of multiple distinct types of event\nE.g., death from different causes; relapse vs. death (before relapse) in cancer studies\n\nNotation: \\((T, \\Delta)\\)\n\n\\(T\\): time to event\n\\(\\Delta\\): event type indicator (e.g., 1 for relapse, 2 for death)\n\nQuantity of interest\n\ncumulative incidence function (CIF), or sub-distribution \\[\n  F_k(t) = P(T \\leq t, \\Delta = k)\n  \\]\n\nCumulative probability of event type \\(k\\) by time \\(t\\)"
+    "text": "Competing Risks Overview\n\nCompeting risks\n\nSubject may experience at most one of multiple distinct types of event\nE.g., death from different causes; relapse vs. death in remission (before relapse)\n\nNotation: \\((T, \\Delta)\\)\n\n\\(T\\): time to event\n\\(\\Delta\\): event type indicator (e.g., 1 for relapse, 2 for death)\n\nQuantity of interest\n\ncumulative incidence function (CIF), or sub-distribution \\[\n  F_k(t) = P(T \\leq t, \\Delta = k)\n  \\]\n\nCumulative probability of event type \\(k\\) by time \\(t\\)"
+  },
+  {
+    "objectID": "sec3.html#cumulative-incidence-function",
+    "href": "sec3.html#cumulative-incidence-function",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cumulative Incidence Function",
+    "text": "Cumulative Incidence Function\n\nCIF: Gray’s nonparametric estimator\n\nImplemented in cmprsk::cuminc()\nA `tidy'' version is available intidycmprsk` package\n\n\n\nlibrary(tidycmprsk) # Load tidycmprsk package\ndata(trial) # Load trial data from tidycmprsk package\nhead(trial) # Display the first few rows of the data\n\n# A tibble: 6 × 9\n  trt      age marker stage grade response death death_cr           ttdeath\n  &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;fct&gt; &lt;fct&gt;    &lt;int&gt; &lt;int&gt; &lt;fct&gt;                &lt;dbl&gt;\n1 Drug A    23  0.16  T1    II           0     0 censor                24  \n2 Drug B     9  1.11  T2    I            1     0 censor                24  \n3 Drug A    31  0.277 T1    II           0     0 censor                24  \n4 Drug A    NA  2.07  T3    III          1     1 death other causes    17.6\n5 Drug A    51  2.77  T4    III          1     1 death other causes    16.4\n6 Drug B    39  0.613 T4    I            0     1 death from cancer     15.6"
+  },
+  {
+    "objectID": "sec3.html#tidycmprsk-package",
+    "href": "sec3.html#tidycmprsk-package",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "tidycmprsk Package",
+    "text": "tidycmprsk Package\n\nAnalysis of CIF implemented in cmprsk package- A \"tidy\" version is available intidycmprskpackage     - Simple interface, plays      - Input data:status`: must be a factor, with the first level indicating censoring and subsequent levels the competing risks\n\n\nlibrary(tidycmprsk) # Load tidycmprsk package\ndata(\"trial\", package = \"tidycmprsk\") # Load trial data from tidycmprsk package\nhead(trial) # Display the first few rows of the data\n\n# A tibble: 6 × 9\n  trt      age marker stage grade response death death_cr           ttdeath\n  &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;fct&gt; &lt;fct&gt;    &lt;int&gt; &lt;int&gt; &lt;fct&gt;                &lt;dbl&gt;\n1 Drug A    23  0.16  T1    II           0     0 censor                24  \n2 Drug B     9  1.11  T2    I            1     0 censor                24  \n3 Drug A    31  0.277 T1    II           0     0 censor                24  \n4 Drug A    NA  2.07  T3    III          1     1 death other causes    17.6\n5 Drug A    51  2.77  T4    III          1     1 death other causes    16.4\n6 Drug B    39  0.613 T4    I            0     1 death from cancer     15.6"
+  },
+  {
+    "objectID": "sec3.html#input-data-format",
+    "href": "sec3.html#input-data-format",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Input Data Format",
+    "text": "Input Data Format\n\nInput data format\n\ntime: time to a competing event or censoring\nstatus: must be a factor, with the first level indicating censoring and subsequent levels the competing risks\n\n\n\ncif_fit &lt;- cuminc(Surv(ttdeath, death_cr) ~ trt, trial)\ncif_fit\n\n\nstrata   time   n.risk   estimate   std.error   95% CI          \nDrug A   5.00   97       0.000      0.000       NA, NA          \nDrug A   10.0   94       0.020      0.014       0.004, 0.065    \nDrug A   15.0   83       0.071      0.026       0.031, 0.134    \nDrug A   20.0   61       0.173      0.039       0.106, 0.255    \nDrug B   5.00   102      0.000      0.000       NA, NA          \nDrug B   10.0   95       0.039      0.019       0.013, 0.090    \nDrug B   15.0   75       0.167      0.037       0.102, 0.246    \nDrug B   20.0   55       0.255      0.043       0.175, 0.343    \n\nstrata   time   n.risk   estimate   std.error   95% CI          \nDrug A   5.00   97       0.010      0.010       0.001, 0.050    \nDrug A   10.0   94       0.020      0.014       0.004, 0.065    \nDrug A   15.0   83       0.082      0.028       0.038, 0.147    \nDrug A   20.0   61       0.204      0.041       0.131, 0.289    \nDrug B   5.00   102      0.000      0.000       NA, NA          \nDrug B   10.0   95       0.029      0.017       0.008, 0.077    \nDrug B   15.0   75       0.098      0.030       0.050, 0.165    \nDrug B   20.0   55       0.206      0.040       0.133, 0.289    \n\noutcome              statistic   df     p.value    \ndeath from cancer    1.99        1.00   0.16       \ndeath other causes   0.089       1.00   0.77"
+  },
+  {
+    "objectID": "sec3.html#nonpametric-inference",
+    "href": "sec3.html#nonpametric-inference",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Nonpametric Inference",
+    "text": "Nonpametric Inference\n\nGray’s estimator and test\n\n\n# Fit cumulative incidence function (CIF) for competing risks\ncif_fit &lt;- cuminc(Surv(ttdeath, death_cr) ~ trt, trial)\ncif_fit # print results\n#&gt; • Failure type \"death from cancer\"\n#&gt; strata   time   n.risk   estimate   std.error   95% CI          \n#&gt; Drug A   5.00   97       0.000      0.000       NA, NA          \n#&gt; Drug A   10.0   94       0.020      0.014       0.004, 0.065    \n#&gt; Drug A   15.0   83       0.071      0.026       0.031, 0.134    \n#&gt; Drug A   20.0   61       0.173      0.039       0.106, 0.255    \n#&gt; Drug B   5.00   102      0.000      0.000       NA, NA          \n#&gt; Drug B   10.0   95       0.039      0.019       0.013, 0.090    \n#&gt; Drug B   15.0   75       0.167      0.037       0.102, 0.246    \n#&gt; Drug B   20.0   55       0.255      0.043       0.175, 0.343"
+  },
+  {
+    "objectID": "sec3.html#raw-output",
+    "href": "sec3.html#raw-output",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Raw Output",
+    "text": "Raw Output\n\nRaw output from cuminc() continued\n\n\n#&gt; • Failure type \"death other causes\"\n#&gt; strata   time   n.risk   estimate   std.error   95% CI          \n#&gt; Drug A   5.00   97       0.010      0.010       0.001, 0.050    \n#&gt; Drug A   10.0   94       0.020      0.014       0.004, 0.065    \n#&gt; Drug A   15.0   83       0.082      0.028       0.038, 0.147    \n#&gt; Drug A   20.0   61       0.204      0.041       0.131, 0.289    \n#&gt; Drug B   5.00   102      0.000      0.000       NA, NA          \n#&gt; Drug B   10.0   95       0.029      0.017       0.008, 0.077    \n#&gt; Drug B   15.0   75       0.098      0.030       0.050, 0.165    \n#&gt; Drug B   20.0   55       0.206      0.040       0.133, 0.289    \n#&gt; \n#&gt; • Tests\n#&gt; outcome              statistic   df     p.value    \n#&gt; death from cancer    1.99        1.00   0.16       \n#&gt; death other causes   0.089       1.00   0.77"
+  },
+  {
+    "objectID": "sec3.html#tidy-output-in-tibble",
+    "href": "sec3.html#tidy-output-in-tibble",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Tidy Output in tibble",
+    "text": "Tidy Output in tibble\n\nUse broom to tidy cuminc object\n\nUseful for further analysis or visualization\n\n\n\ntidy_cif &lt;- tidy(cif_fit) # Tidy the CIF fit object\nhead(tidy_cif) # Display the first few rows of the tidy data\n\n# A tibble: 6 × 12\n   time outcome      strata estimate std.error conf.low conf.high n.risk n.event\n  &lt;dbl&gt; &lt;chr&gt;        &lt;fct&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;  &lt;int&gt;   &lt;int&gt;\n1  0    death from … Drug A   0         0      NA         NA          98       0\n2  3.53 death from … Drug A   0         0      NA         NA          98       0\n3  5.33 death from … Drug A   0         0      NA         NA          97       0\n4  6.32 death from … Drug A   0         0      NA         NA          97       0\n5  7.27 death from … Drug A   0.0102    0.0102  8.84e-4    0.0503     97       1\n6  7.38 death from … Drug A   0.0204    0.0144  3.90e-3    0.0652     96       1\n# ℹ 3 more variables: n.censor &lt;int&gt;, cum.event &lt;int&gt;, cum.censor &lt;int&gt;\n\n\n\n\n\nExercise\n\n\nTabulate CIF estimates with 95% confidence intervals at 5, 10, 15, and 20 months for each risk."
+  },
+  {
+    "objectID": "sec3.html#tabulating-cif-estimates",
+    "href": "sec3.html#tabulating-cif-estimates",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Tabulating CIF Estimates",
+    "text": "Tabulating CIF Estimates\n\n**Use tbl_cuminc()`` to create a table of CIF estimates**     - s     - Similar syntax totbl_survfit()`\n\n\ncif_fit |&gt; \n  tbl_cuminc(\n    outcomes = c(\"death from cancer\", \"death other causes\"), # Specify outcomes\n    times = c(10, 15, 20), # Time points for estimates\n    label_header = \"Month {time}\" # Column label: \"Month xx\"\n  )\n\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\nMonth 10\nMonth 15\nMonth 20\n\n\n\n\ndeath from cancer\n\n\nChemotherapy Treatment\n\n\n\n\n\n\n\n\n    Drug A\n2.0% (0.39%, 6.5%)\n7.1% (3.1%, 13%)\n17% (11%, 26%)\n\n\n    Drug B\n3.9% (1.3%, 9.0%)\n17% (10%, 25%)\n25% (17%, 34%)\n\n\ndeath other causes\n\n\nChemotherapy Treatment\n\n\n\n\n\n\n\n\n    Drug A\n2.0% (0.39%, 6.5%)\n8.2% (3.8%, 15%)\n20% (13%, 29%)\n\n\n    Drug B\n2.9% (0.79%, 7.7%)\n9.8% (5.0%, 17%)\n21% (13%, 29%)"
+  },
+  {
+    "objectID": "sec3.html#tabulating-cif-estimates-i",
+    "href": "sec3.html#tabulating-cif-estimates-i",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Tabulating CIF Estimates (I)",
+    "text": "Tabulating CIF Estimates (I)\n\nUse tbl_cuminc() to create a table of CIF estimates\n\nSimilar syntax to tbl_survfit()\ntimes: time points for estimates\noutcomes: specify outcomes to include in the table (Default is the first outcome)\n\n\n\n# Tabulate CIF estimates with 95% confidence intervals\ncif_fit |&gt; # Pass `tidycuminc` object\n  tbl_cuminc(\n    outcomes = c(\"death from cancer\", \"death other causes\"), # Specify outcomes\n    times = c(10, 15, 20), # Time points for estimates\n    label_header = \"Month {time}\" # Column label: \"Month xx\"\n  )|&gt; \n  add_p() # Add p-values from Gray's test"
+  },
+  {
+    "objectID": "sec3.html#tabulating-cif-estimates-ii",
+    "href": "sec3.html#tabulating-cif-estimates-ii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Tabulating CIF Estimates (II)",
+    "text": "Tabulating CIF Estimates (II)\n\nResult\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\nMonth 10\nMonth 15\nMonth 20\np-value1\n\n\n\n\ndeath from cancer\n\n\nChemotherapy Treatment\n\n\n\n\n\n\n0.2\n\n\n    Drug A\n2.0% (0.39%, 6.5%)\n7.1% (3.1%, 13%)\n17% (11%, 26%)\n\n\n\n\n    Drug B\n3.9% (1.3%, 9.0%)\n17% (10%, 25%)\n25% (17%, 34%)\n\n\n\n\ndeath other causes\n\n\nChemotherapy Treatment\n\n\n\n\n\n\n0.8\n\n\n    Drug A\n2.0% (0.39%, 6.5%)\n8.2% (3.8%, 15%)\n20% (13%, 29%)\n\n\n\n\n    Drug B\n2.9% (0.79%, 7.7%)\n9.8% (5.0%, 17%)\n21% (13%, 29%)\n\n\n\n\n\n1 Gray’s Test"
+  },
+  {
+    "objectID": "sec3.html#cif-graphics",
+    "href": "sec3.html#cif-graphics",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "CIF Graphics",
+    "text": "CIF Graphics\n\n**Plot CIF estimates with ggsurvfit::ggcuminc()**     - Similar syntax toggsurvfit()-outcome`: specify outcome to plot\n\n\ncif_fit |&gt; # Pass `tidycuminc` object\n  ggcuminc(outcome = \"death from cancer\") + # Plot CIF for \"death from cancer\"\n  add_confidence_interval() + # Add confidence intervals\n  add_risktable() + # Add risk table below the graph\n  add_pvalue(caption = \"Gray's test {p.value}\") + # Add p-value for Gray's test\n  scale_x_continuous(\"Time (months)\", breaks = seq(0, 24, 6)) + # x-axis format\n  scale_y_continuous(\"Cumulative incidence function\", limits = c(0, 1)) + # y-axis format\n  ggtitle(\"Death from Cancer\") + # Title\n  theme_classic() + # Use classic theme for this ggplot\n  theme(legend.position = \"top\") # Position legend at the top"
+  },
+  {
+    "objectID": "sec3.html#cif-graphics-i",
+    "href": "sec3.html#cif-graphics-i",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "CIF Graphics (I)",
+    "text": "CIF Graphics (I)\n\nPlot CIF estimates with ggsurvfit::ggcuminc()\n\nSimilar syntax to ggsurvfit()\noutcome: specify outcome to plot\n\n\n\ncif_fit |&gt; # Pass `tidycuminc` object\n  ggcuminc(outcome = \"death from cancer\") + # Plot CIF for \"death from cancer\"\n  add_confidence_interval() + # Add confidence intervals\n  add_risktable() + # Add risk table below the graph\n  add_pvalue(caption = \"Gray's test {p.value}\") + # Add p-value for Gray's test\n  scale_x_continuous(\"Time (months)\", breaks = seq(0, 24, 6)) + # x-axis format\n  scale_y_continuous(\"Cumulative incidence function\", limits = c(0, 0.5)) + # y-axis format\n  ggtitle(\"Death from cancer\") + # Title\n  theme_classic() + # Use classic theme for this ggplot\n  theme(legend.position = \"top\") # Position legend at the top"
+  },
+  {
+    "objectID": "sec3.html#cif-graphics-ii",
+    "href": "sec3.html#cif-graphics-ii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "CIF Graphics (II)",
+    "text": "CIF Graphics (II)\n\nResult"
+  },
+  {
+    "objectID": "sec3.html#cif-graphics-exercise",
+    "href": "sec3.html#cif-graphics-exercise",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "CIF Graphics Exercise",
+    "text": "CIF Graphics Exercise\n\nTask: create the figure below\n\nHint: plot separate figures for each outcome and use patchwork to combine them"
+  },
+  {
+    "objectID": "sec3.html#cif-graphics-exercise-i",
+    "href": "sec3.html#cif-graphics-exercise-i",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "CIF Graphics Exercise (I)",
+    "text": "CIF Graphics Exercise (I)\n\nTask: create the figure below\n\nHint: plot separate figures for each outcome and use patchwork to combine them"
+  },
+  {
+    "objectID": "sec3.html#cif-graphics-exercise-ii",
+    "href": "sec3.html#cif-graphics-exercise-ii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "CIF Graphics Exercise (II)",
+    "text": "CIF Graphics Exercise (II)\n\n\nSolution\n# Function to create CIF plot for a given outcome\ncif_plot &lt;- function(cif_fit, outcome){\n  cif_fit |&gt; # Pass `tidycuminc` object\n    ggcuminc(outcome = outcome) + # Plot CIF for specified outcome\n    add_confidence_interval() + # Add confidence intervals\n    scale_x_continuous(\"Time (months)\", breaks = seq(0, 24, 6)) + # x-axis format\n    scale_y_continuous(\"Cumulative incidence function\", limits = c(0, 0.5)) + # y-axis format\n    ggtitle(str_to_sentence(outcome)) + # Title by capitalizing initial of first word in outcome\n    theme_classic() + # Use classic theme for this ggplot\n    theme(legend.position = \"top\") # Position legend at the top\n  \n}\n\ncif_cancer_plot &lt;- cif_plot(cif_fit, \"death from cancer\") # Plot for \"death from cancer\" \ncif_other_plot &lt;- cif_plot(cif_fit, \"death other causes\") # Plot for \"death other causes\"\n\nlibrary(patchwork) # Load patchwork package\n# Combine the two plots with patchwork\ncif_trial &lt;- cif_cancer_plot + cif_other_plot + plot_layout(guides = \"collect\") &\n  theme(legend.position = \"top\") # Collect legends and position at the top\n\n\n\nMore about tidycmprsk\n\ntidycmprsk website"
+  },
+  {
+    "objectID": "sec3.html#next-steps",
+    "href": "sec3.html#next-steps",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Next Steps",
+    "text": "Next Steps\n\nCox regression analysis\n\nTidy and format results from survival::coxph()\nVisualize prediction results\n\nCompeting risks\n\nProportional sub-distribution hazards (Fine-Gray) regression\nTabulation and graphics"
+  },
+  {
+    "objectID": "sec3.html#more-about-tidycmprsk",
+    "href": "sec3.html#more-about-tidycmprsk",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "More about tidycmprsk",
+    "text": "More about tidycmprsk\n\ntidycmprsk website"
   }
 ]
