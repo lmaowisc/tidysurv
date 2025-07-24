@@ -1056,5 +1056,45 @@
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "More about tidycmprsk",
     "text": "More about tidycmprsk\n\ntidycmprsk website"
+  },
+  {
+    "objectID": "reg.html",
+    "href": "reg.html",
+    "title": "Module 4. Semiparametric Regression Analysis",
+    "section": "",
+    "text": "Section slides here. (To convert html to pdf, press E \\(\\to\\) Print \\(\\to\\) Destination: Save to pdf)",
+    "crumbs": [
+      "Home",
+      "Module 4. Semiparametric Regression Analysis"
+    ]
+  },
+  {
+    "objectID": "reg.html#slides",
+    "href": "reg.html#slides",
+    "title": "Module 4. Semiparametric Regression Analysis",
+    "section": "",
+    "text": "Section slides here. (To convert html to pdf, press E \\(\\to\\) Print \\(\\to\\) Destination: Save to pdf)",
+    "crumbs": [
+      "Home",
+      "Module 4. Semiparametric Regression Analysis"
+    ]
+  },
+  {
+    "objectID": "reg.html#r-code",
+    "href": "reg.html#r-code",
+    "title": "Module 4. Semiparametric Regression Analysis",
+    "section": "R code",
+    "text": "R code\n\n\nShow the code\n# -------------------------------------------\n# Survival Analysis: Module 4 Code\n# -------------------------------------------\n\n# Load necessary packages\nlibrary(tidyverse)     # For data manipulation\nlibrary(survival)      # For survival analysis functions\nlibrary(broom)         # For tidying model output\nlibrary(gtsummary)     # For tabulating survival estimates\nlibrary(ggsurvfit)     # For tidy survival plotting\nlibrary(tidycmprsk)    # For competing risks analysis\nlibrary(patchwork)     # For combining ggplots\n\n# ---------------------------\n# 1. Load and Prepare Data\n# ---------------------------\n\n# Load mortality + relapse data\ngbc &lt;- read.table(\"data/gbc.txt\", header = TRUE)\n\n# Prepare dataset: collapse to time-to-first event\ndf &lt;- gbc |&gt;                # Start with raw dataset\n  group_by(id) |&gt;           # Group by subject ID\n  arrange(time) |&gt;          # Sort by time\n  slice(1) |&gt;               # Keep the first event per subject\n  ungroup()                 # Remove grouping\n\n# ---------------------------\n# 2. Kaplan-Meier Estimation\n# ---------------------------\n\n# Fit Kaplan-Meier curves by hormone therapy group\nkm_fit &lt;- survfit(Surv(time, status &gt; 0) ~ hormone, data = df)\n\n# Summarize KM estimates at specific time points\nsummary(km_fit, times = c(6, 12, 24, 36))\n\n# ---------------------------\n# 3. Tabulate Survival Estimates\n# ---------------------------\n\n# Create summary table of survival estimates\ntbl_survfit(\n  km_fit,                          # survfit object\n  label = \"Hormone\",              # Row label\n  times = c(6, 12, 24, 36),       # Time points\n  label_header = \"Month {time}\"   # Column label\n)\n\n# Tabulate estimates grouped by menopause and tumor grade\ndf |&gt; \n  tbl_survfit(\n    y = Surv(time, status),                     # Survival object\n    include = c(meno, grade),                   # Grouping variables\n    label = list(meno = \"Menopause\", \n                grade = \"Tumor grade\"),         # Row labels\n    times = c(6, 12, 24, 36),                   # Time points\n    label_header = \"Month {time}\"              # Column label\n  )\n\n# Tabulate quantiles (median, quartiles)\ntbl_survfit(\n  km_fit,                                      # survfit object\n  label = \"Hormone\",                           # Row label\n  probs = c(0.25, 0.5, 0.75),                  # Quantiles\n  label_header = \"{100 * prob}% quantile\"      # Column label\n)\n\n# ---------------------------\n# 4. Visualize KM Curves (Base R)\n# ---------------------------\n\n# Plot KM curves with confidence intervals\nplot(km_fit, ylim = c(0, 1),\n     xlab = \"Time (months)\",                   # x-axis label\n     ylab = \"Relapse-free survival probability\", # y-axis label\n     col = c(\"red\", \"blue\"),                   # Line colors\n     conf.int = TRUE)                          # Show confidence intervals\n\n# Add legend to the plot\nlegend(\"bottomleft\", col = c(\"red\", \"blue\"), lty = 1,\n       legend = c(\"No hormone\", \"Hormone\"))\n\n# ---------------------------\n# 5. Enhanced KM Plot with ggsurvfit\n# ---------------------------\n\n# Fit KM curves with relabeled hormone variable\nkm_fit2 &lt;- survfit2(Surv(time, status &gt; 0) ~ hormone,\n                    data = df |&gt; \n                      mutate(hormone = if_else(hormone == 1, \"No hormone\", \"Hormone\")))\n\n# Customize and plot KM curves\nkm_fig &lt;- km_fit2 |&gt; \n  ggsurvfit() +                                 # Base plot\n  add_risktable() +                             # Add risk table\n  add_confidence_interval() +                   # Add confidence bands\n  add_pvalue(caption = \"Log-rank {p.value}\") +  # Add log-rank p-value\n  scale_x_continuous(\"Time (months)\", breaks = seq(0, 84, 12)) +  # x-axis\n  scale_y_continuous(\"Relapse-free survival probability\", limits = c(0, 1)) +  # y-axis\n  theme_classic() +                             # Classic ggplot theme\n  theme(legend.position = \"top\")                # Move legend to top\n\n# Save KM plot to file\nggsave(\"images/km_fig.png\", km_fig, width = 7.5, height = 5)\n\n# ---------------------------\n# 6. Competing Risks Analysis\n# ---------------------------\n\n# Load sample trial data from tidycmprsk package\ndata(\"trial\", package = \"tidycmprsk\")\n\n# Fit CIF using Gray's estimator for competing risks\ncif_fit &lt;- cuminc(Surv(ttdeath, death_cr) ~ trt, trial)\n\n# ---------------------------\n# 7. Tabulate CIF Estimates\n# ---------------------------\n\n# Tabulate CIF estimates with confidence intervals and p-values\ntbl_cuminc(\n  cif_fit,                                            # cuminc object\n  outcomes = c(\"death from cancer\", \"death other causes\"), # Outcomes\n  times = c(10, 15, 20),                              # Time points\n  label_header = \"Month {time}\"                       # Column label\n) |&gt;\n  add_p()                                             # Add Gray's test p-values\n\n# ---------------------------\n# 8. Plot CIF Curves\n# ---------------------------\n\n# Plot CIF for cancer-related death with customization\ncif_fit |&gt; \n  ggcuminc(outcome = \"death from cancer\") +           # Specify outcome\n  add_confidence_interval() +                         # Confidence bands\n  add_risktable() +                                   # Risk table\n  add_pvalue(caption = \"Gray's test {p.value}\") +     # P-value annotation\n  scale_x_continuous(\"Time (months)\", breaks = seq(0, 24, 6)) + # x-axis\n  scale_y_continuous(\"Cumulative incidence function\", limits = c(0, 0.5)) + # y-axis\n  ggtitle(\"Death from cancer\") +                      # Title\n  theme_classic() +                                   # Theme\n  theme(legend.position = \"top\")                      # Legend at top\n\n# Save CIF plot to file\nggsave(\"images/cif_fig.png\", width = 7.5, height = 5)\n\n# ---------------------------\n# 9. Combine CIF Plots by Outcome\n# ---------------------------\n\n# Define helper function to generate CIF plots\ncif_plot &lt;- function(cif_fit, outcome){\n  cif_fit |&gt; \n    ggcuminc(outcome = outcome) +\n    add_confidence_interval() +\n    scale_x_continuous(\"Time (months)\", breaks = seq(0, 24, 6)) +\n    scale_y_continuous(\"Cumulative incidence function\", limits = c(0, 0.5)) +\n    ggtitle(str_to_sentence(outcome)) +\n    theme_classic() +\n    theme(legend.position = \"top\")\n}\n\n# Create plots for each event type\ncif_cancer_plot &lt;- cif_plot(cif_fit, \"death from cancer\")\ncif_other_plot  &lt;- cif_plot(cif_fit, \"death other causes\")\n\n# Combine plots into single display\ncif_trial &lt;- cif_cancer_plot + cif_other_plot + \n  plot_layout(guides = \"collect\") & theme(legend.position = \"top\")\n\n# Save combined plot to file\nggsave(\"images/cif_combined_fig.png\", cif_trial, width = 8, height = 4)",
+    "crumbs": [
+      "Home",
+      "Module 4. Semiparametric Regression Analysis"
+    ]
+  },
+  {
+    "objectID": "sec4.html#key-takeaways",
+    "href": "sec4.html#key-takeaways",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Key Takeaways",
+    "text": "Key Takeaways"
   }
 ]

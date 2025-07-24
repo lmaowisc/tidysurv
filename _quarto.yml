@@ -19,6 +19,7 @@ website:
       - intro.qmd
       - tidy.qmd
       - np.qmd
+      - reg.qmd
 csl: apa.csl
 format:
   html:
