@@ -1,6 +1,6 @@
 ---
 title: "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data"
-subtitle: "Module 3. Nonparametric Survival Analysis"
+subtitle: "Module 4. Semiparametric Regression Analysis"
 css: style.css
 # csl: apa.csl
 author:
@@ -38,10 +38,359 @@ include-in-header:
 ---
 
 
-# Tabulating Regression Results
+# Presenting Regression Results
+
+## Cox PH Regression
+
+- **Model specification** $$
+    \lambda(t \mid Z) = \lambda_0(t) \exp(\beta_1 Z_1 + \beta_2 Z_2 + \ldots + \beta_p Z_p)
+    $$
+    -   $\lambda_0(t)$: baseline hazard function
+    -   $\exp(\beta_j)$: hazard ratio for covariate $Z_j$
+
+- **GBC data: relapse-free survival**
+```{r}
+#| eval: true
+library(tidyverse) # Load tidyverse packages
+gbc <- read.table("data/gbc.txt", header = TRUE) # Load GBC dataset
+```
+
+## GBC Data: a Running Example
+
+- **Reformat the data**
+```{r}
+#| eval: true
+df <- gbc |>  # calculate time to first event (relapse or death)
+  group_by(id) |> # group by id
+  arrange(time) |> # sort rows by time
+  slice(1) |>      # get the first row within each id
+  ungroup() |>     # remove grouping
+  mutate(
+    age40 = ifelse(age >= 40, 1, 0), # create binary variable for age >= 40
+    grade = factor(grade), # convert grade to factor
+    prog = prog / 100, # rescale progesterone receptor
+    estrg = estrg / 100 # rescale estrogen receptor
+    ) 
+```
+
+
+## Analysis in Base R
+
+-   **Model fitting**: `survival::coxph()`
+
+```{r}
+#| eval: true
+library(survival) # Load survival package
+cox_fit <- coxph(Surv(time, status) ~ hormone + meno + age40 + grade + size + prog + estrg, 
+                 data = df)
+summary(cox_fit) # Print model summary
+```
+
+## Tidy `coxph()` Output
+
+- **Using `broom` package**: `broom::tidy()`
+    - Provides a tidy data frame for easy manipulation and visualization
+
+```{r}
+#| eval: true
+library(broom) # Load broom package
+tidy_cox <- tidy(cox_fit) # Tidy the coxph output
+tidy_cox # Display the tidy output
+```
+
+## Tabulating Results with `gtsummary` (I)
+
+- **Using `gtsummary` package**: `tbl_regression()`
+    - Automatically formats regression results into a publication-ready table
+
+```{r}
+library(gtsummary) # Load gtsummary package
+cox_tbl <- cox_fit |> tbl_regression( # Create a regression table
+                exponentiate = TRUE, # Exponentiate coefficients to get hazard ratios
+                label = list(hormone ~ "Hormone Therapy", # Custom labels
+                             meno ~ "Menopausal", 
+                             age40 ~ "Older than 40", 
+                             grade ~ "Tumor Grade", 
+                             size ~ "Tumor Size (mm)", 
+                             prog ~ "Progesterone Receptor (100 fmol/ml)", 
+                             estrg ~ "Estrogen Receptor  (100 fmol/ml)")
+               ) |> 
+          add_global_p() # Add global p-value for categorical variables
+cox_tbl # Display the regression table
+```
+
+## Tabulating Results with `gtsummary` (II)
+
+- **Result**
+```{r}
+#| eval: true
+#| echo: false
+library(gtsummary) # Load gtsummary package
+cox_tbl <- cox_fit |> tbl_regression( # Create a regression table
+                exponentiate = TRUE, # Exponentiate coefficients to get hazard ratios
+                label = list(hormone ~ "Hormone Therapy", # Custom labels
+                             meno ~ "Menopausal", 
+                             age40 ~ "Older than 40", 
+                             grade ~ "Tumor Grade", 
+                             size ~ "Tumor Size (mm)", 
+                             prog ~ "Progesterone Receptor (100 fmol/ml)", 
+                             estrg ~ "Estrogen Receptor  (100 fmol/ml)")
+               ) |> 
+          add_global_p() # Add global p-value for categorical variables
+cox_tbl # Display the regression table
+```
+
+## Further Customization
+<!-- modify_header() 	update column headers -->
+<!-- modify_footnote_header() 	update column header footnote -->
+<!-- modify_footnote_body() 	update table body footnote -->
+<!-- modify_spanning_header() 	update spanning headers -->
+<!-- modify_caption() 	update table caption/title -->
+<!-- bold_labels() 	bold variable labels -->
+<!-- bold_levels() 	bold variable levels -->
+<!-- italicize_labels() 	italicize variable labels -->
+<!-- italicize_levels() 	italicize variable levels -->
+<!-- bold_p() 	bold significant p-values -->
+- **Styling functions**
+    - `modify_header()`: update column headers
+    - `modify_footnote_header()`: update column header footnote
+    - `modify_footnote_body()`: update table body footnote
+    - `modify_caption()`: update table caption/title
+    - `bold_labels()`: bold variable labels
+    - `bold_levels()`: bold variable levels
+    - `italicize_labels()`: italicize variable labels
+    - `italicize_levels()`: italicize variable levels
+    - `bold_p()`: bold significant p-values
+
+- More about `tbl_regression()`
+    - [`gtsummary` documentation](https://www.danieldsjoberg.com/gtsummary/articles/tbl_regression.html)
+
+## Table Customization Exercise
+
+- **Task**: Customize the regression table
+    - Add a caption: "Cox regression analysis of the German breast cancer study"
+    - Bold significant p-values
+    - Italicize tumor grade levels
+
+```{r}
+#| code-fold: true
+#| code-summary: Solution
+
+cox_tbl |> # Start with the regression table
+  modify_caption("Cox regression analysis of the German breast cancer study") |> # Add caption
+  bold_p() |> # Bold significant p-values
+  italicize_levels() # Italicize variable levels
+
+```
+
+## Other Regression Models
+
+- **Accelerated failure time (AFT) models**
+$$
+    \log T = \beta_0 + \beta_1 Z_1 + \beta_2 Z_2 + \ldots + \beta_p Z_p + \epsilon
+$$
+    - $\epsilon\sim$ Weibull, lognormal, etc. (parametric models)
+    - $\exp(\beta_j)$: acceleration factor for covariate $Z_j$
+    - **Model fitting**: `survival::survreg()`
+    
+```{r}
+#| eval: true
+# Fit a Weibull AFT model
+aft_fit <- survreg(Surv(time, status) ~ hormone + meno + age + grade + size + prog + estrg, 
+                    data = df, dist = "weibull") # specify the Weibull model
+```
+
+::: {.callout-note appearance="minimal"}
+## Exercise
+- Tidy up the `survreg` object ``aft_fit`` using `broom::tidy()`
+- Create a regression table using `gtsummary::tbl_regression()`
+:::
+
+
+## Visualizing Hazard Ratios (I)
+
+- **Forest plot**: Visualize hazard ratios and confidence intervals
+    -  use `ggplot` on tidied `coxph` object
+    
+```{r}
+# tidy with exponentiated coeffs (HR) and CI
+tidy_cox <- tidy(cox_fit, exponentiate = TRUE, conf.int = TRUE) 
+# Relabel the variables
+tidy_cox$term <- recode(tidy_cox$term, 
+                hormone = "Hormone Therapy", 
+                meno = "Menopausal", 
+                age40 = "Older than 40", 
+                grade2 = "Tumor Grade II vs I",
+                grade3 = "Tumor Grade III vs I",
+                size = "Tumor Size (mm)", 
+                prog = "Progesterone (100 fmol/ml)", 
+                estrg = "Estrogen (100 fmol/ml)")
+# plot of hazard ratios and 95% CIs
+tidy_cox |> 
+  ggplot(aes(y=term, x=estimate, xmin=conf.low, xmax=conf.high)) + 
+  geom_pointrange() +  # plots center point (x) and range (xmin, xmax)
+  geom_vline(xintercept=1, linetype = 2) + # vertical line at HR=1
+  scale_x_log10("Hazard ratio (95% CI)") + # log scale for x-axis
+  theme_classic() + # classic theme for clean look
+  theme(
+    axis.line.y = element_blank(),          # remove y-axis line
+    axis.ticks.y = element_blank(),         # remove y-axis ticks
+    axis.text.y = element_text(size = 11),  # set variable label size
+    axis.title.y = element_blank()          # remove y-axis title
+  )
+```
+
+## Visualizing Hazard Ratios (II)
+
+- **Result**
+
+```{r}
+#| eval: true
+#| echo: false
+# tidy with exponentiated coeffs (HR) and CI
+tidy_cox <- tidy(cox_fit, exponentiate = TRUE, conf.int = TRUE) 
+# Relabel the variables
+tidy_cox$term <- recode(tidy_cox$term, 
+                hormone = "Hormone Therapy", 
+                meno = "Menopausal", 
+                age40 = "Older than 40", 
+                grade2 = "Tumor Grade II vs I",
+                grade3 = "Tumor Grade III vs I",
+                size = "Tumor Size (cm)", 
+                prog = "Progesterone (100 fmol/ml)", 
+                estrg = "Estrogen (100 fmol/ml)")
+# plot of hazard ratios and 95% CIs
+tidy_cox |> 
+  ggplot(aes(y=term, x=estimate, xmin=conf.low, xmax=conf.high)) + 
+  geom_pointrange() +  # plots center point (x) and range (xmin, xmax)
+  geom_vline(xintercept=1, linetype = 2) + # vertical line at HR=1
+  scale_x_log10("Hazard ratio (95% CI)") + # log scale for x-axis
+  theme_classic() + # classic theme for clean look
+  theme(
+    axis.line.y = element_blank(),          # remove y-axis line
+    axis.ticks.y = element_blank(),         # remove y-axis ticks
+    axis.text.y = element_text(size = 11),  # set variable label size
+    axis.title.y = element_blank()          # remove y-axis title
+  )
+```
+
+## Forest Plot Exercise
+
+- **Task**: customize the forest plot
+    - Use square rather than default circle for point estimates
+    - Set x-axis ticks at 0.5, 1, 2.0, and 4.0
+    - Add a title: "Cox Regression Results for GBC Data"
+
+```{r}
+#| code-fold: true
+#| code-summary: Solution
+
+tidy_cox |> 
+  ggplot(aes(y=term, x=estimate, xmin=conf.low, xmax=conf.high)) + 
+  geom_pointrange(shape = 15) +  # plots center point (x) in square and range (xmin, xmax)
+  geom_vline(xintercept=1, linetype = 2) + # vertical line at HR=1
+  scale_x_log10("Hazard ratio (95% CI)",    # log scale for x-axis
+                breaks = c(0.5, 1, 2, 4)) + # log scale for x-axis
+  ggtitle("Cox Regression Results for GBC Data") + # Add title
+  theme_classic() + # classic theme for clean look
+  theme(
+    axis.line.y = element_blank(),          # remove y-axis line
+    axis.ticks.y = element_blank(),         # remove y-axis ticks
+    axis.text.y = element_text(size = 11),  # set variable label size
+    axis.title.y = element_blank()          # remove y-axis title
+  )
+```
+
+## Model-Based Prediction
+
+-   **Predicted survival function** $$
+     \hat S(t \mid z) = \exp\left\{- \exp(\hat\beta^\mathrm{T} z) \hat\Lambda_0(t)\right\}
+     $$
+
+-   Prepare new data for prediction
+    - A post-menpausal woman older than 40, undergoing hormone therapy, with tumor grade II, tumor size 20 mm, and progesterone and estrogen receptor levels both 100 fmol/ml.
+```{r}
+#| eval: true
+# Create new data for prediction
+# specify all covariate values
+new_data <- data.frame(hormone = 2, meno = 2, age40 = 1, grade = factor(2), 
+                        size = 20, prog = 1, estrg = 1)
+
+new_data
+```
+
+## Tidy Survival Prediction
+
+- Use `survival::survfit()` to predict survival probabilities
+    - `newdata`: new data for prediction
+    - `times`: time points for prediction
+    - `broom::tidy()` to tidy the output
+```{r}
+#| eval: true
+# Predict survival probabilities for `newdata`
+pred_surv <- survfit(cox_fit, newdata = new_data[1, ])
+tidy_pred_surv <- tidy(pred_surv) # Tidy the survival prediction output
+head(tidy_pred_surv) # Display the first few rows of the tidy output
+```
+
+## Visualizing Predicted Survival (I)
+
+- **Using `ggsurvfit` package**: `ggsurvfit()`
+    - Pass `survfit` object to `ggsurvfit()`
+    - Similar customization to KM curves
+
+```{r}
+#| eval: true
+library(ggsurvfit) # Load ggsurvfit package
+pred_fig <- pred_surv |>  # Pass the survfit object
+  ggsurvfit() + # Main function
+  add_confidence_interval() + # Add confidence interval
+  scale_x_continuous("Time (months)", breaks = seq(0, 84, by = 12)) + # x-axis format
+  scale_y_continuous("Relapse-free survival probability", limits = c(0, 1)) + # y-axis format
+  ggtitle("Predicted Relapse-Free Survival for a GBC Patient") + # Add title
+  theme_classic() # Classic theme for clean look
+```
+
+
+## Visualizing Predicted Survival (II)
+
+- **Result**
+
+```{r}
+#| eval: true
+#| fig-width: 7
+#| fig-height: 4
+pred_fig # print figure
+```
+
+## Prediction Graphics Exercise
+
+- **Task**: Add horizontal grid lines
+
+```{r}
+#| eval: true
+#| echo: false
+pred_fig + theme(panel.grid.major.y = element_line()) # Add horizontal grid lines
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: Solution
+#| eval: false
+pred_fig + theme(panel.grid.major.y = element_line()) # Add horizontal grid lines
+```
+
+# Cox Model Diagnostics
+
+
+# Competing Risks Regression
+
+
 
 
 # Summary
+
+
 
 ## Key Takeaways
 

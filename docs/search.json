@@ -85,8 +85,8 @@
     "objectID": "sec1.html#time-to-event-data",
     "href": "sec1.html#time-to-event-data",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
-    "section": "Time-to-Event Data",
-    "text": "Time-to-Event Data\n\nA common type of outcome in medical and clinical studies\n\nStarting point: Randomization, diagnosis, enrollment, birth, etc.\n\nEndpoint (Event of interest): Death, disease onset, hospitalization, etc.\n\nEngineering: Failure times of machines or components (reliability)\nSocial sciences: Time to job change, dropout, or event occurrence\n\n\nRight censoring:\n\nEvent not observed within the follow-up period\nDue to study ending, dropout, or loss to follow-up\nWe only know:\n\\[\nT &gt; C\n\\] where \\(T\\) is event time and \\(C\\) is censoring time"
+    "section": "",
+    "text": "A common type of outcome in medical and clinical studies\n\nStarting point: Randomization, diagnosis, enrollment, birth, etc.\n\nEndpoint (Event of interest): Death, disease onset, hospitalization, etc.\n\nEngineering: Failure times of machines or components (reliability)\nSocial sciences: Time to job change, dropout, or event occurrence\n\n\nRight censoring:\n\nEvent not observed within the follow-up period\nDue to study ending, dropout, or loss to follow-up\nWe only know:\n\\[\nT &gt; C\n\\] where \\(T\\) is event time and \\(C\\) is censoring time"
   },
   {
     "objectID": "sec1.html#censoring",
@@ -99,22 +99,22 @@
     "objectID": "sec1.html#follow-up-swimmer-plot",
     "href": "sec1.html#follow-up-swimmer-plot",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
-    "section": "Follow-up (Swimmer) Plot",
-    "text": "Follow-up (Swimmer) Plot\n\nA rat tumorigenicity study"
+    "section": "",
+    "text": "A rat tumorigenicity study"
   },
   {
     "objectID": "sec1.html#basic-estimands",
     "href": "sec1.html#basic-estimands",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
-    "section": "Basic Estimands",
-    "text": "Basic Estimands\n\nSurvival function: \\(S(t) = \\Pr(T &gt; t)\\)\n\nProbability subject survives beyond time \\(t\\)\n\nHazard function:\n\\[\n\\lambda(t) = \\lim_{\\Delta t \\to 0} \\frac{\\Pr(t \\leq T &lt; t + \\Delta t \\mid T \\geq t)}{\\Delta t}\n\\]\n\nInstantaneous risk of failure at time \\(t\\)\n\nRelationship \\[\nS(t) = \\exp\\left(-\\int_0^t \\lambda(u) \\mathrm{d}u\\right)\n\\]\n\nCumulative hazard function: \\(\\Lambda(t) = \\int_0^t \\lambda(u) \\mathrm{d}u\\)"
+    "section": "",
+    "text": "Survival function: \\(S(t) = \\Pr(T &gt; t)\\)\n\nProbability subject survives beyond time \\(t\\)\n\nHazard function:\n\\[\n\\lambda(t) = \\lim_{\\Delta t \\to 0} \\frac{\\Pr(t \\leq T &lt; t + \\Delta t \\mid T \\geq t)}{\\Delta t}\n\\]\n\nInstantaneous risk of failure at time \\(t\\)\n\nRelationship \\[\nS(t) = \\exp\\left(-\\int_0^t \\lambda(u) \\mathrm{d}u\\right)\n\\]\n\nCumulative hazard function: \\(\\Lambda(t) = \\int_0^t \\lambda(u) \\mathrm{d}u\\)"
   },
   {
     "objectID": "sec1.html#observed-censored-data",
     "href": "sec1.html#observed-censored-data",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
-    "section": "Observed (Censored) Data",
-    "text": "Observed (Censored) Data\n\nNotation: \\((X, \\delta)\\)\n\n\\(X=\\min(T, C)\\): observation time (event or censoring)\n\\(\\delta = I(T\\leq C)\\): event indicator (1 for event, 0 for censoring)\n\nData format\n\n# time = X, status = delta (tidy format)\n    id    time status\n1     1     5     1\n2     2     3     0\n3     3     8     1\n4     4     2     0\n5     5     6     1\n# Alternatively \n    id    time \n1     1     5   \n2     2     3+  \n3     3     8  \n4     4     2+  \n5     5     6"
+    "section": "",
+    "text": "Notation: \\((X, \\delta)\\)\n\n\\(X=\\min(T, C)\\): observation time (event or censoring)\n\\(\\delta = I(T\\leq C)\\): event indicator (1 for event, 0 for censoring)\n\nData format\n\n# time = X, status = delta (tidy format)\n    id    time status\n1     1     5     1\n2     2     3     0\n3     3     8     1\n4     4     2     0\n5     5     6     1\n# Alternatively \n    id    time \n1     1     5   \n2     2     3+  \n3     3     8  \n4     4     2+  \n5     5     6"
   },
   {
     "objectID": "sec1.html#s",
@@ -205,7 +205,7 @@
     "href": "sec1.html#log-rank-test",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Log-Rank Test",
-    "text": "Log-Rank Test\n\nCompare survival curves between groups\n\n\nlgr_obj &lt;- survdiff(Surv(time, status) ~ hormone, data = df)\nlgr_obj # Print log-rank test results\n\nCall:\nsurvdiff(formula = Surv(time, status) ~ hormone, data = df)\n\n            N Observed Expected (O-E)^2/E (O-E)^2/V\nhormone=1 440      205      180      3.37      8.56\nhormone=2 246       94      119      5.12      8.56\n\n Chisq= 8.6  on 1 degrees of freedom, p= 0.003 \n\nlgr_obj$pvalue # Extract p-value\n\n[1] 0.003427282\n\n\n\n\n\nExercise\n\n\nPerform a log-rank test on treatment stratified by patient menopausal status meno.\n\n\nSolution\nsurvdiff(Surv(time, status) ~ hormone + strata(meno), data = df)"
+    "text": "Log-Rank Test\n\nCompare survival curves between groups\n\n\nlgr_obj &lt;- survdiff(Surv(time, status) ~ hormone, data = df)\nlgr_obj # Print log-rank test results\n\nCall:\nsurvdiff(formula = Surv(time, status) ~ hormone, data = df)\n\n            N Observed Expected (O-E)^2/E (O-E)^2/V\nhormone=1 440      205      180      3.37      8.56\nhormone=2 246       94      119      5.12      8.56\n\n Chisq= 8.6  on 1 degrees of freedom, p= 0.003 \n\nlgr_obj$pvalue # Extract p-value\n\n[1] 0.003427282\n\n\n\n\n\n\n\n\nExercise\n\n\n\nPerform a log-rank test on treatment stratified by patient menopausal status meno.\n\n\nSolution\nsurvdiff(Surv(time, status) ~ hormone + strata(meno), data = df)"
   },
   {
     "objectID": "sec1.html#key-takeaways",
@@ -317,7 +317,7 @@
     "href": "sec1.html#coding-exercise",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Coding Exercise",
-    "text": "Coding Exercise\n\n\n\nExercise\n\n\nResidual analyses show that the proportional hazards assumption is violated for tumor grade, and that the effect of age is not linear.\nFit a different model to address these issues.\n\n\nSample solution\n# Dichotomize age at 40\ndf$age40 &lt;- ifelse(df$age &lt; 40, 0, 1)\n# Fit Cox model stratified by tumor grade and with binary age \ncox_fit2 &lt;- coxph(Surv(time, status) ~ hormone + meno + age40 + size + prog + estrg + \n                   strata(grade), data = df)\nsummary(cox_fit2) # Print model summary"
+    "text": "Coding Exercise\n\n\n\n\n\n\nExercise\n\n\n\nResidual analyses show that the proportional hazards assumption is violated for tumor grade, and that the effect of age is not linear.\nFit a different model to address these issues.\n\n\nSample solution\n# Dichotomize age at 40\ndf$age40 &lt;- ifelse(df$age &lt; 40, 0, 1)\n# Fit Cox model stratified by tumor grade and with binary age \ncox_fit2 &lt;- coxph(Surv(time, status) ~ hormone + meno + age40 + size + prog + estrg + \n                   strata(grade), data = df)\nsummary(cox_fit2) # Print model summary"
   },
   {
     "objectID": "sec1.html#open-questions",
@@ -1096,5 +1096,159 @@
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Key Takeaways",
     "text": "Key Takeaways"
+  },
+  {
+    "objectID": "sec4.html#cox-ph-regression",
+    "href": "sec4.html#cox-ph-regression",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox PH Regression",
+    "text": "Cox PH Regression\n\nModel specification \\[\n  \\lambda(t \\mid Z) = \\lambda_0(t) \\exp(\\beta_1 Z_1 + \\beta_2 Z_2 + \\ldots + \\beta_p Z_p)\n  \\]\n\n\\(\\lambda_0(t)\\): baseline hazard function\n\\(\\exp(\\beta_j)\\): hazard ratio for covariate \\(Z_j\\)\n\nGBC data: relapse-free survival\n\n\nlibrary(tidyverse) # Load tidyverse packages\ngbc &lt;- read.table(\"data/gbc.txt\", header = TRUE) # Load GBC dataset"
+  },
+  {
+    "objectID": "sec4.html#analysis-in-base-r",
+    "href": "sec4.html#analysis-in-base-r",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Analysis in Base R",
+    "text": "Analysis in Base R\n\nModel fitting: survival::coxph()\n\n\nlibrary(survival) # Load survival package\ncox_fit &lt;- coxph(Surv(time, status) ~ hormone + meno + age40 + grade + size + prog + estrg, \n                 data = df)\nsummary(cox_fit) # Print model summary\n\nCall:\ncoxph(formula = Surv(time, status) ~ hormone + meno + age40 + \n    grade + size + prog + estrg, data = df)\n\n  n= 686, number of events= 299 \n\n            coef exp(coef) se(coef)      z Pr(&gt;|z|)    \nhormone -0.37432   0.68776  0.12917 -2.898 0.003758 ** \nmeno     0.28450   1.32909  0.13973  2.036 0.041748 *  \nage40   -0.55127   0.57622  0.20243 -2.723 0.006463 ** \ngrade2   0.71547   2.04514  0.24854  2.879 0.003993 ** \ngrade3   0.77465   2.16982  0.26970  2.872 0.004075 ** \nsize     0.01606   1.01619  0.00368  4.365 1.27e-05 ***\nprog    -0.22400   0.79932  0.05776 -3.878 0.000105 ***\nestrg    0.01204   1.01212  0.04680  0.257 0.796895    \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n        exp(coef) exp(-coef) lower .95 upper .95\nhormone    0.6878     1.4540    0.5339    0.8859\nmeno       1.3291     0.7524    1.0107    1.7478\nage40      0.5762     1.7355    0.3875    0.8568\ngrade2     2.0451     0.4890    1.2565    3.3287\ngrade3     2.1698     0.4609    1.2790    3.6812\nsize       1.0162     0.9841    1.0089    1.0236\nprog       0.7993     1.2511    0.7138    0.8951\nestrg      1.0121     0.9880    0.9234    1.1093\n\nConcordance= 0.661  (se = 0.016 )\nLikelihood ratio test= 78.79  on 8 df,   p=9e-14\nWald test            = 68.82  on 8 df,   p=8e-12\nScore (logrank) test = 69.51  on 8 df,   p=6e-12"
+  },
+  {
+    "objectID": "sec4.html#tidy-coxph-output",
+    "href": "sec4.html#tidy-coxph-output",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Tidy coxph() Output",
+    "text": "Tidy coxph() Output\n\nUsing broom package: broom::tidy()\n\nProvides a tidy data frame for easy manipulation and visualization\n\n\n\nlibrary(broom) # Load broom package\ntidy_cox &lt;- tidy(cox_fit) # Tidy the coxph output\ntidy_cox # Display the tidy output\n\n# A tibble: 8 × 5\n  term    estimate std.error statistic   p.value\n  &lt;chr&gt;      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;\n1 hormone  -0.374    0.129      -2.90  0.00376  \n2 meno      0.284    0.140       2.04  0.0417   \n3 age40    -0.551    0.202      -2.72  0.00646  \n4 grade2    0.715    0.249       2.88  0.00399  \n5 grade3    0.775    0.270       2.87  0.00408  \n6 size      0.0161   0.00368     4.37  0.0000127\n7 prog     -0.224    0.0578     -3.88  0.000105 \n8 estrg     0.0120   0.0468      0.257 0.797"
+  },
+  {
+    "objectID": "sec4.html#tabulating-results-with-gtsummary",
+    "href": "sec4.html#tabulating-results-with-gtsummary",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Tabulating Results with gtsummary",
+    "text": "Tabulating Results with gtsummary\n\nUsing gtsummary package: tbl_regression()\n\nAutomatically formats regression results into a publication-ready table\n\n\n\nlibrary(gtsummary) # Load gtsummary package\ntbl_regression(cox_fit, \n                exponentiate = TRUE, # Exponentiate coefficients to get hazard ratios\n                label = list(hormone ~ \"Hormone Therapy\", \n                             meno ~ \"Menopause Status\", \n                             age ~ \"Age (years)\", \n                             grade ~ \"Tumor Grade\", \n                             size ~ \"Tumor Size (cm)\", \n                             prog ~ \"Progesterone Receptor\", \n                             estrg ~ \"Estrogen Receptor\")) # Custom labels\n\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\nHR1\n95% CI1\np-value\n\n\n\n\nHormone Therapy\n0.70\n0.54, 0.90\n0.006\n\n\nMenopause Status\n1.31\n0.91, 1.88\n0.14\n\n\nAge (years)\n0.99\n0.97, 1.01\n0.3\n\n\nTumor Grade\n\n\n\n\n\n\n\n\n    1\n—\n—\n\n\n\n\n    2\n2.03\n1.25, 3.30\n0.004\n\n\n    3\n2.26\n1.34, 3.84\n0.002\n\n\nTumor Size (cm)\n1.02\n1.01, 1.02\n&lt;0.001\n\n\nProgesterone Receptor\n0.79\n0.71, 0.89\n&lt;0.001\n\n\nEstrogen Receptor\n1.02\n0.93, 1.12\n0.7\n\n\n\n1 HR = Hazard Ratio, CI = Confidence Interval"
+  },
+  {
+    "objectID": "sec4.html#gbc-data-a-running-example",
+    "href": "sec4.html#gbc-data-a-running-example",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "GBC Data: a Running Example",
+    "text": "GBC Data: a Running Example\n\nReformat the data\n\n\ndf &lt;- gbc |&gt;  # calculate time to first event (relapse or death)\n  group_by(id) |&gt; # group by id\n  arrange(time) |&gt; # sort rows by time\n  slice(1) |&gt;      # get the first row within each id\n  ungroup() |&gt;     # remove grouping\n  mutate(\n    age40 = ifelse(age &gt;= 40, 1, 0), # create binary variable for age &gt;= 40\n    grade = factor(grade), # convert grade to factor\n    prog = prog / 100, # rescale progesterone receptor\n    estrg = estrg / 100 # rescale estrogen receptor\n    )"
+  },
+  {
+    "objectID": "sec4.html#tabulating-results-with-gtsummary-i",
+    "href": "sec4.html#tabulating-results-with-gtsummary-i",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Tabulating Results with gtsummary (I)",
+    "text": "Tabulating Results with gtsummary (I)\n\nUsing gtsummary package: tbl_regression()\n\nAutomatically formats regression results into a publication-ready table\n\n\n\nlibrary(gtsummary) # Load gtsummary package\ncox_tbl &lt;- cox_fit |&gt; tbl_regression( # Create a regression table\n                exponentiate = TRUE, # Exponentiate coefficients to get hazard ratios\n                label = list(hormone ~ \"Hormone Therapy\", # Custom labels\n                             meno ~ \"Menopausal\", \n                             age40 ~ \"Older than 40\", \n                             grade ~ \"Tumor Grade\", \n                             size ~ \"Tumor Size (mm)\", \n                             prog ~ \"Progesterone Receptor (100 fmol/ml)\", \n                             estrg ~ \"Estrogen Receptor  (100 fmol/ml)\")\n               ) |&gt; \n          add_global_p() # Add global p-value for categorical variables\ncox_tbl # Display the regression table"
+  },
+  {
+    "objectID": "sec4.html#tabulating-results-with-gtsummary-ii",
+    "href": "sec4.html#tabulating-results-with-gtsummary-ii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Tabulating Results with gtsummary (II)",
+    "text": "Tabulating Results with gtsummary (II)\n\nResult\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\nHR1\n95% CI1\np-value\n\n\n\n\nHormone Therapy\n0.69\n0.53, 0.89\n0.003\n\n\nMenopausal\n1.33\n1.01, 1.75\n0.039\n\n\nOlder than 40\n0.58\n0.39, 0.86\n0.009\n\n\nTumor Grade\n\n\n\n\n0.004\n\n\n    1\n—\n—\n\n\n\n\n    2\n2.05\n1.26, 3.33\n\n\n\n\n    3\n2.17\n1.28, 3.68\n\n\n\n\nTumor Size (mm)\n1.02\n1.01, 1.02\n&lt;0.001\n\n\nProgesterone Receptor (100 fmol/ml)\n0.80\n0.71, 0.90\n&lt;0.001\n\n\nEstrogen Receptor (100 fmol/ml)\n1.01\n0.92, 1.11\n0.8\n\n\n\n1 HR = Hazard Ratio, CI = Confidence Interval"
+  },
+  {
+    "objectID": "sec4.html#further-customization",
+    "href": "sec4.html#further-customization",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Further Customization",
+    "text": "Further Customization\n\n\n\n\n\n\n\n\n\n\n\nStyling functions\n\nmodify_header(): update column headers\nmodify_footnote_header(): update column header footnote\nmodify_footnote_body(): update table body footnote\nmodify_caption(): update table caption/title\nbold_labels(): bold variable labels\nbold_levels(): bold variable levels\nitalicize_labels(): italicize variable labels\nitalicize_levels(): italicize variable levels\nbold_p(): bold significant p-values\n\nMore about tbl_regression()\n\ngtsummary documentation"
+  },
+  {
+    "objectID": "sec4.html#table-customization-exercise",
+    "href": "sec4.html#table-customization-exercise",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Table Customization Exercise",
+    "text": "Table Customization Exercise\n\nTask: Customize the regression table\n\nAdd a caption: “Cox regression analysis of the German breast cancer study”\nBold significant p-values\nItalicize tumor grade levels\n\n\n\n\nSolution\ncox_tbl |&gt; # Start with the regression table\n  modify_caption(\"Cox regression analysis of the German breast cancer study\") |&gt; # Add caption\n  bold_p() |&gt; # Bold significant p-values\n  italicize_levels() # Italicize variable levels"
+  },
+  {
+    "objectID": "sec4.html#visualizing-regression-results",
+    "href": "sec4.html#visualizing-regression-results",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Visualizing Regression Results",
+    "text": "Visualizing Regression Results\n\nForest plot: displays hazard ratios and confidence intervals"
+  },
+  {
+    "objectID": "sec4.html#other-regression-models",
+    "href": "sec4.html#other-regression-models",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Other Regression Models",
+    "text": "Other Regression Models\n\nAccelerated failure time (AFT) models \\[\n  \\log T = \\beta_0 + \\beta_1 Z_1 + \\beta_2 Z_2 + \\ldots + \\beta_p Z_p + \\epsilon\n\\]\n\n\\(\\epsilon\\sim\\) Weibull, lognormal, etc. (parametric models)\n\\(\\exp(\\beta_j)\\): acceleration factor for covariate \\(Z_j\\)\nModel fitting: survival::survreg()\n\n\n\n# Fit a Weibull AFT model\naft_fit &lt;- survreg(Surv(time, status) ~ hormone + meno + age + grade + size + prog + estrg, \n                    data = df, dist = \"weibull\") # specify the Weibull model\n\n\n\n\nExercise\n\n\n\nTidy up the survreg object aft_fit using broom::tidy()\nCreate a regression table using gtsummary::tbl_regression()"
+  },
+  {
+    "objectID": "sec4.html#tabulating-aft-results",
+    "href": "sec4.html#tabulating-aft-results",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Tabulating AFT Results",
+    "text": "Tabulating AFT Results\n\nUsing gtsummary package: tbl_regression()\n\nSame syntax as in Cox model"
+  },
+  {
+    "objectID": "sec4.html#visualizing-hazard-ratios",
+    "href": "sec4.html#visualizing-hazard-ratios",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Visualizing Hazard Ratios",
+    "text": "Visualizing Hazard Ratios\n\nForest plot: Visualize hazard ratios and confidence intervals\n\nWork with tidied coxph object\n\n\n\n# tidy with exponentiated coeffs (HR) and CI\ntidy_cox &lt;- tidy(cox_fit, exponentiate = TRUE, conf.int = TRUE) \n# plot of hazard ratios and 95% CIs\ntidy_cox |&gt; \n  ggplot(aes(y=term, x=estimate, xmin=conf.low, xmax=conf.high)) + \n  geom_pointrange() +  # plots center point (x) and range (xmin, xmax)\n  geom_vline(xintercept=1, linetype = 2) + # vertical line at HR=1\n  scale_x_log10(\"Hazard ratio (95% CI)\") +\n  theme_classic() +\n  theme(\n    axis.line.y = element_blank(),\n    axis.ticks.y = element_blank(),\n    axis.text.y = element_text(size = 11),\n    axis.title.y = element_blank()\n  )"
+  },
+  {
+    "objectID": "sec4.html",
+    "href": "sec4.html",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "",
+    "text": "Model specification \\[\n  \\lambda(t \\mid Z) = \\lambda_0(t) \\exp(\\beta_1 Z_1 + \\beta_2 Z_2 + \\ldots + \\beta_p Z_p)\n  \\]\n\n\\(\\lambda_0(t)\\): baseline hazard function\n\\(\\exp(\\beta_j)\\): hazard ratio for covariate \\(Z_j\\)\n\nGBC data: relapse-free survival\n\n\nlibrary(tidyverse) # Load tidyverse packages\n\n── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──\n✔ dplyr     1.1.4     ✔ readr     2.1.5\n✔ forcats   1.0.0     ✔ stringr   1.5.1\n✔ ggplot2   3.5.1     ✔ tibble    3.2.1\n✔ lubridate 1.9.3     ✔ tidyr     1.3.1\n✔ purrr     1.0.2     \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter() masks stats::filter()\n✖ dplyr::lag()    masks stats::lag()\nℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors\n\ngbc &lt;- read.table(\"data/gbc.txt\", header = TRUE) # Load GBC dataset\n\n\n\n\n\nReformat the data\n\n\ndf &lt;- gbc |&gt;  # calculate time to first event (relapse or death)\n  group_by(id) |&gt; # group by id\n  arrange(time) |&gt; # sort rows by time\n  slice(1) |&gt;      # get the first row within each id\n  ungroup() |&gt;     # remove grouping\n  mutate(\n    age40 = ifelse(age &gt;= 40, 1, 0), # create binary variable for age &gt;= 40\n    grade = factor(grade), # convert grade to factor\n    prog = prog / 100, # rescale progesterone receptor\n    estrg = estrg / 100 # rescale estrogen receptor\n    ) \n\n\n\n\n\nModel fitting: survival::coxph()\n\n\nlibrary(survival) # Load survival package\n\nWarning: package 'survival' was built under R version 4.4.1\n\ncox_fit &lt;- coxph(Surv(time, status) ~ hormone + meno + age + grade + size + prog + estrg, \n                 data = df)\nsummary(cox_fit) # Print model summary\n\nCall:\ncoxph(formula = Surv(time, status) ~ hormone + meno + age + grade + \n    size + prog + estrg, data = df)\n\n  n= 686, number of events= 299 \n\n             coef exp(coef)  se(coef)      z Pr(&gt;|z|)    \nhormone -0.355239  0.701006  0.129228 -2.749  0.00598 ** \nmeno     0.268316  1.307761  0.184052  1.458  0.14489    \nage     -0.008794  0.991245  0.009378 -0.938  0.34842    \ngrade2   0.707889  2.029702  0.248554  2.848  0.00440 ** \ngrade3   0.817171  2.264085  0.268954  3.038  0.00238 ** \nsize     0.015321  1.015439  0.003654  4.193 2.75e-05 ***\nprog    -0.229422  0.794993  0.057755 -3.972 7.12e-05 ***\nestrg    0.017884  1.018044  0.046862  0.382  0.70274    \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n        exp(coef) exp(-coef) lower .95 upper .95\nhormone    0.7010     1.4265    0.5442    0.9031\nmeno       1.3078     0.7647    0.9117    1.8758\nage        0.9912     1.0088    0.9732    1.0096\ngrade2     2.0297     0.4927    1.2470    3.3037\ngrade3     2.2641     0.4417    1.3365    3.8355\nsize       1.0154     0.9848    1.0082    1.0227\nprog       0.7950     1.2579    0.7099    0.8903\nestrg      1.0180     0.9823    0.9287    1.1160\n\nConcordance= 0.652  (se = 0.016 )\nLikelihood ratio test= 72.76  on 8 df,   p=1e-12\nWald test            = 62.25  on 8 df,   p=2e-10\nScore (logrank) test = 62.63  on 8 df,   p=1e-10\n\n\n\n\n\n\nUsing broom package: broom::tidy()\n\nProvides a tidy data frame for easy manipulation and visualization\n\n\n\nlibrary(broom) # Load broom package\ntidy_cox &lt;- tidy(cox_fit) # Tidy the coxph output\ntidy_cox # Display the tidy output\n\n# A tibble: 8 × 5\n  term    estimate std.error statistic   p.value\n  &lt;chr&gt;      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;\n1 hormone -0.355     0.129      -2.75  0.00598  \n2 meno     0.268     0.184       1.46  0.145    \n3 age     -0.00879   0.00938    -0.938 0.348    \n4 grade2   0.708     0.249       2.85  0.00440  \n5 grade3   0.817     0.269       3.04  0.00238  \n6 size     0.0153    0.00365     4.19  0.0000275\n7 prog    -0.229     0.0578     -3.97  0.0000712\n8 estrg    0.0179    0.0469      0.382 0.703    \n\n\n\n\n\n\nUsing gtsummary package: tbl_regression()\n\nAutomatically formats regression results into a publication-ready table\n\n\n\nlibrary(gtsummary) # Load gtsummary package\ncox_tbl &lt;- cox_fit |&gt; tbl_regression( # Create a regression table\n                exponentiate = TRUE, # Exponentiate coefficients to get hazard ratios\n                label = list(hormone ~ \"Hormone Therapy\", # Custom labels\n                             meno ~ \"Menopausal\", \n                             age ~ \"Older than 40\", \n                             grade ~ \"Tumor Grade\", \n                             size ~ \"Tumor Size (cm)\", \n                             prog ~ \"Progesterone Receptor (100 fmol/ml)\", \n                             estrg ~ \"Estrogen Receptor  (100 fmol/ml)\")\n               ) |&gt; \n          add_global_p() # Add global p-value for categorical variables\ncox_tbl # Display the regression table\n\n\n\n\n\nResult\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\nHR1\n95% CI1\np-value\n\n\n\n\nHormone Therapy\n0.70\n0.54, 0.90\n0.005\n\n\nMenopausal\n1.31\n0.91, 1.88\n0.15\n\n\nOlder than 40\n0.99\n0.97, 1.01\n0.3\n\n\nTumor Grade\n\n\n\n\n0.003\n\n\n    1\n—\n—\n\n\n\n\n    2\n2.03\n1.25, 3.30\n\n\n\n\n    3\n2.26\n1.34, 3.84\n\n\n\n\nTumor Size (cm)\n1.02\n1.01, 1.02\n&lt;0.001\n\n\nProgesterone Receptor (100 fmol/ml)\n0.79\n0.71, 0.89\n&lt;0.001\n\n\nEstrogen Receptor (100 fmol/ml)\n1.02\n0.93, 1.12\n0.7\n\n\n\n1 HR = Hazard Ratio, CI = Confidence Interval\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nStyling functions\n\nmodify_header(): update column headers\nmodify_footnote_header(): update column header footnote\nmodify_footnote_body(): update table body footnote\nmodify_caption(): update table caption/title\nbold_labels(): bold variable labels\nbold_levels(): bold variable levels\nitalicize_labels(): italicize variable labels\nitalicize_levels(): italicize variable levels\nbold_p(): bold significant p-values\n\nMore about tbl_regression()\n\ngtsummary documentation\n\n\n\n\n\n\nTask: Customize the regression table\n\nAdd a caption: “Cox regression analysis of the German breast cancer study”\nBold significant p-values\nItalicize tumor grade levels\n\n\n\n\nSolution\ncox_tbl |&gt; # Start with the regression table\n  modify_caption(\"Cox regression analysis of the German breast cancer study\") |&gt; # Add caption\n  bold_p() |&gt; # Bold significant p-values\n  italicize_levels() # Italicize variable levels\n\n\n\n\n\n\nAccelerated failure time (AFT) models \\[\n  \\log T = \\beta_0 + \\beta_1 Z_1 + \\beta_2 Z_2 + \\ldots + \\beta_p Z_p + \\epsilon\n\\]\n\n\\(\\epsilon\\sim\\) Weibull, lognormal, etc. (parametric models)\n\\(\\exp(\\beta_j)\\): acceleration factor for covariate \\(Z_j\\)\nModel fitting: survival::survreg()\n\n\n\n# Fit a Weibull AFT model\naft_fit &lt;- survreg(Surv(time, status) ~ hormone + meno + age + grade + size + prog + estrg, \n                    data = df, dist = \"weibull\") # specify the Weibull model\n\n\n\n\n\n\n\nExercise\n\n\n\n\nTidy up the survreg object aft_fit using broom::tidy()\nCreate a regression table using gtsummary::tbl_regression()\n\n\n\n\n\n\n\nForest plot: Visualize hazard ratios and confidence intervals"
+  },
+  {
+    "objectID": "sec4.html#visualizing-hazard-ratios-i",
+    "href": "sec4.html#visualizing-hazard-ratios-i",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Visualizing Hazard Ratios (I)",
+    "text": "Visualizing Hazard Ratios (I)\n\nForest plot: Visualize hazard ratios and confidence intervals\n\nuse ggplot on tidied coxph object\n\n\n\n# tidy with exponentiated coeffs (HR) and CI\ntidy_cox &lt;- tidy(cox_fit, exponentiate = TRUE, conf.int = TRUE) \n# Relabel the variables\ntidy_cox$term &lt;- recode(tidy_cox$term, \n                hormone = \"Hormone Therapy\", \n                meno = \"Menopausal\", \n                age40 = \"Older than 40\", \n                grade2 = \"Tumor Grade II vs I\",\n                grade3 = \"Tumor Grade III vs I\",\n                size = \"Tumor Size (mm)\", \n                prog = \"Progesterone (100 fmol/ml)\", \n                estrg = \"Estrogen (100 fmol/ml)\")\n# plot of hazard ratios and 95% CIs\ntidy_cox |&gt; \n  ggplot(aes(y=term, x=estimate, xmin=conf.low, xmax=conf.high)) + \n  geom_pointrange() +  # plots center point (x) and range (xmin, xmax)\n  geom_vline(xintercept=1, linetype = 2) + # vertical line at HR=1\n  scale_x_log10(\"Hazard ratio (95% CI)\") + # log scale for x-axis\n  theme_classic() + # classic theme for clean look\n  theme(\n    axis.line.y = element_blank(),          # remove y-axis line\n    axis.ticks.y = element_blank(),         # remove y-axis ticks\n    axis.text.y = element_text(size = 11),  # set variable label size\n    axis.title.y = element_blank()          # remove y-axis title\n  )"
+  },
+  {
+    "objectID": "sec4.html#visualizing-hazard-ratios-ii",
+    "href": "sec4.html#visualizing-hazard-ratios-ii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Visualizing Hazard Ratios (II)",
+    "text": "Visualizing Hazard Ratios (II)\n\nResult"
+  },
+  {
+    "objectID": "sec4.html#forest-plot-exercise",
+    "href": "sec4.html#forest-plot-exercise",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Forest Plot Exercise",
+    "text": "Forest Plot Exercise\n\nTask: customize the forest plot\n\nUse square rather than default circle for point estimates\nSet x-axis ticks at 0.5, 1, 2.0, and 4.0\nAdd a title: “Cox Regression Results for GBC Data”\n\n\n\n\nSolution\ntidy_cox |&gt; \n  ggplot(aes(y=term, x=estimate, xmin=conf.low, xmax=conf.high)) + \n  geom_pointrange(shape = 15) +  # plots center point (x) in square and range (xmin, xmax)\n  geom_vline(xintercept=1, linetype = 2) + # vertical line at HR=1\n  scale_x_log10(\"Hazard ratio (95% CI)\",    # log scale for x-axis\n                breaks = c(0.5, 1, 2, 4)) + # log scale for x-axis\n  ggtitle(\"Cox Regression Results for GBC Data\") + # Add title\n  theme_classic() + # classic theme for clean look\n  theme(\n    axis.line.y = element_blank(),          # remove y-axis line\n    axis.ticks.y = element_blank(),         # remove y-axis ticks\n    axis.text.y = element_text(size = 11),  # set variable label size\n    axis.title.y = element_blank()          # remove y-axis title\n  )"
+  },
+  {
+    "objectID": "sec4.html#model-based-prediction",
+    "href": "sec4.html#model-based-prediction",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Model-Based Prediction",
+    "text": "Model-Based Prediction\n\nPredicted survival function \\[\n\\hat S(t \\mid z) = \\exp\\left\\{- \\exp(\\hat\\beta^\\mathrm{T} z) \\hat\\Lambda_0(t)\\right\\}\n\\]\nPrepare new data for prediction\n\nA post-menpausal woman older than 40, undergoing hormone therapy, with tumor grade II, tumor size 20 mm, and progesterone and estrogen receptor levels both 100 fmol/ml.\n\n\n\n# Create new data for prediction\n# specify all covariate values\nnew_data &lt;- data.frame(hormone = 2, meno = 2, age40 = 1, grade = factor(2), \n                        size = 20, prog = 1, estrg = 1)\n\nnew_data\n\n  hormone meno age40 grade size prog estrg\n1       2    2     1     2   20    1     1"
+  },
+  {
+    "objectID": "sec4.html#tidy-survival-prediction",
+    "href": "sec4.html#tidy-survival-prediction",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Tidy Survival Prediction",
+    "text": "Tidy Survival Prediction\n\nUse survival::survfit() to predict survival probabilities\n\nnewdata: new data for prediction\ntimes: time points for prediction\nbroom::tidy() to tidy the output\n\n\n\n# Predict survival probabilities for `newdata`\npred_surv &lt;- survfit(cox_fit, newdata = new_data[1, ])\ntidy_pred_surv &lt;- tidy(pred_surv) # Tidy the survival prediction output\nhead(tidy_pred_surv) # Display the first few rows of the tidy output\n\n# A tibble: 6 × 8\n   time n.risk n.event n.censor estimate std.error conf.high conf.low\n  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;\n1 0.262    686       0        1        1         0         1        1\n2 0.492    685       0        1        1         0         1        1\n3 0.525    684       0        1        1         0         1        1\n4 0.557    683       0        2        1         0         1        1\n5 0.590    681       0        1        1         0         1        1\n6 0.951    680       0        1        1         0         1        1"
+  },
+  {
+    "objectID": "sec4.html#visualizing-predicted-survival-i",
+    "href": "sec4.html#visualizing-predicted-survival-i",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Visualizing Predicted Survival (I)",
+    "text": "Visualizing Predicted Survival (I)\n\nUsing ggsurvfit package: ggsurvfit()\n\nPass survfit object to ggsurvfit()\nSimilar customization to KM curves\n\n\n\nlibrary(ggsurvfit) # Load ggsurvfit package\npred_fig &lt;- pred_surv |&gt;  # Pass the survfit object\n  ggsurvfit() + # Main function\n  add_confidence_interval() + # Add confidence interval\n  scale_x_continuous(\"Time (months)\", breaks = seq(0, 84, by = 12)) + # x-axis format\n  scale_y_continuous(\"Relapse-free survival probability\", limits = c(0, 1)) + # y-axis format\n  ggtitle(\"Predicted Relapse-Free Survival for a GBC Patient\") + # Add title\n  theme_classic() # Classic theme for clean look"
+  },
+  {
+    "objectID": "sec4.html#visualizing-predicted-survival-ii",
+    "href": "sec4.html#visualizing-predicted-survival-ii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Visualizing Predicted Survival (II)",
+    "text": "Visualizing Predicted Survival (II)\n\nResult\n\n\npred_fig # print figure"
+  },
+  {
+    "objectID": "sec4.html#prediction-graphics-exercise",
+    "href": "sec4.html#prediction-graphics-exercise",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Prediction Graphics Exercise",
+    "text": "Prediction Graphics Exercise\n\nTask: Add horizontal grid lines\n\n\n\n\nSolution\npred_fig + theme(panel.grid.major.y = element_line()) # Add horizontal grid lines"
   }
 ]
