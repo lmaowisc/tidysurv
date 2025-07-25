@@ -229,7 +229,7 @@ Lu Mao
 <h2 id="toc-title">Table of contents</h2>
 <ul>
 <li><a href="#/presenting-regression-results" id="/toc-presenting-regression-results">Presenting Regression Results</a></li>
-<li><a href="#/cox-model-diagnostics" id="/toc-cox-model-diagnostics">Cox Model Diagnostics</a></li>
+<li><a href="#/cox-model-prediction-and-diagnostics" id="/toc-cox-model-prediction-and-diagnostics">Cox Model Prediction and Diagnostics</a></li>
 <li><a href="#/competing-risks-regression" id="/toc-competing-risks-regression">Competing Risks Regression</a></li>
 <li><a href="#/summary" id="/toc-summary">Summary</a></li>
 </ul>
@@ -380,23 +380,23 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
 </ul>
 <div class="cell">
 <div class="cell-output-display">
-<div id="asmcmgygxn" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#asmcmgygxn table {
+<div id="hjiuxkxhpu" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#hjiuxkxhpu table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#asmcmgygxn thead, #asmcmgygxn tbody, #asmcmgygxn tfoot, #asmcmgygxn tr, #asmcmgygxn td, #asmcmgygxn th {
+#hjiuxkxhpu thead, #hjiuxkxhpu tbody, #hjiuxkxhpu tfoot, #hjiuxkxhpu tr, #hjiuxkxhpu td, #hjiuxkxhpu th {
   border-style: none;
 }
 
-#asmcmgygxn p {
+#hjiuxkxhpu p {
   margin: 0;
   padding: 0;
 }
 
-#asmcmgygxn .gt_table {
+#hjiuxkxhpu .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -422,12 +422,12 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#asmcmgygxn .gt_caption {
+#hjiuxkxhpu .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#asmcmgygxn .gt_title {
+#hjiuxkxhpu .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -439,7 +439,7 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   border-bottom-width: 0;
 }
 
-#asmcmgygxn .gt_subtitle {
+#hjiuxkxhpu .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -451,7 +451,7 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   border-top-width: 0;
 }
 
-#asmcmgygxn .gt_heading {
+#hjiuxkxhpu .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -463,13 +463,13 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#asmcmgygxn .gt_bottom_border {
+#hjiuxkxhpu .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#asmcmgygxn .gt_col_headings {
+#hjiuxkxhpu .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -484,7 +484,7 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#asmcmgygxn .gt_col_heading {
+#hjiuxkxhpu .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -504,7 +504,7 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   overflow-x: hidden;
 }
 
-#asmcmgygxn .gt_column_spanner_outer {
+#hjiuxkxhpu .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -516,15 +516,15 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   padding-right: 4px;
 }
 
-#asmcmgygxn .gt_column_spanner_outer:first-child {
+#hjiuxkxhpu .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#asmcmgygxn .gt_column_spanner_outer:last-child {
+#hjiuxkxhpu .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#asmcmgygxn .gt_column_spanner {
+#hjiuxkxhpu .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -536,11 +536,11 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   width: 100%;
 }
 
-#asmcmgygxn .gt_spanner_row {
+#hjiuxkxhpu .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#asmcmgygxn .gt_group_heading {
+#hjiuxkxhpu .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -566,7 +566,7 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   text-align: left;
 }
 
-#asmcmgygxn .gt_empty_group_heading {
+#hjiuxkxhpu .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -581,15 +581,15 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   vertical-align: middle;
 }
 
-#asmcmgygxn .gt_from_md > :first-child {
+#hjiuxkxhpu .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#asmcmgygxn .gt_from_md > :last-child {
+#hjiuxkxhpu .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#asmcmgygxn .gt_row {
+#hjiuxkxhpu .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -608,7 +608,7 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   overflow-x: hidden;
 }
 
-#asmcmgygxn .gt_stub {
+#hjiuxkxhpu .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -621,7 +621,7 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   padding-right: 5px;
 }
 
-#asmcmgygxn .gt_stub_row_group {
+#hjiuxkxhpu .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -635,15 +635,15 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   vertical-align: top;
 }
 
-#asmcmgygxn .gt_row_group_first td {
+#hjiuxkxhpu .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#asmcmgygxn .gt_row_group_first th {
+#hjiuxkxhpu .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#asmcmgygxn .gt_summary_row {
+#hjiuxkxhpu .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -653,16 +653,16 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   padding-right: 5px;
 }
 
-#asmcmgygxn .gt_first_summary_row {
+#hjiuxkxhpu .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#asmcmgygxn .gt_first_summary_row.thick {
+#hjiuxkxhpu .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#asmcmgygxn .gt_last_summary_row {
+#hjiuxkxhpu .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -672,7 +672,7 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#asmcmgygxn .gt_grand_summary_row {
+#hjiuxkxhpu .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -682,7 +682,7 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   padding-right: 5px;
 }
 
-#asmcmgygxn .gt_first_grand_summary_row {
+#hjiuxkxhpu .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -692,7 +692,7 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#asmcmgygxn .gt_last_grand_summary_row_top {
+#hjiuxkxhpu .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -702,11 +702,11 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#asmcmgygxn .gt_striped {
+#hjiuxkxhpu .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#asmcmgygxn .gt_table_body {
+#hjiuxkxhpu .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -715,7 +715,7 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#asmcmgygxn .gt_footnotes {
+#hjiuxkxhpu .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -729,7 +729,7 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#asmcmgygxn .gt_footnote {
+#hjiuxkxhpu .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -738,7 +738,7 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   padding-right: 5px;
 }
 
-#asmcmgygxn .gt_sourcenotes {
+#hjiuxkxhpu .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -752,7 +752,7 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#asmcmgygxn .gt_sourcenote {
+#hjiuxkxhpu .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -760,63 +760,63 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
   padding-right: 5px;
 }
 
-#asmcmgygxn .gt_left {
+#hjiuxkxhpu .gt_left {
   text-align: left;
 }
 
-#asmcmgygxn .gt_center {
+#hjiuxkxhpu .gt_center {
   text-align: center;
 }
 
-#asmcmgygxn .gt_right {
+#hjiuxkxhpu .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#asmcmgygxn .gt_font_normal {
+#hjiuxkxhpu .gt_font_normal {
   font-weight: normal;
 }
 
-#asmcmgygxn .gt_font_bold {
+#hjiuxkxhpu .gt_font_bold {
   font-weight: bold;
 }
 
-#asmcmgygxn .gt_font_italic {
+#hjiuxkxhpu .gt_font_italic {
   font-style: italic;
 }
 
-#asmcmgygxn .gt_super {
+#hjiuxkxhpu .gt_super {
   font-size: 65%;
 }
 
-#asmcmgygxn .gt_footnote_marks {
+#hjiuxkxhpu .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#asmcmgygxn .gt_asterisk {
+#hjiuxkxhpu .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#asmcmgygxn .gt_indent_1 {
+#hjiuxkxhpu .gt_indent_1 {
   text-indent: 5px;
 }
 
-#asmcmgygxn .gt_indent_2 {
+#hjiuxkxhpu .gt_indent_2 {
   text-indent: 10px;
 }
 
-#asmcmgygxn .gt_indent_3 {
+#hjiuxkxhpu .gt_indent_3 {
   text-indent: 15px;
 }
 
-#asmcmgygxn .gt_indent_4 {
+#hjiuxkxhpu .gt_indent_4 {
   text-indent: 20px;
 }
 
-#asmcmgygxn .gt_indent_5 {
+#hjiuxkxhpu .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -999,37 +999,33 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
 <section id="visualizing-hazard-ratios-i" class="slide level2">
 <h2>Visualizing Hazard Ratios (I)</h2>
 <ul>
-<li><strong>Forest plot</strong>: Visualize hazard ratios and confidence intervals
-<ul>
-<li>use <code>ggplot</code> on tidied <code>coxph</code> object</li>
-</ul></li>
+<li><strong>Forest plot</strong>: Visualize hazard ratios and confidence intervals</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a><span class="co"># tidy with exponentiated coeffs (HR) and CI</span></span>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a><span class="co"># Tidy with exponentiated coeffs (HR) and CI</span></span>
 <span id="cb10-2"><a></a>tidy_cox <span class="ot">&lt;-</span> <span class="fu">tidy</span>(cox_fit, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>) </span>
-<span id="cb10-3"><a></a><span class="co"># Relabel the variables</span></span>
-<span id="cb10-4"><a></a>tidy_cox<span class="sc">$</span>term <span class="ot">&lt;-</span> <span class="fu">recode</span>(tidy_cox<span class="sc">$</span>term, </span>
-<span id="cb10-5"><a></a>                <span class="at">hormone =</span> <span class="st">"Hormone Therapy"</span>, </span>
-<span id="cb10-6"><a></a>                <span class="at">meno =</span> <span class="st">"Menopausal"</span>, </span>
-<span id="cb10-7"><a></a>                <span class="at">age40 =</span> <span class="st">"Older than 40"</span>, </span>
-<span id="cb10-8"><a></a>                <span class="at">grade2 =</span> <span class="st">"Tumor Grade II vs I"</span>,</span>
-<span id="cb10-9"><a></a>                <span class="at">grade3 =</span> <span class="st">"Tumor Grade III vs I"</span>,</span>
-<span id="cb10-10"><a></a>                <span class="at">size =</span> <span class="st">"Tumor Size (mm)"</span>, </span>
-<span id="cb10-11"><a></a>                <span class="at">prog =</span> <span class="st">"Progesterone (100 fmol/ml)"</span>, </span>
-<span id="cb10-12"><a></a>                <span class="at">estrg =</span> <span class="st">"Estrogen (100 fmol/ml)"</span>)</span>
-<span id="cb10-13"><a></a><span class="co"># plot of hazard ratios and 95% CIs</span></span>
-<span id="cb10-14"><a></a>tidy_cox <span class="sc">|&gt;</span> </span>
-<span id="cb10-15"><a></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y=</span>term, <span class="at">x=</span>estimate, <span class="at">xmin=</span>conf.low, <span class="at">xmax=</span>conf.high)) <span class="sc">+</span> </span>
-<span id="cb10-16"><a></a>  <span class="fu">geom_pointrange</span>() <span class="sc">+</span>  <span class="co"># plots center point (x) and range (xmin, xmax)</span></span>
-<span id="cb10-17"><a></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept=</span><span class="dv">1</span>, <span class="at">linetype =</span> <span class="dv">2</span>) <span class="sc">+</span> <span class="co"># vertical line at HR=1</span></span>
-<span id="cb10-18"><a></a>  <span class="fu">scale_x_log10</span>(<span class="st">"Hazard ratio (95% CI)"</span>) <span class="sc">+</span> <span class="co"># log scale for x-axis</span></span>
-<span id="cb10-19"><a></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span> <span class="co"># classic theme for clean look</span></span>
-<span id="cb10-20"><a></a>  <span class="fu">theme</span>(</span>
-<span id="cb10-21"><a></a>    <span class="at">axis.line.y =</span> <span class="fu">element_blank</span>(),          <span class="co"># remove y-axis line</span></span>
-<span id="cb10-22"><a></a>    <span class="at">axis.ticks.y =</span> <span class="fu">element_blank</span>(),         <span class="co"># remove y-axis ticks</span></span>
-<span id="cb10-23"><a></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">11</span>),  <span class="co"># set variable label size</span></span>
-<span id="cb10-24"><a></a>    <span class="at">axis.title.y =</span> <span class="fu">element_blank</span>()          <span class="co"># remove y-axis title</span></span>
-<span id="cb10-25"><a></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-3"><a></a>tidy_cox<span class="sc">$</span>term <span class="ot">&lt;-</span> <span class="fu">recode</span>(tidy_cox<span class="sc">$</span>term,           <span class="co"># Relabel the variables</span></span>
+<span id="cb10-4"><a></a>                <span class="at">hormone =</span> <span class="st">"Hormone Therapy"</span>, </span>
+<span id="cb10-5"><a></a>                <span class="at">meno =</span> <span class="st">"Menopausal"</span>, </span>
+<span id="cb10-6"><a></a>                <span class="at">age40 =</span> <span class="st">"Older than 40"</span>, </span>
+<span id="cb10-7"><a></a>                <span class="at">grade2 =</span> <span class="st">"Tumor Grade II vs I"</span>,</span>
+<span id="cb10-8"><a></a>                <span class="at">grade3 =</span> <span class="st">"Tumor Grade III vs I"</span>,</span>
+<span id="cb10-9"><a></a>                <span class="at">size =</span> <span class="st">"Tumor Size (mm)"</span>, </span>
+<span id="cb10-10"><a></a>                <span class="at">prog =</span> <span class="st">"Progesterone (100 fmol/ml)"</span>, </span>
+<span id="cb10-11"><a></a>                <span class="at">estrg =</span> <span class="st">"Estrogen (100 fmol/ml)"</span>)</span>
+<span id="cb10-12"><a></a></span>
+<span id="cb10-13"><a></a>tidy_cox <span class="sc">|&gt;</span>  <span class="co"># plot of hazard ratios and 95% CIs</span></span>
+<span id="cb10-14"><a></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y=</span>term, <span class="at">x=</span>estimate, <span class="at">xmin=</span>conf.low, <span class="at">xmax=</span>conf.high)) <span class="sc">+</span> </span>
+<span id="cb10-15"><a></a>  <span class="fu">geom_pointrange</span>() <span class="sc">+</span>  <span class="co"># plots center point (x) and range (xmin, xmax)</span></span>
+<span id="cb10-16"><a></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept=</span><span class="dv">1</span>, <span class="at">linetype =</span> <span class="dv">2</span>) <span class="sc">+</span> <span class="co"># vertical line at HR=1</span></span>
+<span id="cb10-17"><a></a>  <span class="fu">scale_x_log10</span>(<span class="st">"Hazard ratio (95% CI)"</span>) <span class="sc">+</span> <span class="co"># log scale for x-axis</span></span>
+<span id="cb10-18"><a></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span> <span class="co"># classic theme for clean look</span></span>
+<span id="cb10-19"><a></a>  <span class="fu">theme</span>(</span>
+<span id="cb10-20"><a></a>    <span class="at">axis.line.y =</span> <span class="fu">element_blank</span>(),          <span class="co"># remove y-axis line</span></span>
+<span id="cb10-21"><a></a>    <span class="at">axis.ticks.y =</span> <span class="fu">element_blank</span>(),         <span class="co"># remove y-axis ticks</span></span>
+<span id="cb10-22"><a></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">11</span>),  <span class="co"># set variable label size</span></span>
+<span id="cb10-23"><a></a>    <span class="at">axis.title.y =</span> <span class="fu">element_blank</span>()          <span class="co"># remove y-axis title</span></span>
+<span id="cb10-24"><a></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="visualizing-hazard-ratios-ii" class="slide level2">
@@ -1068,6 +1064,11 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
 <span id="cb11-14"><a></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
+</section></section>
+<section>
+<section id="cox-model-prediction-and-diagnostics" class="title-slide slide level1 center">
+<h1>Cox Model Prediction and Diagnostics</h1>
+
 </section>
 <section id="model-based-prediction" class="slide level2">
 <h2>Model-Based Prediction</h2>
@@ -1157,18 +1158,93 @@ Score (logrank) test = 69.51  on 8 df,   p=6e-12</code></pre>
 <li><strong>Task</strong>: Add horizontal grid lines</li>
 </ul>
 
-<img data-src="sec4_files/figure-revealjs/unnamed-chunk-16-1.png" width="960" class="r-stretch"><div class="cell">
+<img data-src="sec4_files/figure-revealjs/unnamed-chunk-16-1.png" width="672" class="r-stretch"><div class="cell">
 <details class="code-fold">
 <summary>Solution</summary>
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a></a>pred_fig <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">panel.grid.major.y =</span> <span class="fu">element_line</span>()) <span class="co"># Add horizontal grid lines</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-</section></section>
-<section id="cox-model-diagnostics" class="title-slide slide level1 center">
-<h1>Cox Model Diagnostics</h1>
-
 </section>
+<section id="cox-model-diagnostics" class="slide level2">
+<h2>Cox Model Diagnostics</h2>
+<ul>
+<li><strong>Ph assumptions: Schoenfeld residuals</strong>
+<ul>
+<li>Difference between observed and expected covariate values at each event time</li>
+<li>Use <code>cox.zph()</code> to test PH assumption</li>
+<li>Use <code>survminer::ggcoxzph()</code> on <code>cox.zph</code> object to visualize Schoenfeld residuals</li>
+</ul></li>
+<li><strong>Functional form of covariates</strong>
+<ul>
+<li>Plot martingale residuals against (quantitative) covariates</li>
+<li>Use <code>residuals(cox_fit, type = "martingale")</code> to get martingale residuals`</li>
+</ul></li>
+<li><strong>Other aspects</strong>
+<ul>
+<li>Appropriateness of exponential link function</li>
+<li>Influential points/outliers</li>
+<li><code>survminer::ggcoxdiagnostics()</code></li>
+</ul></li>
+</ul>
+</section>
+<section id="schoenfeld-residuals" class="slide level2">
+<h2>Schoenfeld Residuals</h2>
+<ul>
+<li><strong>Check proportionality</strong>
+<ul>
+<li>Focus on graphics; use <span class="math inline">\(p\)</span>-value only as guideline</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a></a><span class="fu">library</span>(survminer) <span class="co"># Load survminer package</span></span>
+<span id="cb19-2"><a></a>ph_test <span class="ot">&lt;-</span> <span class="fu">cox.zph</span>(cox_fit) <span class="co"># Test proportional hazards assumption</span></span>
+<span id="cb19-3"><a></a><span class="fu">ggcoxzph</span>(ph_test) <span class="co"># Visualize Schoenfeld residuals</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
+</div>
+<img data-src="sec4_files/figure-revealjs/unnamed-chunk-18-1.png" width="960" class="r-stretch"></section>
+<section id="exponential-link-function" class="slide level2">
+<h2>Exponential Link Function</h2>
+<ul>
+<li><strong>Martingale vs.&nbsp;<span class="math inline">\(\hat\beta^\mathrm{T} Z_i\)</span></strong></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a></a><span class="co"># Martingale residuals vs linear predictor</span></span>
+<span id="cb20-2"><a></a><span class="fu">ggcoxdiagnostics</span>(cox_fit, <span class="at">type =</span> <span class="st">"martingale"</span>,    <span class="co"># martingale on y-axi</span></span>
+<span id="cb20-3"><a></a>                 <span class="at">ox.scale =</span> <span class="st">"linear.predictions"</span>) <span class="co"># linear predictor on x-axis</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="sec4_files/figure-revealjs/unnamed-chunk-19-1.png" width="960" class="r-stretch"></section>
+<section id="influential-points" class="slide level2">
+<h2>Influential Points</h2>
+<ul>
+<li><strong>Deviance residuals</strong></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a></a><span class="co"># Deviance residuals vs linear predictor</span></span>
+<span id="cb21-2"><a></a><span class="fu">ggcoxdiagnostics</span>(cox_fit, <span class="at">type =</span> <span class="st">"deviance"</span>,  <span class="co"># deviance on y-axis</span></span>
+<span id="cb21-3"><a></a>                 <span class="at">ox.scale =</span> <span class="st">"observation.id"</span>, <span class="co"># observation ID on x-axis</span></span>
+<span id="cb21-4"><a></a>                 <span class="at">sline =</span> <span class="cn">FALSE</span>)               <span class="co"># no smoothed line</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="sec4_files/figure-revealjs/unnamed-chunk-20-1.png" width="960" class="r-stretch"></section>
+<section id="general-residual-graphics" class="slide level2">
+<h2>General Residual Graphics</h2>
+<ul>
+<li><strong>Basic arguments of <code>ggcoxdiagnostics()</code></strong>
+<ul>
+<li><code>coxph</code> object</li>
+<li><code>type</code>: Residual type (“martingale”, “deviance”, “score”, “schoenfeld”, “dfbeta”, “dfbetas”, and “scaledsch”)`</li>
+<li><code>ox.scale</code>: Scale for x-axis (“linear.predictions”, “observation.id”, “time”)</li>
+<li><code>point.col</code>: Color of points</li>
+<li><code>point.size</code>: Size of points</li>
+<li>etc.</li>
+</ul></li>
+<li>More about <code>survminer</code>
+<ul>
+<li><a href="https://rpkgs.datanovia.com/survminer/index.html">survminer</a> website</li>
+</ul></li>
+</ul>
+</section></section>
 <section id="competing-risks-regression" class="title-slide slide level1 center">
 <h1>Competing Risks Regression</h1>
 

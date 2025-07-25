@@ -1200,7 +1200,7 @@
     "href": "sec4.html#visualizing-hazard-ratios-i",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Visualizing Hazard Ratios (I)",
-    "text": "Visualizing Hazard Ratios (I)\n\nForest plot: Visualize hazard ratios and confidence intervals\n\nuse ggplot on tidied coxph object\n\n\n\n# tidy with exponentiated coeffs (HR) and CI\ntidy_cox &lt;- tidy(cox_fit, exponentiate = TRUE, conf.int = TRUE) \n# Relabel the variables\ntidy_cox$term &lt;- recode(tidy_cox$term, \n                hormone = \"Hormone Therapy\", \n                meno = \"Menopausal\", \n                age40 = \"Older than 40\", \n                grade2 = \"Tumor Grade II vs I\",\n                grade3 = \"Tumor Grade III vs I\",\n                size = \"Tumor Size (mm)\", \n                prog = \"Progesterone (100 fmol/ml)\", \n                estrg = \"Estrogen (100 fmol/ml)\")\n# plot of hazard ratios and 95% CIs\ntidy_cox |&gt; \n  ggplot(aes(y=term, x=estimate, xmin=conf.low, xmax=conf.high)) + \n  geom_pointrange() +  # plots center point (x) and range (xmin, xmax)\n  geom_vline(xintercept=1, linetype = 2) + # vertical line at HR=1\n  scale_x_log10(\"Hazard ratio (95% CI)\") + # log scale for x-axis\n  theme_classic() + # classic theme for clean look\n  theme(\n    axis.line.y = element_blank(),          # remove y-axis line\n    axis.ticks.y = element_blank(),         # remove y-axis ticks\n    axis.text.y = element_text(size = 11),  # set variable label size\n    axis.title.y = element_blank()          # remove y-axis title\n  )"
+    "text": "Visualizing Hazard Ratios (I)\n\nForest plot: Visualize hazard ratios and confidence intervals\n\n\n# Tidy with exponentiated coeffs (HR) and CI\ntidy_cox &lt;- tidy(cox_fit, exponentiate = TRUE, conf.int = TRUE) \ntidy_cox$term &lt;- recode(tidy_cox$term,           # Relabel the variables\n                hormone = \"Hormone Therapy\", \n                meno = \"Menopausal\", \n                age40 = \"Older than 40\", \n                grade2 = \"Tumor Grade II vs I\",\n                grade3 = \"Tumor Grade III vs I\",\n                size = \"Tumor Size (mm)\", \n                prog = \"Progesterone (100 fmol/ml)\", \n                estrg = \"Estrogen (100 fmol/ml)\")\n\ntidy_cox |&gt;  # plot of hazard ratios and 95% CIs\n  ggplot(aes(y=term, x=estimate, xmin=conf.low, xmax=conf.high)) + \n  geom_pointrange() +  # plots center point (x) and range (xmin, xmax)\n  geom_vline(xintercept=1, linetype = 2) + # vertical line at HR=1\n  scale_x_log10(\"Hazard ratio (95% CI)\") + # log scale for x-axis\n  theme_classic() + # classic theme for clean look\n  theme(\n    axis.line.y = element_blank(),          # remove y-axis line\n    axis.ticks.y = element_blank(),         # remove y-axis ticks\n    axis.text.y = element_text(size = 11),  # set variable label size\n    axis.title.y = element_blank()          # remove y-axis title\n  )"
   },
   {
     "objectID": "sec4.html#visualizing-hazard-ratios-ii",
@@ -1250,5 +1250,54 @@
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Prediction Graphics Exercise",
     "text": "Prediction Graphics Exercise\n\nTask: Add horizontal grid lines\n\n\n\n\nSolution\npred_fig + theme(panel.grid.major.y = element_line()) # Add horizontal grid lines"
+  },
+  {
+    "objectID": "sec4.html#cox-model-diagnostics",
+    "href": "sec4.html#cox-model-diagnostics",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model Diagnostics",
+    "text": "Cox Model Diagnostics\n\nPh assumptions: Schoenfeld residuals\n\nDifference between observed and expected covariate values at each event time\nUse cox.zph() to test PH assumption\nUse survminer::ggcoxzph() on cox.zph object to visualize Schoenfeld residuals\n\nFunctional form of covariates\n\nPlot martingale residuals against (quantitative) covariates\nUse residuals(cox_fit, type = \"martingale\") to get martingale residuals`\n\nOther aspects\n\nAppropriateness of exponential link function\nInfluential points/outliers\nsurvminer::ggcoxdiagnostics()"
+  },
+  {
+    "objectID": "sec4.html#example-schoenfeld-residuals",
+    "href": "sec4.html#example-schoenfeld-residuals",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Example: Schoenfeld Residuals",
+    "text": "Example: Schoenfeld Residuals"
+  },
+  {
+    "objectID": "sec4.html#schoenfeld-residuals",
+    "href": "sec4.html#schoenfeld-residuals",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Schoenfeld Residuals",
+    "text": "Schoenfeld Residuals\n\nCheck proportionality\n\nFocus on graphics; use \\(p\\)-value only as guideline\n\n\n\nlibrary(survminer) # Load survminer package\nph_test &lt;- cox.zph(cox_fit) # Test proportional hazards assumption\nggcoxzph(ph_test) # Visualize Schoenfeld residuals"
+  },
+  {
+    "objectID": "sec4.html#exponential-link-function",
+    "href": "sec4.html#exponential-link-function",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Exponential Link Function",
+    "text": "Exponential Link Function\n\nMartingale vs. \\(\\hat\\beta^\\mathrm{T} Z_i\\)\n\n\n# Martingale residuals vs linear predictor\nggcoxdiagnostics(cox_fit, type = \"martingale\",    # martingale on y-axi\n                 ox.scale = \"linear.predictions\") # linear predictor on x-axis"
+  },
+  {
+    "objectID": "sec4.html#influential-points",
+    "href": "sec4.html#influential-points",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Influential Points",
+    "text": "Influential Points\n\nDeviance residuals\n\n\n# Deviance residuals vs linear predictor\nggcoxdiagnostics(cox_fit, type = \"deviance\",  # deviance on y-axis\n                 ox.scale = \"observation.id\", # observation ID on x-axis\n                 sline = FALSE)               # no smoothed line"
+  },
+  {
+    "objectID": "sec4.html#further-residual-graphics",
+    "href": "sec4.html#further-residual-graphics",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Further Residual Graphics",
+    "text": "Further Residual Graphics\n\nBasic arguments of ggcoxdiagnostics()\n\ncoxph object\ntype: Residual type (“martingale”, “deviance”, “score”, “schoenfeld”, “dfbeta”, “dfbetas”, and “scaledsch”)`\nox.scale: Scale for x-axis (“linear.predictions”, “observation.id”, “time”)\npoint.col: Color of points\npoint.size: Size of points\netc.\n\nMore about survminer\n\nsurvminer website"
+  },
+  {
+    "objectID": "sec4.html#general-residual-graphics",
+    "href": "sec4.html#general-residual-graphics",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "General Residual Graphics",
+    "text": "General Residual Graphics\n\nBasic arguments of ggcoxdiagnostics()\n\ncoxph object\ntype: Residual type (“martingale”, “deviance”, “score”, “schoenfeld”, “dfbeta”, “dfbetas”, and “scaledsch”)`\nox.scale: Scale for x-axis (“linear.predictions”, “observation.id”, “time”)\npoint.col: Color of points\npoint.size: Size of points\netc.\n\nMore about survminer\n\nsurvminer website"
   }
 ]
