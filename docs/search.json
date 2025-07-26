@@ -845,7 +845,7 @@
     "href": "sec3.html#tabulation-with-gtsummary",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Tabulation with gtsummary",
-    "text": "Tabulation with gtsummary\n\nMain function: tbl_survfit()\n\nTakes on survfit object\nCreates a table of survival estimates with confidence intervals\nAutomatically handles stratification and time points\n\n\n\nlibrary(gtsummary) # Load gtsummary package\n# Create a table of survival estimates\nkm_fit |&gt; tbl_survfit(                    # Pass `survfit` object\n             label = \"Hormone\",           # Row label: \"Hormone\"\n             times = c(6, 12, 24, 36),     # Time points for estimates\n             label_header = \"Month {time}\" # Column label: \"Month xx\"\n             ) \n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\nMonth 6\nMonth 12\nMonth 24\nMonth 36\n\n\n\n\nHormone\n\n\n\n\n\n\n\n\n\n\n    1\n98% (97%, 99%)\n90% (87%, 93%)\n72% (68%, 76%)\n61% (56%, 66%)\n\n\n    2\n98% (97%, 100%)\n95% (92%, 98%)\n78% (73%, 84%)\n71% (65%, 77%)"
+    "text": "Tabulation with gtsummary\n\nMain function: tbl_survfit()\n\nTakes on survfit object\nCreates a table of survival estimates with confidence intervals\nAutomatically handles stratification and time points\n\n\nlibrary(gtsummary) # Load gtsummary package\n# Create a table of survival estimates\nkm_fit |&gt; tbl_survfit(                    # Pass `survfit` object\n             label = \"Hormone\",           # Row label: \"Hormone\"\n             times = c(6, 12, 24, 36),     # Time points for estimates\n             label_header = \"Month {time}\" # Column label: \"Month xx\"\n             ) \n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\nMonth 6\nMonth 12\nMonth 24\nMonth 36\n\n\n\n\nHormone\n\n\n\n\n\n\n\n\n\n\n    1\n98% (97%, 99%)\n90% (87%, 93%)\n72% (68%, 76%)\n61% (56%, 66%)\n\n\n    2\n98% (97%, 100%)\n95% (92%, 98%)\n78% (73%, 84%)\n71% (65%, 77%)"
   },
   {
     "objectID": "sec3.html#exercise-tabulating-quantiles",
@@ -950,7 +950,7 @@
     "href": "sec3.html#tidycmprsk-package",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "tidycmprsk Package",
-    "text": "tidycmprsk Package\n\nAnalysis of CIF implemented in cmprsk package- A \"tidy\" version is available intidycmprskpackage     - Simple interface, plays      - Input data:status`: must be a factor, with the first level indicating censoring and subsequent levels the competing risks\n\n\nlibrary(tidycmprsk) # Load tidycmprsk package\ndata(\"trial\", package = \"tidycmprsk\") # Load trial data from tidycmprsk package\nhead(trial) # Display the first few rows of the data\n\n# A tibble: 6 × 9\n  trt      age marker stage grade response death death_cr           ttdeath\n  &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;fct&gt; &lt;fct&gt;    &lt;int&gt; &lt;int&gt; &lt;fct&gt;                &lt;dbl&gt;\n1 Drug A    23  0.16  T1    II           0     0 censor                24  \n2 Drug B     9  1.11  T2    I            1     0 censor                24  \n3 Drug A    31  0.277 T1    II           0     0 censor                24  \n4 Drug A    NA  2.07  T3    III          1     1 death other causes    17.6\n5 Drug A    51  2.77  T4    III          1     1 death other causes    16.4\n6 Drug B    39  0.613 T4    I            0     1 death from cancer     15.6"
+    "text": "tidycmprsk Package\n\nAnalysis of CIF implemented in cmprsk package\n\nA “tidy” version is available intidycmprskpackage\nSimple interface, plays nicely with gtsummary and ggsurvfit\nInput data: status: must be a factor, with the first level indicating censoring and subsequent levels the competing risks\n\n\n\nlibrary(tidycmprsk) # Load tidycmprsk package\ndata(\"trial\", package = \"tidycmprsk\") # Load trial data from tidycmprsk package\nhead(trial) # Display the first few rows of the data\n\n# A tibble: 6 × 9\n  trt      age marker stage grade response death death_cr           ttdeath\n  &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;fct&gt; &lt;fct&gt;    &lt;int&gt; &lt;int&gt; &lt;fct&gt;                &lt;dbl&gt;\n1 Drug A    23  0.16  T1    II           0     0 censor                24  \n2 Drug B     9  1.11  T2    I            1     0 censor                24  \n3 Drug A    31  0.277 T1    II           0     0 censor                24  \n4 Drug A    NA  2.07  T3    III          1     1 death other causes    17.6\n5 Drug A    51  2.77  T4    III          1     1 death other causes    16.4\n6 Drug B    39  0.613 T4    I            0     1 death from cancer     15.6"
   },
   {
     "objectID": "sec3.html#input-data-format",
@@ -1095,7 +1095,7 @@
     "href": "sec4.html#key-takeaways",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Key Takeaways",
-    "text": "Key Takeaways"
+    "text": "Key Takeaways\n\nCox proportional hazards regression\n\nTidy output with broom and gtsummary\nVisualize hazard ratios with forest plots with ggplot2\nModel-based prediction with survival::survfit() and ggsurvfit()\nModel diagnostics with survminer\n\nFine-Gray model for competing risks regression\n\nTidy output with broom and gtsummary\nVisualize sub-distribution hazard ratios with forest plots"
   },
   {
     "objectID": "sec4.html#cox-ph-regression",
@@ -1299,5 +1299,96 @@
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "General Residual Graphics",
     "text": "General Residual Graphics\n\nBasic arguments of ggcoxdiagnostics()\n\ncoxph object\ntype: Residual type (“martingale”, “deviance”, “score”, “schoenfeld”, “dfbeta”, “dfbetas”, and “scaledsch”)`\nox.scale: Scale for x-axis (“linear.predictions”, “observation.id”, “time”)\npoint.col: Color of points\npoint.size: Size of points\netc.\n\nMore about survminer\n\nsurvminer website"
+  },
+  {
+    "objectID": "sec4.html#fine-gray-model",
+    "href": "sec4.html#fine-gray-model",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Fine-Gray Model",
+    "text": "Fine-Gray Model\n\nProportional sub-distribution hazards \\[\n  \\lambda_k(t \\mid Z) = \\lambda_0(t) \\exp(\\beta_1 Z_1 + \\beta_2 Z_2 + \\ldots + \\beta_p Z_p)\\]\n\n\\(\\lambda_0(t)\\): baseline sub-distribution hazard function\n\\(\\exp(\\beta_j)\\): sub-distribution hazard ratio for covariate \\(Z_j\\)\n\n\n\nlibrary(tidycmprsk) # Load tidycmprsk package\ndata(\"trial\", package = \"tidycmprsk\") # Load trial data from tidycmprsk package\nhead(trial) # Display the first few rows of the data\n\n# A tibble: 6 × 9\n  trt      age marker stage grade response death death_cr           ttdeath\n  &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;fct&gt; &lt;fct&gt;    &lt;int&gt; &lt;int&gt; &lt;fct&gt;                &lt;dbl&gt;\n1 Drug A    23  0.16  T1    II           0     0 censor                24  \n2 Drug B     9  1.11  T2    I            1     0 censor                24  \n3 Drug A    31  0.277 T1    II           0     0 censor                24  \n4 Drug A    NA  2.07  T3    III          1     1 death other causes    17.6\n5 Drug A    51  2.77  T4    III          1     1 death other causes    16.4\n6 Drug B    39  0.613 T4    I            0     1 death from cancer     15.6"
+  },
+  {
+    "objectID": "sec4.html#regression-of-sub-distribution-hazard",
+    "href": "sec4.html#regression-of-sub-distribution-hazard",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Regression of Sub-Distribution Hazard",
+    "text": "Regression of Sub-Distribution Hazard\n\nSub-distribution hazard \\[\n\\Lambda_k(t\\mid Z) = -\\log\\left\\{1 - F_k(t\\mid Z)\\right\\}\n\\]\n\n\\(F_k(t \\mid Z)\\): cumulative incidence function (CIF) of the \\(k\\)-th cause\n\\(\\lambda_k(t \\mid Z)=\\Lambda_k'(t)\\): risk of the \\(k\\)-th cause in presence of other competing events in the whole population\n\n\n\\[\n    \\lambda_k(t \\mid Z) = \\lambda_0(t) \\exp(\\beta_1 Z_1 + \\beta_2 Z_2 + \\ldots + \\beta_p Z_p)\n\\]"
+  },
+  {
+    "objectID": "sec4.html#modeling-target",
+    "href": "sec4.html#modeling-target",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Modeling Target",
+    "text": "Modeling Target\n\nSub-distribution hazard \\[\n\\Lambda_k(t\\mid Z) = -\\log\\left\\{1 - F_k(t\\mid Z)\\right\\}\n\\]\n\n\\(F_k(t \\mid Z)\\): cumulative incidence function (CIF) of the \\(k\\)-th cause\n\\(\\lambda_k(t \\mid Z)=\\Lambda_k'(t)\\): risk of the \\(k\\)-th cause in presence of other competing events in the whole population\n\nDifferent from cause-specific hazard\n\nCause-specific hazard \\[\\lambda^\\mathrm{c}_k(t \\mid Z) =  \\Pr(t\\leq T&lt; t+ \\mathrm{d}t\\mid T\\geq t, Z)/\\mathrm{d}t \\]\nRisk of the \\(k\\)-th cause in survivors"
+  },
+  {
+    "objectID": "sec4.html#sub-distribution-hazard",
+    "href": "sec4.html#sub-distribution-hazard",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Sub-Distribution Hazard",
+    "text": "Sub-Distribution Hazard\n\nDefinition \\[\n\\Lambda_k(t\\mid Z) = -\\log\\left\\{1 - F_k(t\\mid Z)\\right\\}\n\\]\n\n\\(F_k(t \\mid Z)\\): cumulative incidence function (CIF) of the \\(k\\)-th cause\n\\(\\lambda_k(t \\mid Z)=\\Lambda_k'(t)\\): risk of the \\(k\\)-th cause in presence of other competing events in the whole population\n\nDifferent from cause-specific hazard\n\nCause-specific hazard \\[\\lambda^\\mathrm{c}_k(t \\mid Z) =  \\Pr(t\\leq T&lt; t+ \\mathrm{d}t\\mid T\\geq t, Z)/\\mathrm{d}t \\]\nRisk of the \\(k\\)-th cause in survivors"
+  },
+  {
+    "objectID": "sec4.html#fitting-fine-gray-model",
+    "href": "sec4.html#fitting-fine-gray-model",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Fitting Fine-Gray Model",
+    "text": "Fitting Fine-Gray Model\n\nUsing cmprsk::crr()\n\nformula: Surv(time, status) ~ covariates\n\nstatus: a factor with first level indicating censoring and subsequent levels the competing risks\n\nfailcode: event code for the cause of interest\n\n\n\nfg_fit &lt;- crr(Surv(ttdeath, death_cr) ~ trt + age + marker + stage, # fit FG model\n              failcode = \"death from cancer\", trial) # for death from cancer\n\n21 cases omitted due to missing values\n\nfg_fit # print the Fine-Gray model fit summary\n\n\nVariable    Coef     SE      HR     95% CI       p-value    \ntrtDrug B   0.396    0.283   1.49   0.85, 2.59   0.16       \nage         0.009    0.011   1.01   0.99, 1.03   0.42       \nmarker      -0.002   0.159   1.00   0.73, 1.36   0.99       \nstageT2     0.140    0.475   1.15   0.45, 2.92   0.77       \nstageT3     0.500    0.460   1.65   0.67, 4.06   0.28       \nstageT4     0.959    0.418   2.61   1.15, 5.91   0.022"
+  },
+  {
+    "objectID": "sec4.html#tidy-fine-gray-model-output",
+    "href": "sec4.html#tidy-fine-gray-model-output",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Tidy Fine-Gray Model Output",
+    "text": "Tidy Fine-Gray Model Output\n\nUsing broom package: broom::tidy()\n\nProvides a tidy data frame for easy manipulation and visualization\n\n\n\ntidy_fg &lt;- tidy(fg_fit, exponentiate = TRUE, conf.int = TRUE) # Tidy model output\ntidy_fg # Display the tidy output\n\n# A tibble: 6 × 7\n  term      estimate std.error statistic conf.low conf.high p.value\n  &lt;chr&gt;        &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;\n1 trtDrug B    1.49     0.283     1.40      0.854      2.59   0.16 \n2 age          1.01     0.0111    0.804     0.987      1.03   0.42 \n3 marker       0.998    0.159    -0.0126    0.731      1.36   0.99 \n4 stageT2      1.15     0.475     0.296     0.454      2.92   0.77 \n5 stageT3      1.65     0.460     1.09      0.670      4.06   0.28 \n6 stageT4      2.61     0.418     2.30      1.15       5.91   0.022"
+  },
+  {
+    "objectID": "sec4.html#forest-plot-exercise-1",
+    "href": "sec4.html#forest-plot-exercise-1",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Forest Plot Exercise",
+    "text": "Forest Plot Exercise\n\nTask: Visualize sub-distribution hazard ratios and confidence intervals\n\n\n\nSolution\n# tidy_fg$term &lt;- recode(tidy_fg$term, ...) # Relabel the variables\ntidy_fg |&gt;  # plot of sub-distribution hazard ratios and 95% CIs\n  ggplot(aes(y=term, x=estimate, xmin=conf.low, xmax=conf.high)) + \n  geom_pointrange() +  # plots center point (x) and range (xmin, xmax)\n  geom_vline(xintercept=1, linetype = 2) + # vertical line at HR=1\n  scale_x_log10(\"Sub-distribution hazard ratio (95% CI)\") + # log scale for x-axis\n  theme_classic() + # classic theme for clean look\n  theme(\n    axis.line.y = element_blank(),          # remove y-axis line\n    axis.ticks.y = element_blank(),         # remove y-axis ticks\n    axis.text.y = element_text(size = 11),  # set variable label size\n    axis.title.y = element_blank()          # remove y-axis title\n  )"
+  },
+  {
+    "objectID": "sec4.html#parameter-estimates-and-variance",
+    "href": "sec4.html#parameter-estimates-and-variance",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Parameter Estimates and Variance",
+    "text": "Parameter Estimates and Variance\n\nExtracting \\(\\hat\\beta\\) and \\(\\hat{\\mathrm{var}}(\\hat\\beta)\\)\n\n\ncoef(fg_fit) # Extract coefficients\n\n   trtDrug B          age       marker      stageT2      stageT3      stageT4 \n 0.396486121  0.008956935 -0.002006717  0.140251967  0.500394141  0.958640247 \n\nvcov(fg_fit) |&gt; head() # Extract variance-covariance matrix\n\n              [,1]          [,2]          [,3]         [,4]          [,5]\n[1,]  0.0800665101  0.0001535045 -0.0051801922  0.011605373  0.0094601803\n[2,]  0.0001535045  0.0001239790 -0.0005094795  0.001111245 -0.0009368412\n[3,] -0.0051801922 -0.0005094795  0.0251827414 -0.028697647 -0.0037297926\n[4,]  0.0116053732  0.0011112447 -0.0286976466  0.225187822  0.1101888313\n[5,]  0.0094601803 -0.0009368412 -0.0037297926  0.110188831  0.2111942725\n[6,]  0.0219362509  0.0010459739 -0.0176113331  0.124589145  0.1064088264\n             [,6]\n[1,]  0.021936251\n[2,]  0.001045974\n[3,] -0.017611333\n[4,]  0.124589145\n[5,]  0.106408826\n[6,]  0.174446817"
+  },
+  {
+    "objectID": "sec4.html#fg-regression-table",
+    "href": "sec4.html#fg-regression-table",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "FG Regression Table",
+    "text": "FG Regression Table\n\nUsing gtsummary package: tbl_regression()\n\nAutomatically formats regression results into a publication-ready table"
+  },
+  {
+    "objectID": "sec4.html#fg-regression-table-i",
+    "href": "sec4.html#fg-regression-table-i",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "FG Regression Table (I)",
+    "text": "FG Regression Table (I)\n\nUsing gtsummary package: tbl_regression()\n\nSimilarly to tabulating fitted coxph object\n\n\n\nlibrary(gtsummary) # Load gtsummary package\nfg_tbl &lt;- fg_fit |&gt; tbl_regression(exponentiate = TRUE) |&gt;  # Create a regression table \n          add_global_p() # Add global p-value for categorical variables"
+  },
+  {
+    "objectID": "sec4.html#fg-regression-table-ii",
+    "href": "sec4.html#fg-regression-table-ii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "FG Regression Table (II)",
+    "text": "FG Regression Table (II)\n\nResult\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\nHR1\n95% CI1\np-value\n\n\n\n\nChemotherapy Treatment\n\n\n\n\n0.2\n\n\n    Drug A\n—\n—\n\n\n\n\n    Drug B\n1.49\n0.85, 2.59\n\n\n\n\nAge\n1.01\n0.99, 1.03\n0.4\n\n\nMarker Level (ng/mL)\n1.00\n0.73, 1.36\n&gt;0.9\n\n\nT Stage\n\n\n\n\n0.058\n\n\n    T1\n—\n—\n\n\n\n\n    T2\n1.15\n0.45, 2.92\n\n\n\n\n    T3\n1.65\n0.67, 4.06\n\n\n\n\n    T4\n2.61\n1.15, 5.91\n\n\n\n\n\n1 HR = Hazard Ratio, CI = Confidence Interval"
+  },
+  {
+    "objectID": "sec4.html#model-based-prediction-1",
+    "href": "sec4.html#model-based-prediction-1",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Model-Based Prediction",
+    "text": "Model-Based Prediction\n\nPredicted cumulative incidence function (CIF) \\[\n  \\hat F_k(t \\mid z) = 1 - \\exp\\left\\{-\\hat\\Lambda_k(t \\mid z)\\right\\}\n  \\]\n\n\n# Predict cumulative incidence function for first 10 patients\nfg_pred &lt;- predict(fg_fit, newdata= trial[1:10, ], times = c(6, 12, 18)) # Predict CIF\nfg_pred # Display the predicted CIF\n\n$`time 6`\n [1] 0.002279375 0.003430702 0.002447917          NA 0.007579470 0.010150002\n [7] 0.002582498 0.002462688 0.002448570 0.006155050\n\n$`time 12`\n [1] 0.02093164 0.03135502 0.02246374         NA 0.06809922 0.09023665\n [7] 0.02368558 0.02259790 0.02246967 0.05562630\n\n$`time 18`\n [1] 0.07090010 0.10483563 0.07594466         NA 0.21744137 0.28018810\n [7] 0.07995368 0.07638548 0.07596414 0.18042196"
+  },
+  {
+    "objectID": "sec4.html#next-steps",
+    "href": "sec4.html#next-steps",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Next Steps",
+    "text": "Next Steps\n\nMachine learning: build best predictive model with many predictors\n\nRegularized Cox regression\nParametric AFT models\nSurvival trees\ntidymodels packages (censored)"
   }
 ]

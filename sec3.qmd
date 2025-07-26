@@ -37,12 +37,11 @@ include-in-header:
 #   data-background-position: 2% 2%
 ---
 
-
 # Tabulating Survival Estimates
 
 ## GBC: Relapse-Free Survival
 
-- Use `dplyr` to get time-to-first event
+-   Use `dplyr` to get time-to-first event
 
 ```{r}
 #| eval: true
@@ -60,7 +59,7 @@ head(df)
 
 ## Raw Output from `survfit()`
 
-- **KM estimates by hormone therapy**
+-   **KM estimates by hormone therapy**
 
 ```{r}
 #| eval: true
@@ -73,22 +72,23 @@ summary(km_fit, times = c(6, 12, 24, 36))
 
 ## Extracting Survival Estimates
 
-- **Elements in `survfit` object**
-    - `time`: time points of the survival estimates
-    - `surv`: survival probabilities at the time points
-    - `lower, upper`: confidence intervals for the survival estimates
-    - `strata`: stratification information (if applicable)
+-   **Elements in `survfit` object**
+    -   `time`: time points of the survival estimates
+    -   `surv`: survival probabilities at the time points
+    -   `lower, upper`: confidence intervals for the survival estimates
+    -   `strata`: stratification information (if applicable)
 
 ::: {.callout-note appearance="minimal"}
 ## Exercise
-Create a table of survival estimates with 95\% confidence intervals at 6, 12, 24, and 36 months for each hormone therapy group using `dplyr` and `tibble`.
+
+Create a table of survival estimates with 95% confidence intervals at 6, 12, 24, and 36 months for each hormone therapy group using `dplyr` and `tibble`.
 :::
 
 ## Tidying `survfit()` Output
 
-- **Use `broom` package to tidy `survfit` objects**
-    - `broom::tidy()` converts the `survfit` object into a tidy data frame
-    - Useful for further analysis or visualization
+-   **Use `broom` package to tidy `survfit` objects**
+    -   `broom::tidy()` converts the `survfit` object into a tidy data frame
+    -   Useful for further analysis or visualization
 
 ```{r}
 #| eval: true
@@ -96,28 +96,28 @@ library(broom) # Load broom package
 tidy(km_fit) # Tidy the KM fit object
 ```
 
+## Tabulation with `gtsummary`
 
+-   **Main function: `tbl_survfit()`**
 
-## Tabulation with `gtsummary` 
+    -   Takes on `survfit` object
+    -   Creates a table of survival estimates with confidence intervals
+    -   Automatically handles stratification and time points
 
-- **Main function: `tbl_survfit()`**
-    - Takes on `survfit` object
-    - Creates a table of survival estimates with confidence intervals
-    - Automatically handles stratification and time points
-```{r}
-#| eval: true
-library(gtsummary) # Load gtsummary package
-# Create a table of survival estimates
-km_fit |> tbl_survfit(                    # Pass `survfit` object
-             label = "Hormone",           # Row label: "Hormone"
-             times = c(6, 12, 24, 36),     # Time points for estimates
-             label_header = "Month {time}" # Column label: "Month xx"
-             ) 
-```
+    ```{r}
+    #| eval: true
+    library(gtsummary) # Load gtsummary package
+    # Create a table of survival estimates
+    km_fit |> tbl_survfit(                    # Pass `survfit` object
+                 label = "Hormone",           # Row label: "Hormone"
+                 times = c(6, 12, 24, 36),     # Time points for estimates
+                 label_header = "Month {time}" # Column label: "Month xx"
+                 ) 
+    ```
 
 ## Grouping by Multiple Variables
 
-- **Pass raw data to `tbl_survfit()`**
+-   **Pass raw data to `tbl_survfit()`**
 
 ```{r}
 #| eval: true
@@ -131,12 +131,10 @@ df |>                                       # Use raw data
              ) 
 ```
 
-
-
 ## Tabulating Quantile Estimates
 
-- **Quantile estimates**: Median survival time, quartiles, etc.
-    - Specify `probs` argument in `tbl_survfit()`
+-   **Quantile estimates**: Median survival time, quartiles, etc.
+    -   Specify `probs` argument in `tbl_survfit()`
 
 ```{r}
 #| eval: true
@@ -148,11 +146,9 @@ km_fit |>                        # Pass `survfit` object
               label_header = "{100 * prob}% quantile") # Column label: "xx quantile"
 ```
 
-
-
 ## Exercise: Tabulating Quantiles
 
-- **Create the following table**
+-   **Create the following table**
 
 ```{r}
 #| eval: true
@@ -180,19 +176,16 @@ df |>                                       # Use raw data
 
 ```
 
-
 ## Customizing the Table
 
-- **Customize table appearance**
-    - `label_header`: change column names
-    - `label`: change row labels
-    - `statistic`: customize statistics displayed
-        - `statistic = "{estimate} ({conf.low}, {conf.high})"` for confidence intervals
-
+-   **Customize table appearance**
+    -   `label_header`: change column names
+    -   `label`: change row labels
+    -   `statistic`: customize statistics displayed
+        -   `statistic = "{estimate} ({conf.low}, {conf.high})"` for confidence intervals
 -   More about `gtsummary`
     -   [gtsummary](https://www.danieldsjoberg.com/gtsummary/) website
     -   [tbl_survfit documentation](https://www.danieldsjoberg.com/gtsummary/articles/tbl_survfit.html)
-
 
 # Visualizing Kaplan-Meier Curves
 
@@ -213,10 +206,10 @@ text(70, 0.8, scales::pvalue(pval, add_p = TRUE)) # Annotate formatted p-value
 
 ## Enhanced Graphics with `ggsurvfit`
 
-- **`ggsurvfit`**: Provides a `ggplot2` interface for survival curves
-    - Takes on `survfit` object or raw data
-    - `add_risktable()` adds a risk table below graph
-    - Allows for more customization and aesthetics
+-   **`ggsurvfit`**: Provides a `ggplot2` interface for survival curves
+    -   Takes on `survfit` object or raw data
+    -   `add_risktable()` adds a risk table below graph
+    -   Allows for more customization and aesthetics
 
 ```{r}
 #| eval: true
@@ -226,16 +219,16 @@ km_fit |> ggsurvfit()  # Pass `survfit` object
 
 ## Customization (I)
 
-- **Customize the plot with `ggsurvfit`**
-    - `add_risktable()`: Adds a risk table below the survival curve
-    - `add_confidence_interval()`: Adds confidence intervals to the survival curve
-    - `add_pvalue()`: Adds p-value for log-rank test
-    - Other `ggplot2` functions to further customize the plot
-        - `scale_x_continuous()`, `scale_y_continuous()`, `theme()`, etc.
+-   **Customize the plot with `ggsurvfit`**
+    -   `add_risktable()`: Adds a risk table below the survival curve
+    -   `add_confidence_interval()`: Adds confidence intervals to the survival curve
+    -   `add_pvalue()`: Adds p-value for log-rank test
+    -   Other `ggplot2` functions to further customize the plot
+        -   `scale_x_continuous()`, `scale_y_continuous()`, `theme()`, etc.
 
 ## Customization (II)
 
-- **Code**
+-   **Code**
 
 ```{r}
 #| eval: true
@@ -257,19 +250,16 @@ km_fig <- km_fit2 |>     # Plot KM curves with customization
 ggsave("images/km_fig.png", km_fig, width = 7.5, height = 5) # Save the plot
 ```
 
-
 ## Customization (III)
 
-- **Result**
+-   **Result**
 
 ![](images/km_fig.png){fig-align="center" width="100%"}
 
-
 ## Risk Table Exercise
 
-- **Task**: Display only numbers at risk in the risk table
-    - Hint: Add `risktable_stats = "n.risk"` argument in `add_risktable()`
-
+-   **Task**: Display only numbers at risk in the risk table
+    -   Hint: Add `risktable_stats = "n.risk"` argument in `add_risktable()`
 
 ```{r}
 #| code-fold: true
@@ -289,9 +279,9 @@ km_fit2 |>     # Plot KM curves with customization
 
 ## Add Quantiles (I)
 
-- **Add quantile estimates to the plot**
-    - Use `add_quantile()` to add median survival time and other quantiles
-    - Specify `y_value` or `x_value` arguments for desired quantiles or time points
+-   **Add quantile estimates to the plot**
+    -   Use `add_quantile()` to add median survival time and other quantiles
+    -   Specify `y_value` or `x_value` arguments for desired quantiles or time points
 
 ```{r}
 km_fig + add_quantile(
@@ -310,22 +300,23 @@ ggsave("images/km_med_fig.png", km_med_fig, width = 7.5, height = 5) # Save the 
 
 ## Add Quantiles (II)
 
-- **Result**
+-   **Result**
 
 ![](images/km_med_fig.png){fig-align="center" width="100%"}
 
-
 ## Exercise: Add Time Points
 
-- **Task**: Add reference lines at 72 months
-    - Use `add_quantile()` with `x_value` argument
-```{r}
-#| echo: false
-km_time_fig <- km_fig + add_quantile(
-   x_value = 72 # Add 72-month reference lines
-  )
-ggsave("images/km_time_fig.png", km_time_fig, width = 7.5, height = 5) # Save the plot
-```
+-   **Task**: Add reference lines at 72 months
+
+    -   Use `add_quantile()` with `x_value` argument
+
+    ```{r}
+    #| echo: false
+    km_time_fig <- km_fig + add_quantile(
+       x_value = 72 # Add 72-month reference lines
+      )
+    ggsave("images/km_time_fig.png", km_time_fig, width = 7.5, height = 5) # Save the plot
+    ```
 
 ```{r}
 #| code-fold: true
@@ -337,41 +328,36 @@ km_fig + add_quantile(
 
 ## Further Customizations
 
-- **Customize the plot further**
-    -  `add_risktable_strata_symbol(...)`: Use symbols for strata in the risk table
-        - `symbol = NULL`, `size = 15`, `face = "bold"`, etc.
-    - `add_censor_mark(...)`： Add censor marks to the survival curve
-        - `size = 3`, `shape = 3`, `color = "black"`, etc.
-
-- More about `ggsurvfit`
-    - [ggsurvfit](https://www.danieldsjoberg.com/ggsurvfit/) website
-    - [Webinar](https://www.danieldsjoberg.com/ggsurvfit-rmed-webinar-2024/) by Daniel D. Sjoberg
-
+-   **Customize the plot further**
+    -   `add_risktable_strata_symbol(...)`: Use symbols for strata in the risk table
+        -   `symbol = NULL`, `size = 15`, `face = "bold"`, etc.
+    -   `add_censor_mark(...)`： Add censor marks to the survival curve
+        -   `size = 3`, `shape = 3`, `color = "black"`, etc.
+-   More about `ggsurvfit`
+    -   [ggsurvfit](https://www.danieldsjoberg.com/ggsurvfit/) website
+    -   [Webinar](https://www.danieldsjoberg.com/ggsurvfit-rmed-webinar-2024/) by Daniel D. Sjoberg
 
 # Tidy Analysis of Competing Risks
 
 ## Competing Risks Overview
 
-- **Competing risks**
-    - Subject may experience at most one of multiple distinct types of event
-    - E.g., death from different causes; relapse vs. death in remission (before relapse)
-
-- **Notation**: $(T, \Delta)$
-    - $T$: time to event
-    - $\Delta$: event type indicator (e.g., 1 for relapse, 2 for death)
-
-- **Quantity of interest**
-    - cumulative incidence function (CIF), or sub-distribution
-    $$
-    F_k(t) = P(T \leq t, \Delta = k)
-    $$
-        - Cumulative probability of event type $k$ by time $t$
+-   **Competing risks**
+    -   Subject may experience at most one of multiple distinct types of event
+    -   E.g., death from different causes; relapse vs. death in remission (before relapse)
+-   **Notation**: $(T, \Delta)$
+    -   $T$: time to event
+    -   $\Delta$: event type indicator (e.g., 1 for relapse, 2 for death)
+-   **Quantity of interest**
+    -   cumulative incidence function (CIF), or sub-distribution $$
+          F_k(t) = P(T \leq t, \Delta = k)
+          $$
+        -   Cumulative probability of event type $k$ by time $t$
 
 ## `tidycmprsk` Package
 
-- **Analysis of CIF** implemented in `cmprsk` package`
-    - A "tidy" version is available in `tidycmprsk` package
-    - Simple interface, plays 
+-   **Analysis of CIF** implemented in `cmprsk` package
+    - A "tidy" version is available in`tidycmprsk`package
+    - Simple interface, plays nicely with `gtsummary` and `ggsurvfit`
     - Input data: `status`: must be a factor, with the first level indicating censoring and subsequent levels the competing risks
 
 ```{r}
@@ -384,7 +370,7 @@ head(trial) # Display the first few rows of the data
 
 ## Nonpametric Inference
 
-- **Gray's estimator and test**
+-   **Gray's estimator and test**
 
 ```{r}
 #| eval: true
@@ -392,7 +378,6 @@ head(trial) # Display the first few rows of the data
 # Fit cumulative incidence function (CIF) for competing risks
 cif_fit <- cuminc(Surv(ttdeath, death_cr) ~ trt, trial)
 ```
-
 
 ```{r}
 # Fit cumulative incidence function (CIF) for competing risks
@@ -410,10 +395,9 @@ cif_fit # print results
 #> Drug B   20.0   55       0.255      0.043       0.175, 0.343 
 ```
 
-
 ## Raw Output
 
-- **Raw output from `cuminc()` continued**
+-   **Raw output from `cuminc()` continued**
 
 ```{r}
 
@@ -437,8 +421,8 @@ cif_fit # print results
 
 ## Tidy Output in `tibble`
 
-- **Use `broom` to tidy `cuminc` object**
-    - Useful for further analysis or visualization
+-   **Use `broom` to tidy `cuminc` object**
+    -   Useful for further analysis or visualization
 
 ```{r}
 #| eval: true
@@ -449,15 +433,16 @@ head(tidy_cif) # Display the first few rows of the tidy data
 
 ::: {.callout-note appearance="minimal"}
 ## Exercise
-Tabulate CIF estimates with 95\% confidence intervals at 5, 10, 15, and 20 months for each risk.
+
+Tabulate CIF estimates with 95% confidence intervals at 5, 10, 15, and 20 months for each risk.
 :::
 
 ## Tabulating CIF Estimates (I)
 
-- **Use `tbl_cuminc()` to create a table of CIF estimates**
-    - Similar syntax to `tbl_survfit()`
-    - `times`: time points for estimates
-    - `outcomes`: specify outcomes to include in the table (Default is the first outcome)
+-   **Use `tbl_cuminc()` to create a table of CIF estimates**
+    -   Similar syntax to `tbl_survfit()`
+    -   `times`: time points for estimates
+    -   `outcomes`: specify outcomes to include in the table (Default is the first outcome)
 
 ```{r}
 # Tabulate CIF estimates with 95% confidence intervals
@@ -470,10 +455,9 @@ cif_fit |> # Pass `tidycuminc` object
   add_p() # Add p-values from Gray's test
 ```
 
-
 ## Tabulating CIF Estimates (II)
 
-- **Result**
+-   **Result**
 
 ```{r}
 #| echo: false
@@ -490,10 +474,10 @@ cif_fit |> # Pass `tidycuminc` object
 
 ## CIF Graphics (I)
 
-- **Plot CIF estimates with `ggsurvfit::ggcuminc()`**
-    - Similar syntax to `ggsurvfit()`
-    - `outcome`: specify outcome to plot
-    
+-   **Plot CIF estimates with `ggsurvfit::ggcuminc()`**
+    -   Similar syntax to `ggsurvfit()`
+    -   `outcome`: specify outcome to plot
+
 ```{r}
 cif_fit |> # Pass `tidycuminc` object
   ggcuminc(outcome = "death from cancer") + # Plot CIF for "death from cancer"
@@ -522,18 +506,16 @@ ggsave("images/cif_fig.png", cif_fit |> # Pass `tidycuminc` object
   theme(legend.position = "top"), width = 7.5, height = 5) # Save the plot
 ```
 
+## CIF Graphics (II)
 
-## CIF Graphics (II) 
-    
-- **Result**
+-   **Result**
 
 ![](images/cif_fig.png){fig-align="center" width="100%"}
 
 ## CIF Graphics Exercise (I)
 
-- **Task**: create the figure below
-    - **Hint**: plot separate figures for each outcome and use `patchwork` to combine them
-
+-   **Task**: create the figure below
+    -   **Hint**: plot separate figures for each outcome and use `patchwork` to combine them
 
 ```{r}
 #| echo: false
@@ -592,33 +574,27 @@ cif_trial <- cif_cancer_plot + cif_other_plot + plot_layout(guides = "collect") 
   theme(legend.position = "top") # Collect legends and position at the top
 ```
 
-- More about `tidycmprsk`
-    - [tidycmprsk](https://www.danieldsjoberg.com/tidycmprsk/) website
-
+-   More about `tidycmprsk`
+    -   [tidycmprsk](https://www.danieldsjoberg.com/tidycmprsk/) website
 
 # Summary
 
 ## Key Takeaways
 
-- **Nonparametric survival analysis**
-    -  Use `survival::survfit()` for Kaplan-Meier estimates
-    -  Use `tidycmprsk::cuminc()` for CIF of competing risks 
-
-- **Tidy outputs**
-    - Use `broom::tidy()` to convert `survfit` and `tidycuminc` objects into tidy data frames
-
-- **Tabulation and visualization**
-    - Use `gtsummary::tbl_survfit()` and `tidycumprsk::tbl_cuminc()` for tabulating survival estimates
-    - Use `ggsurvfit::ggsurvfit()` and `ggsurvfit::ggcuminc()` for visualizing survival curves and CIF
+-   **Nonparametric survival analysis**
+    -   Use `survival::survfit()` for Kaplan-Meier estimates
+    -   Use `tidycmprsk::cuminc()` for CIF of competing risks
+-   **Tidy outputs**
+    -   Use `broom::tidy()` to convert `survfit` and `tidycuminc` objects into tidy data frames
+-   **Tabulation and visualization**
+    -   Use `gtsummary::tbl_survfit()` and `tidycumprsk::tbl_cuminc()` for tabulating survival estimates
+    -   Use `ggsurvfit::ggsurvfit()` and `ggsurvfit::ggcuminc()` for visualizing survival curves and CIF
 
 ## Next Steps
 
-- **Cox regression analysis**
-    - Tidy and format results from `survival::coxph()` 
-    - Visualize prediction results
-    
-- **Competing risks**
-    - Proportional sub-distribution hazards (Fine-Gray) regression
-    - Tabulation and graphics
-    
-    
+-   **Cox regression analysis**
+    -   Tidy and format results from `survival::coxph()`
+    -   Visualize prediction results
+-   **Competing risks**
+    -   Proportional sub-distribution hazards (Fine-Gray) regression
+    -   Tabulation and graphics

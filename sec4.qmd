@@ -334,6 +334,7 @@ tidy_pred_surv <- tidy(pred_surv) # Tidy the survival prediction output
 head(tidy_pred_surv) # Display the first few rows of the tidy output
 ```
 
+
 ## Visualizing Predicted Survival (I)
 
 - **Using `ggsurvfit` package**: `ggsurvfit()`
@@ -453,11 +454,155 @@ ggcoxdiagnostics(cox_fit, type = "deviance",  # deviance on y-axis
 
 # Competing Risks Regression
 
+## Sub-Distribution Hazard
+
+- **Definition**
+$$
+\Lambda_k(t\mid Z) = -\log\left\{1 - F_k(t\mid Z)\right\} 
+$$
+    - $F_k(t \mid Z)$: cumulative incidence function (CIF) of the $k$-th cause
+    - $\lambda_k(t \mid Z)=\Lambda_k'(t)$: risk of the $k$-th cause in presence of other competing events in the whole population
+    
+- **Different from cause-specific hazard**
+    - Cause-specific hazard 
+    $$\lambda^\mathrm{c}_k(t \mid Z) =  \Pr(t\leq T< t+ \mathrm{d}t\mid T\geq t, Z)/\mathrm{d}t $$
+    - Risk of the $k$-th cause in *survivors*
+
+
+
+
+
+## Fine-Gray Model
+
+- **Proportional sub-distribution hazards** $$
+    \lambda_k(t \mid Z) = \lambda_0(t) \exp(\beta_1 Z_1 + \beta_2 Z_2 + \ldots + \beta_p Z_p)$$
+    - $\lambda_0(t)$: baseline sub-distribution hazard function
+    - $\exp(\beta_j)$: sub-distribution hazard ratio for covariate $Z_j$
+
+
+```{r}
+#| eval: true
+library(tidycmprsk) # Load tidycmprsk package
+data("trial", package = "tidycmprsk") # Load trial data from tidycmprsk package
+head(trial) # Display the first few rows of the data
+```
+
+## Fitting Fine-Gray Model
+
+- **Using `cmprsk::crr()`**
+    - `formula`: `Surv(time, status) ~ covariates`
+        - `status`: a factor with first level indicating censoring and subsequent levels the competing risks
+    - `failcode`: event code for the cause of interest
+
+```{r}
+#| eval: true
+#| warning: false
+fg_fit <- crr(Surv(ttdeath, death_cr) ~ trt + age + marker + stage, # fit FG model
+              failcode = "death from cancer", trial) # for death from cancer
+fg_fit # print the Fine-Gray model fit summary
+```
+
+## Parameter Estimates and Variance
+
+-   Extracting $\hat\beta$ and $\hat{\mathrm{var}}(\hat\beta)$
+
+```{r}
+#| eval: true
+coef(fg_fit) # Extract coefficients
+vcov(fg_fit) |> head() # Extract variance-covariance matrix
+```
+
+
+## Tidy Fine-Gray Model Output
+
+- **Using `broom` package**: `broom::tidy()`
+    - Provides a tidy data frame for easy manipulation and visualization
+
+```{r}
+#| eval: true
+tidy_fg <- tidy(fg_fit, exponentiate = TRUE, conf.int = TRUE) # Tidy model output
+tidy_fg # Display the tidy output
+```
+
+
+
+## Forest Plot Exercise
+
+- **Task**: Visualize sub-distribution hazard ratios and confidence intervals
+
+```{r}
+#| code-fold: true
+#| code-summary: Solution
+# tidy_fg$term <- recode(tidy_fg$term, ...) # Relabel the variables
+tidy_fg |>  # plot of sub-distribution hazard ratios and 95% CIs
+  ggplot(aes(y=term, x=estimate, xmin=conf.low, xmax=conf.high)) + 
+  geom_pointrange() +  # plots center point (x) and range (xmin, xmax)
+  geom_vline(xintercept=1, linetype = 2) + # vertical line at HR=1
+  scale_x_log10("Sub-distribution hazard ratio (95% CI)") + # log scale for x-axis
+  theme_classic() + # classic theme for clean look
+  theme(
+    axis.line.y = element_blank(),          # remove y-axis line
+    axis.ticks.y = element_blank(),         # remove y-axis ticks
+    axis.text.y = element_text(size = 11),  # set variable label size
+    axis.title.y = element_blank()          # remove y-axis title
+  )
+```
+
+## FG Regression Table (I)
+
+- **Using `gtsummary` package**: `tbl_regression()`
+    - Similarly to tabulating fitted `coxph` object
+
+```{r}
+#| eval: true
+library(gtsummary) # Load gtsummary package
+fg_tbl <- fg_fit |> tbl_regression(exponentiate = TRUE) |>  # Create a regression table 
+          add_global_p() # Add global p-value for categorical variables
+
+```
+
+
+## FG Regression Table (II)
+
+- **Result**
+
+```{r}
+#| eval: true
+#| echo: false
+fg_tbl # display the regression table
+```
+
+## Model-Based Prediction
+
+- **Predicted cumulative incidence function (CIF)** $$
+    \hat F_k(t \mid z) = 1 - \exp\left\{-\hat\Lambda_k(t \mid z)\right\}
+    $$
+```{r}
+#| eval: true
+# Predict cumulative incidence function for first 10 patients
+fg_pred <- predict(fg_fit, newdata= trial[1:10, ], times = c(6, 12, 18)) # Predict CIF
+fg_pred # Display the predicted CIF
+```
 
 # Summary
 
-
-
 ## Key Takeaways
 
-    
+-  **Cox proportional hazards regression**
+    - Tidy output with `broom` and `gtsummary`
+    - Visualize hazard ratios with forest plots with `ggplot2`
+    - Model-based prediction with `survival::survfit()` and `ggsurvfit()`
+    - Model diagnostics with `survminer`
+
+-  **Fine-Gray model for competing risks regression**
+    - Tidy output with `broom` and `gtsummary`
+    - Visualize sub-distribution hazard ratios with forest plots
+
+
+## Next Steps
+
+- **Machine learning**: build best predictive model with many predictors
+    - Regularized Cox regression
+    - Parametric AFT models
+    - Survival trees
+    - `tidymodels` packages (`censored`)
