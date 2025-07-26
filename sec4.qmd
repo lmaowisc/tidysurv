@@ -37,18 +37,17 @@ include-in-header:
 #   data-background-position: 2% 2%
 ---
 
-
 # Presenting Regression Results
 
 ## Cox PH Regression
 
-- **Model specification** $$
-    \lambda(t \mid Z) = \lambda_0(t) \exp(\beta_1 Z_1 + \beta_2 Z_2 + \ldots + \beta_p Z_p)
-    $$
+-   **Model specification** $$
+      \lambda(t \mid Z) = \lambda_0(t) \exp(\beta_1 Z_1 + \beta_2 Z_2 + \ldots + \beta_p Z_p)
+      $$
     -   $\lambda_0(t)$: baseline hazard function
     -   $\exp(\beta_j)$: hazard ratio for covariate $Z_j$
+-   **GBC data: relapse-free survival**
 
-- **GBC data: relapse-free survival**
 ```{r}
 #| eval: true
 library(tidyverse) # Load tidyverse packages
@@ -57,7 +56,8 @@ gbc <- read.table("data/gbc.txt", header = TRUE) # Load GBC dataset
 
 ## GBC Data: a Running Example
 
-- **Reformat the data**
+-   **Reformat the data**
+
 ```{r}
 #| eval: true
 df <- gbc |>  # calculate time to first event (relapse or death)
@@ -73,7 +73,6 @@ df <- gbc |>  # calculate time to first event (relapse or death)
     ) 
 ```
 
-
 ## Analysis in Base R
 
 -   **Model fitting**: `survival::coxph()`
@@ -88,8 +87,8 @@ summary(cox_fit) # Print model summary
 
 ## Tidy `coxph()` Output
 
-- **Using `broom` package**: `broom::tidy()`
-    - Provides a tidy data frame for easy manipulation and visualization
+-   **Using `broom` package**: `broom::tidy()`
+    -   Provides a tidy data frame for easy manipulation and visualization
 
 ```{r}
 #| eval: true
@@ -100,8 +99,8 @@ tidy_cox # Display the tidy output
 
 ## Tabulating Results with `gtsummary` (I)
 
-- **Using `gtsummary` package**: `tbl_regression()`
-    - Automatically formats regression results into a publication-ready table
+-   **Using `gtsummary` package**: `tbl_regression()`
+    -   Automatically formats regression results into a publication-ready table
 
 ```{r}
 library(gtsummary) # Load gtsummary package
@@ -121,7 +120,8 @@ cox_tbl # Display the regression table
 
 ## Tabulating Results with `gtsummary` (II)
 
-- **Result**
+-   **Result**
+
 ```{r}
 #| eval: true
 #| echo: false
@@ -141,36 +141,46 @@ cox_tbl # Display the regression table
 ```
 
 ## Further Customization
-<!-- modify_header() 	update column headers -->
-<!-- modify_footnote_header() 	update column header footnote -->
-<!-- modify_footnote_body() 	update table body footnote -->
-<!-- modify_spanning_header() 	update spanning headers -->
-<!-- modify_caption() 	update table caption/title -->
-<!-- bold_labels() 	bold variable labels -->
-<!-- bold_levels() 	bold variable levels -->
-<!-- italicize_labels() 	italicize variable labels -->
-<!-- italicize_levels() 	italicize variable levels -->
-<!-- bold_p() 	bold significant p-values -->
-- **Styling functions**
-    - `modify_header()`: update column headers
-    - `modify_footnote_header()`: update column header footnote
-    - `modify_footnote_body()`: update table body footnote
-    - `modify_caption()`: update table caption/title
-    - `bold_labels()`: bold variable labels
-    - `bold_levels()`: bold variable levels
-    - `italicize_labels()`: italicize variable labels
-    - `italicize_levels()`: italicize variable levels
-    - `bold_p()`: bold significant p-values
 
-- More about `tbl_regression()`
-    - [`gtsummary` documentation](https://www.danieldsjoberg.com/gtsummary/articles/tbl_regression.html)
+<!-- modify_header()    update column headers -->
+
+<!-- modify_footnote_header()   update column header footnote -->
+
+<!-- modify_footnote_body()     update table body footnote -->
+
+<!-- modify_spanning_header()   update spanning headers -->
+
+<!-- modify_caption()   update table caption/title -->
+
+<!-- bold_labels()  bold variable labels -->
+
+<!-- bold_levels()  bold variable levels -->
+
+<!-- italicize_labels()     italicize variable labels -->
+
+<!-- italicize_levels()     italicize variable levels -->
+
+<!-- bold_p()   bold significant p-values -->
+
+-   **Styling functions**
+    -   `modify_header()`: update column headers
+    -   `modify_footnote_header()`: update column header footnote
+    -   `modify_footnote_body()`: update table body footnote
+    -   `modify_caption()`: update table caption/title
+    -   `bold_labels()`: bold variable labels
+    -   `bold_levels()`: bold variable levels
+    -   `italicize_labels()`: italicize variable labels
+    -   `italicize_levels()`: italicize variable levels
+    -   `bold_p()`: bold significant p-values
+-   More about `tbl_regression()`
+    -   [`gtsummary` documentation](https://www.danieldsjoberg.com/gtsummary/articles/tbl_regression.html)
 
 ## Table Customization Exercise
 
-- **Task**: Customize the regression table
-    - Add a caption: "Cox regression analysis of the German breast cancer study"
-    - Bold significant p-values
-    - Italicize tumor grade levels
+-   **Task**: Customize the regression table
+    -   Add a caption: "Cox regression analysis of the German breast cancer study"
+    -   Bold significant p-values
+    -   Italicize tumor grade levels
 
 ```{r}
 #| code-fold: true
@@ -185,14 +195,13 @@ cox_tbl |> # Start with the regression table
 
 ## Other Regression Models
 
-- **Accelerated failure time (AFT) models**
-$$
-    \log T = \beta_0 + \beta_1 Z_1 + \beta_2 Z_2 + \ldots + \beta_p Z_p + \epsilon
-$$
-    - $\epsilon\sim$ Weibull, lognormal, etc. (parametric models)
-    - $\exp(\beta_j)$: acceleration factor for covariate $Z_j$
-    - **Model fitting**: `survival::survreg()`
-    
+-   **Accelerated failure time (AFT) models** $$
+      \log T = \beta_0 + \beta_1 Z_1 + \beta_2 Z_2 + \ldots + \beta_p Z_p + \epsilon
+    $$
+    -   $\epsilon\sim$ Weibull, lognormal, etc. (parametric models)
+    -   $\exp(\beta_j)$: acceleration factor for covariate $Z_j$
+    -   **Model fitting**: `survival::survreg()`
+
 ```{r}
 #| eval: true
 # Fit a Weibull AFT model
@@ -202,14 +211,14 @@ aft_fit <- survreg(Surv(time, status) ~ hormone + meno + age + grade + size + pr
 
 ::: {.callout-note appearance="minimal"}
 ## Exercise
-- Tidy up the `survreg` object ``aft_fit`` using `broom::tidy()`
-- Create a regression table using `gtsummary::tbl_regression()`
-:::
 
+-   Tidy up the `survreg` object `aft_fit` using `broom::tidy()`
+-   Create a regression table using `gtsummary::tbl_regression()`
+:::
 
 ## Visualizing Hazard Ratios (I)
 
-- **Forest plot**: Visualize hazard ratios and confidence intervals
+-   **Forest plot**: Visualize hazard ratios and confidence intervals
 
 ```{r}
 # Tidy with exponentiated coeffs (HR) and CI
@@ -240,7 +249,7 @@ tidy_cox |>  # plot of hazard ratios and 95% CIs
 
 ## Visualizing Hazard Ratios (II)
 
-- **Result**
+-   **Result**
 
 ```{r}
 #| eval: true
@@ -274,10 +283,10 @@ tidy_cox |>
 
 ## Forest Plot Exercise
 
-- **Task**: customize the forest plot
-    - Use square rather than default circle for point estimates
-    - Set x-axis ticks at 0.5, 1, 2.0, and 4.0
-    - Add a title: "Cox Regression Results for GBC Data"
+-   **Task**: customize the forest plot
+    -   Use square rather than default circle for point estimates
+    -   Set x-axis ticks at 0.5, 1, 2.0, and 4.0
+    -   Add a title: "Cox Regression Results for GBC Data"
 
 ```{r}
 #| code-fold: true
@@ -299,7 +308,6 @@ tidy_cox |>
   )
 ```
 
-
 # Cox Model Prediction and Diagnostics
 
 ## Model-Based Prediction
@@ -309,37 +317,40 @@ tidy_cox |>
      $$
 
 -   Prepare new data for prediction
-    - A post-menpausal woman older than 40, undergoing hormone therapy, with tumor grade II, tumor size 20 mm, and progesterone and estrogen receptor levels both 100 fmol/ml.
-```{r}
-#| eval: true
-# Create new data for prediction
-# specify all covariate values
-new_data <- data.frame(hormone = 2, meno = 2, age40 = 1, grade = factor(2), 
-                        size = 20, prog = 1, estrg = 1)
 
-new_data
-```
+    -   A post-menpausal woman older than 40, undergoing hormone therapy, with tumor grade II, tumor size 20 mm, and progesterone and estrogen receptor levels both 100 fmol/ml.
+
+    ```{r}
+    #| eval: true
+    # Create new data for prediction
+    # specify all covariate values
+    new_data <- data.frame(hormone = 2, meno = 2, age40 = 1, grade = factor(2), 
+                            size = 20, prog = 1, estrg = 1)
+
+    new_data
+    ```
 
 ## Tidy Survival Prediction
 
-- Use `survival::survfit()` to predict survival probabilities
-    - `newdata`: new data for prediction
-    - `times`: time points for prediction
-    - `broom::tidy()` to tidy the output
-```{r}
-#| eval: true
-# Predict survival probabilities for `newdata`
-pred_surv <- survfit(cox_fit, newdata = new_data[1, ])
-tidy_pred_surv <- tidy(pred_surv) # Tidy the survival prediction output
-head(tidy_pred_surv) # Display the first few rows of the tidy output
-```
+-   Use `survival::survfit()` to predict survival probabilities
 
+    -   `newdata`: new data for prediction
+    -   `times`: time points for prediction
+    -   `broom::tidy()` to tidy the output
+
+    ```{r}
+    #| eval: true
+    # Predict survival probabilities for `newdata`
+    pred_surv <- survfit(cox_fit, newdata = new_data[1, ])
+    tidy_pred_surv <- tidy(pred_surv) # Tidy the survival prediction output
+    head(tidy_pred_surv) # Display the first few rows of the tidy output
+    ```
 
 ## Visualizing Predicted Survival (I)
 
-- **Using `ggsurvfit` package**: `ggsurvfit()`
-    - Pass `survfit` object to `ggsurvfit()`
-    - Similar customization to KM curves
+-   **Using `ggsurvfit` package**: `ggsurvfit()`
+    -   Pass `survfit` object to `ggsurvfit()`
+    -   Similar customization to KM curves
 
 ```{r}
 #| eval: true
@@ -353,10 +364,9 @@ pred_fig <- pred_surv |>  # Pass the survfit object
   theme_classic() # Classic theme for clean look
 ```
 
-
 ## Visualizing Predicted Survival (II)
 
-- **Result**
+-   **Result**
 
 ```{r}
 #| eval: true
@@ -367,7 +377,7 @@ pred_fig # print figure
 
 ## Prediction Graphics Exercise
 
-- **Task**: Add horizontal grid lines
+-   **Task**: Add horizontal grid lines
 
 ```{r}
 #| eval: true
@@ -383,18 +393,15 @@ pred_fig + theme(panel.grid.major.y = element_line()) # Add horizontal grid line
 pred_fig + theme(panel.grid.major.y = element_line()) # Add horizontal grid lines
 ```
 
-
 ## Cox Model Diagnostics
 
 -   **Ph assumptions: Schoenfeld residuals**
     -   Difference between observed and expected covariate values at each event time
     -   Use `cox.zph()` to test PH assumption
     -   Use `survminer::ggcoxzph()` on `cox.zph` object to visualize Schoenfeld residuals
-
 -   **Functional form of covariates**
     -   Plot martingale residuals against (quantitative) covariates
-    -   Use `residuals(cox_fit, type = "martingale")` to get martingale residuals` 
-
+    -   Use `residuals(cox_fit, type = "martingale")` to get martingale residuals\`
 -   **Other aspects**
     -   Appropriateness of exponential link function
     -   Influential points/outliers
@@ -402,18 +409,20 @@ pred_fig + theme(panel.grid.major.y = element_line()) # Add horizontal grid line
 
 ## Schoenfeld Residuals
 
-- **Check proportionality**
-    - Focus on graphics; use $p$-value only as guideline
-```{r}
-#| eval: true
-library(survminer) # Load survminer package
-ph_test <- cox.zph(cox_fit) # Test proportional hazards assumption
-ggcoxzph(ph_test) # Visualize Schoenfeld residuals
-```
+-   **Check proportionality**
+
+    -   Focus on graphics; use $p$-value only as guideline
+
+    ```{r}
+    #| eval: true
+    library(survminer) # Load survminer package
+    ph_test <- cox.zph(cox_fit) # Test proportional hazards assumption
+    ggcoxzph(ph_test) # Visualize Schoenfeld residuals
+    ```
 
 ## Exponential Link Function
 
-- **Martingale vs. $\hat\beta^\mathrm{T} Z_i$**
+-   **Martingale vs.** $\hat\beta^\mathrm{T} Z_i$
 
 ```{r}
 #| eval: true
@@ -425,7 +434,7 @@ ggcoxdiagnostics(cox_fit, type = "martingale",    # martingale on y-axi
 
 ## Influential Points
 
-- **Deviance residuals** 
+-   **Deviance residuals**
 
 ```{r}
 #| eval: true
@@ -435,50 +444,37 @@ ggcoxdiagnostics(cox_fit, type = "deviance",  # deviance on y-axis
                  sline = FALSE)               # no smoothed line
 ```
 
-
 ## General Residual Graphics
 
-- **Basic arguments of `ggcoxdiagnostics()`**
-    - `coxph` object
-    - `type`: Residual type ("martingale", "deviance", "score", "schoenfeld", "dfbeta",
-"dfbetas", and "scaledsch")`
-    - `ox.scale`: Scale for x-axis ("linear.predictions", "observation.id", "time")
-    - `point.col`: Color of points
-    - `point.size`: Size of points
-    - etc.
-
-- More about `survminer`
-    - [survminer](https://rpkgs.datanovia.com/survminer/index.html) website
-
-
+-   **Basic arguments of `ggcoxdiagnostics()`**
+    -   `coxph` object
+    -   `type`: Residual type ("martingale", "deviance", "score", "schoenfeld", "dfbeta", "dfbetas", and "scaledsch")\`
+    -   `ox.scale`: Scale for x-axis ("linear.predictions", "observation.id", "time")
+    -   `point.col`: Color of points
+    -   `point.size`: Size of points
+    -   etc.
+-   More about `survminer`
+    -   [survminer](https://rpkgs.datanovia.com/survminer/index.html) website
 
 # Competing Risks Regression
 
 ## Sub-Distribution Hazard
 
-- **Definition**
-$$
-\Lambda_k(t\mid Z) = -\log\left\{1 - F_k(t\mid Z)\right\} 
-$$
-    - $F_k(t \mid Z)$: cumulative incidence function (CIF) of the $k$-th cause
-    - $\lambda_k(t \mid Z)=\Lambda_k'(t)$: risk of the $k$-th cause in presence of other competing events in the whole population
-    
-- **Different from cause-specific hazard**
-    - Cause-specific hazard 
-    $$\lambda^\mathrm{c}_k(t \mid Z) =  \Pr(t\leq T< t+ \mathrm{d}t\mid T\geq t, Z)/\mathrm{d}t $$
-    - Risk of the $k$-th cause in *survivors*
-
-
-
-
+-   **Definition** $$
+    \Lambda_k(t\mid Z) = -\log\left\{1 - F_k(t\mid Z)\right\} 
+    $$
+    -   $F_k(t \mid Z)$: cumulative incidence function (CIF) of the $k$-th cause
+    -   $\lambda_k(t \mid Z)=\Lambda_k'(t)$: risk of the $k$-th cause in presence of other competing events in the whole population
+-   **Different from cause-specific hazard**
+    -   Cause-specific hazard $$\lambda^\mathrm{c}_k(t \mid Z) =  \Pr(t\leq T< t+ \mathrm{d}t\mid T\geq t, Z)/\mathrm{d}t $$
+    -   Risk of the $k$-th cause in *survivors*
 
 ## Fine-Gray Model
 
-- **Proportional sub-distribution hazards** $$
-    \lambda_k(t \mid Z) = \lambda_0(t) \exp(\beta_1 Z_1 + \beta_2 Z_2 + \ldots + \beta_p Z_p)$$
-    - $\lambda_0(t)$: baseline sub-distribution hazard function
-    - $\exp(\beta_j)$: sub-distribution hazard ratio for covariate $Z_j$
-
+-   **Proportional sub-distribution hazards** $$
+      \lambda_k(t \mid Z) = \lambda_0(t) \exp(\beta_1 Z_1 + \beta_2 Z_2 + \ldots + \beta_p Z_p)$$
+    -   $\lambda_0(t)$: baseline sub-distribution hazard function
+    -   $\exp(\beta_j)$: sub-distribution hazard ratio for covariate $Z_j$
 
 ```{r}
 #| eval: true
@@ -489,10 +485,10 @@ head(trial) # Display the first few rows of the data
 
 ## Fitting Fine-Gray Model
 
-- **Using `cmprsk::crr()`**
-    - `formula`: `Surv(time, status) ~ covariates`
-        - `status`: a factor with first level indicating censoring and subsequent levels the competing risks
-    - `failcode`: event code for the cause of interest
+-   **Using `cmprsk::crr()`**
+    -   `formula`: `Surv(time, status) ~ covariates`
+        -   `status`: a factor with first level indicating censoring and subsequent levels the competing risks
+    -   `failcode`: event code for the cause of interest
 
 ```{r}
 #| eval: true
@@ -512,11 +508,10 @@ coef(fg_fit) # Extract coefficients
 vcov(fg_fit) |> head() # Extract variance-covariance matrix
 ```
 
-
 ## Tidy Fine-Gray Model Output
 
-- **Using `broom` package**: `broom::tidy()`
-    - Provides a tidy data frame for easy manipulation and visualization
+-   **Using `broom` package**: `broom::tidy()`
+    -   Provides a tidy data frame for easy manipulation and visualization
 
 ```{r}
 #| eval: true
@@ -524,11 +519,9 @@ tidy_fg <- tidy(fg_fit, exponentiate = TRUE, conf.int = TRUE) # Tidy model outpu
 tidy_fg # Display the tidy output
 ```
 
-
-
 ## Forest Plot Exercise
 
-- **Task**: Visualize sub-distribution hazard ratios and confidence intervals
+-   **Task**: Visualize sub-distribution hazard ratios and confidence intervals
 
 ```{r}
 #| code-fold: true
@@ -550,8 +543,8 @@ tidy_fg |>  # plot of sub-distribution hazard ratios and 95% CIs
 
 ## FG Regression Table (I)
 
-- **Using `gtsummary` package**: `tbl_regression()`
-    - Similarly to tabulating fitted `coxph` object
+-   **Using `gtsummary` package**: `tbl_regression()`
+    -   Similarly to tabulating fitted `coxph` object
 
 ```{r}
 #| eval: true
@@ -561,10 +554,9 @@ fg_tbl <- fg_fit |> tbl_regression(exponentiate = TRUE) |>  # Create a regressio
 
 ```
 
-
 ## FG Regression Table (II)
 
-- **Result**
+-   **Result**
 
 ```{r}
 #| eval: true
@@ -574,9 +566,10 @@ fg_tbl # display the regression table
 
 ## Model-Based Prediction
 
-- **Predicted cumulative incidence function (CIF)** $$
-    \hat F_k(t \mid z) = 1 - \exp\left\{-\hat\Lambda_k(t \mid z)\right\}
-    $$
+-   **Predicted cumulative incidence function (CIF)** $$
+      \hat F_k(t \mid z) = 1 - \exp\left\{-\hat\Lambda_k(t \mid z)\right\}
+      $$
+
 ```{r}
 #| eval: true
 # Predict cumulative incidence function for first 10 patients
@@ -588,21 +581,19 @@ fg_pred # Display the predicted CIF
 
 ## Key Takeaways
 
--  **Cox proportional hazards regression**
-    - Tidy output with `broom` and `gtsummary`
-    - Visualize hazard ratios with forest plots with `ggplot2`
-    - Model-based prediction with `survival::survfit()` and `ggsurvfit()`
-    - Model diagnostics with `survminer`
-
--  **Fine-Gray model for competing risks regression**
-    - Tidy output with `broom` and `gtsummary`
-    - Visualize sub-distribution hazard ratios with forest plots
-
+-   **Cox proportional hazards regression**
+    -   Tidy output with `broom` and `gtsummary`
+    -   Visualize hazard ratios with forest plots with `ggplot2`
+    -   Model-based prediction with `survival::survfit()` and `ggsurvfit()`
+    -   Model diagnostics with `survminer`
+-   **Fine-Gray model for competing risks regression**
+    -   Tidy output with `broom` and `gtsummary`
+    -   Visualize sub-distribution hazard ratios with forest plots
 
 ## Next Steps
 
-- **Machine learning**: build best predictive model with many predictors
-    - Regularized Cox regression
-    - Parametric AFT models
-    - Survival trees
-    - `tidymodels` packages (`censored`)
+-   **Machine learning**: build best predictive model with many predictors
+    -   Regularized Cox regression
+    -   Parametric AFT models
+    -   Survival trees
+    -   `tidymodels` packages (`censored`)
