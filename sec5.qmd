@@ -38,9 +38,64 @@ include-in-header:
 ---
 
 
+# Machine Learning Survival Models
+
+## Setting
+
+-   **With many covariates**
+    -   **Prediction accuracy**: under- vs over-fitting ![](images/ml_overfit.png){fig-align="center" width="70%"}
+        -   Too many predictors $\to$ overfitting
+    -   **Interpretation**: easier with fewer predictors
+
+## Regularized Cox Regression
+
+-  **Idea**
+    - Penalize the magnitude of coefficients ($L^q$-norm) to avoid overfitting
+
+-  **Elastic net**: minimize objective function
+    $$
+    \ell(\beta) = -\mbox{log-partial-likelihood}(\beta) + \lambda\sum_{j=1}^p\left\{\alpha|\beta_j|+2^{-1}(1-\alpha)\beta_j^2\right\}
+    $$
+    - $\lambda$: tuning parameter that controls the strength of penalty
+        - Determined by cross-validation
+    - $\alpha$: controls the type of penalty
+        - $\alpha = 0$ $\to$ ridge regression: handles correlated predictors better
+        - $\alpha = 1$ $\to$ lasso regression: performs variable selection
+
+
+<!-- # Overview of `tidymodels` and `censored` -->
+
+```{r}
+
+library(tidymodels)
+library(censored)
+
+# Load the data
+building_complaints <- modeldatatoo::data_building_complaints()
+glimpse(building_complaints)
+
+# The standard form for time-to-event data are Surv objects which capture the time as well as the event status. As with all transformations of the response, it is advisable to do this before heading into the model fitting process with tidymodels.
+
+building_complaints <- building_complaints %>% 
+  mutate(
+    disposition_surv = Surv(days_to_disposition, status == "CLOSED"), 
+    .keep = "unused"
+  )
+
+
+# Data splitting and resampling
+set.seed(403)
+complaints_split <- initial_validation_split(building_complaints)
+
+```
+
+
+
+# Basic Workflow
+
+# A Case Study
+
 
 # Summary
 
 ## Key Takeaways
-
-

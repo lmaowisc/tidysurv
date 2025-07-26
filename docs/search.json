@@ -1430,5 +1430,19 @@
       "Home",
       "Module 5. Machine Learning"
     ]
+  },
+  {
+    "objectID": "sec5.html#setting",
+    "href": "sec5.html#setting",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Setting",
+    "text": "Setting\n\nWith many covariates\n\nPrediction accuracy: under- vs over-fitting \n\nToo many predictors \\(\\to\\) overfitting\n\nInterpretation: easier with fewer predictors"
+  },
+  {
+    "objectID": "sec5.html#regularized-cox-regression",
+    "href": "sec5.html#regularized-cox-regression",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Regularized Cox Regression",
+    "text": "Regularized Cox Regression\n\nIdea\n\nPenalize the magnitude of coefficients (\\(L^q\\)-norm) to avoid overfitting\n\nElastic net: minimize objective function \\[\n\\ell(\\beta) = -\\mbox{log-partial-likelihood}(\\beta) + \\lambda\\sum_{j=1}^p\\left\\{\\alpha|\\beta_j|+2^{-1}(1-\\alpha)\\beta_j^2\\right\\}\n\\]\n\n\\(\\lambda\\): tuning parameter that controls the strength of penalty\n\nDetermined by cross-validation\n\n\\(\\alpha\\): controls the type of penalty\n\n\\(\\alpha = 0\\) \\(\\to\\) ridge regression: handles correlated predictors better\n\\(\\alpha = 1\\) \\(\\to\\) lasso regression: performs variable selection\n\n\n\n\n\nlibrary(tidymodels)\nlibrary(censored)\n\n# Load the data\nbuilding_complaints &lt;- modeldatatoo::data_building_complaints()\nglimpse(building_complaints)\n\n# The standard form for time-to-event data are Surv objects which capture the time as well as the event status. As with all transformations of the response, it is advisable to do this before heading into the model fitting process with tidymodels.\n\nbuilding_complaints &lt;- building_complaints %&gt;% \n  mutate(\n    disposition_surv = Surv(days_to_disposition, status == \"CLOSED\"), \n    .keep = \"unused\"\n  )\n\n\n# Data splitting and resampling\nset.seed(403)\ncomplaints_split &lt;- initial_validation_split(building_complaints)"
   }
 ]
