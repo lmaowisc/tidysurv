@@ -229,7 +229,7 @@ Lu Mao
 <h2 id="toc-title">Table of contents</h2>
 <ul>
 <li><a href="#/machine-learning-survival-models" id="/toc-machine-learning-survival-models">Machine Learning Survival Models</a></li>
-<li><a href="#/basic-workflow" id="/toc-basic-workflow">Basic Workflow</a></li>
+<li><a href="#/tidymodels-workflows" id="/toc-tidymodels-workflows"><code>tidymodels</code> Workflows</a></li>
 <li><a href="#/a-case-study" id="/toc-a-case-study">A Case Study</a></li>
 <li><a href="#/summary" id="/toc-summary">Summary</a></li>
 </ul>
@@ -266,48 +266,260 @@ Lu Mao
 <ul>
 <li><span class="math inline">\(\lambda\)</span>: tuning parameter that controls the strength of penalty
 <ul>
-<li>Determined by cross-validation</li>
+<li>Determined by <em>cross-validation</em></li>
 </ul></li>
 <li><span class="math inline">\(\alpha\)</span>: controls the type of penalty
 <ul>
 <li><span class="math inline">\(\alpha = 0\)</span> <span class="math inline">\(\to\)</span> ridge regression: handles correlated predictors better</li>
 <li><span class="math inline">\(\alpha = 1\)</span> <span class="math inline">\(\to\)</span> lasso regression: performs variable selection</li>
 </ul></li>
+<li><strong>Implementation</strong>: <code>glmnet</code> package</li>
 </ul></li>
 </ul>
-<!-- # Overview of `tidymodels` and `censored` -->
+</section>
+<section id="survival-trees" class="slide level2">
+<h2>Survival Trees</h2>
+<ul>
+<li><strong>Decision trees</strong>
+<ul>
+<li><em>Classification and Regression Trees</em> (CART; Breiman et al., 1984)</li>
+<li>Root node (all sample) <span class="math inline">\(\stackrel{\rm covariates}{\rightarrow}\)</span> split into (more homogeneous) daughter nodes <span class="math inline">\(\stackrel{\rm covariates}{\rightarrow}\)</span> split recursively</li>
+</ul></li>
+<li><strong>Growing the tree</strong>
+<ul>
+<li>Starting with root node, search partition criteria <span class="math display">\[Z_{\cdot j}\leq z \,\,\,(j=1,\ldots, p; z \in\mathbb R)\]</span> for one that minimizes “impurity” (e.g., mean squared deviance residuals) within daughter nodes <span class="math display">\[\begin{equation}\label{eq:tree:nodes}
+A=\{i=1,\ldots, n: Z_{ij}\leq z\} \mbox{ and }
+B=\{i=1,\ldots, n: Z_{ij}&gt; z\}
+\end{equation}\]</span></li>
+<li>Recursive splitting until terminal nodes sufficiently “pure” in outcome</li>
+</ul></li>
+</ul>
+</section>
+<section id="complexity-control-and-prediction" class="slide level2">
+<h2>Complexity Control and Prediction</h2>
+<ul>
+<li><strong>Pruning the tree</strong>
+<ul>
+<li>Cut overgrown branches to prevent overfitting</li>
+<li>Penalize number of terminal nodes</li>
+<li>Tune complexity parameter (or minimum size of terminal node)</li>
+</ul></li>
+<li><strong>Prediction</strong>
+<ul>
+<li>New <span class="math inline">\(z\)</span> <span class="math inline">\(\rightarrow\)</span> terminal node <span class="math inline">\(\rightarrow\)</span> KM estimates (or median survival)</li>
+</ul></li>
+<li><strong>Implementation</strong>: <code>rpart</code> package</li>
+</ul>
+</section>
+<section id="random-forests" class="slide level2">
+<h2>Random Forests</h2>
+<ul>
+<li><strong>Limitation of a single tree</strong>
+<ul>
+<li>High variance: small changes in data can lead to large changes in predictions</li>
+</ul></li>
+<li><strong>Random forests</strong>
+<ul>
+<li>Bootstrap samples from training data</li>
+<li>Take a random subset of covariates to split on (decorrelate the trees)</li>
+<li>Tune the number of covariates to split on</li>
+</ul></li>
+<li><strong>Implementation</strong>: <code>aorsf</code> package</li>
+</ul>
+</section>
+<section id="model-evaluation" class="slide level2">
+<h2>Model Evaluation</h2>
+<ul>
+<li><strong>Brier score</strong>
+<ul>
+<li>Mean squared error between observed survival status and predicted survival probability</li>
+<li>Inverse probability censoring weighting (IPCW) to account for censoring</li>
+<li>Integrated Brier score: average Brier score over a time interval</li>
+</ul></li>
+<li><strong>ROC AUC</strong>
+<ul>
+<li>Area under the receiver operating characteristic (ROC) curve for survival status</li>
+<li>IPCW to handle censoring</li>
+<li>Concordance index: overall AUC over time</li>
+</ul></li>
+</ul>
+</section></section>
+<section>
+<section id="tidymodels-workflows" class="title-slide slide level1 center">
+<h1><code>tidymodels</code> Workflows</h1>
+
+</section>
+<section id="overview-of-tidymodels-and-censored" class="slide level2">
+<h2>Overview of <code>tidymodels</code> and <code>censored</code></h2>
+<ul>
+<li><strong><code>tidymodels</code></strong>: a collection of packages for modeling and machine learning in R
+<ul>
+<li>Provides a <em>consistent interface</em> for model training, tuning, and evaluation
+<ul>
+<li>Key package <code>parsnip</code></li>
+</ul></li>
+<li>Supports various model types, including regression, classification, and survival analysis</li>
+</ul></li>
+<li><strong><code>censored</code></strong>: a <code>parsnip</code> extension package for survival data
+<ul>
+<li>Implements parametric, semiparametric, and tree-based survival models</li>
+</ul></li>
+</ul>
+</section>
+<section id="data-preparation-and-splitting" class="slide level2">
+<h2>Data Preparation and Splitting</h2>
+<ul>
+<li><strong>Create a <code>Surv</code> object</strong> as response
+<ul>
+<li><code>Surv(time, event)</code></li>
+</ul></li>
+</ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="fu">library</span>(tidymodels)</span>
 <span id="cb1-2"><a></a><span class="fu">library</span>(censored)</span>
-<span id="cb1-3"><a></a></span>
-<span id="cb1-4"><a></a><span class="co"># Load the data</span></span>
-<span id="cb1-5"><a></a>building_complaints <span class="ot">&lt;-</span> modeldatatoo<span class="sc">::</span><span class="fu">data_building_complaints</span>()</span>
-<span id="cb1-6"><a></a><span class="fu">glimpse</span>(building_complaints)</span>
-<span id="cb1-7"><a></a></span>
-<span id="cb1-8"><a></a><span class="co"># The standard form for time-to-event data are Surv objects which capture the time as well as the event status. As with all transformations of the response, it is advisable to do this before heading into the model fitting process with tidymodels.</span></span>
-<span id="cb1-9"><a></a></span>
-<span id="cb1-10"><a></a>building_complaints <span class="ot">&lt;-</span> building_complaints <span class="sc">%&gt;%</span> </span>
-<span id="cb1-11"><a></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-12"><a></a>    <span class="at">disposition_surv =</span> <span class="fu">Surv</span>(days_to_disposition, status <span class="sc">==</span> <span class="st">"CLOSED"</span>), </span>
-<span id="cb1-13"><a></a>    <span class="at">.keep =</span> <span class="st">"unused"</span></span>
-<span id="cb1-14"><a></a>  )</span>
-<span id="cb1-15"><a></a></span>
-<span id="cb1-16"><a></a></span>
-<span id="cb1-17"><a></a><span class="co"># Data splitting and resampling</span></span>
-<span id="cb1-18"><a></a><span class="fu">set.seed</span>(<span class="dv">403</span>)</span>
-<span id="cb1-19"><a></a>complaints_split <span class="ot">&lt;-</span> <span class="fu">initial_validation_split</span>(building_complaints)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-3"><a></a>df <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span>  </span>
+<span id="cb1-4"><a></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-5"><a></a>    <span class="at">surv_obj =</span> <span class="fu">Surv</span>(time, event), <span class="co"># create the Surv object as response variable</span></span>
+<span id="cb1-6"><a></a>    <span class="at">.keep =</span> <span class="st">"unused"</span>              <span class="co"># discard original time and event columns</span></span>
+<span id="cb1-7"><a></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li><strong>Data splitting</strong>
+<ul>
+<li><code>initial_split()</code>: splits data into training and testing sets</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a>df_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(flight_data, <span class="at">prop =</span> <span class="dv">3</span><span class="sc">/</span><span class="dv">4</span>) <span class="co"># default ratio 3:1</span></span>
+<span id="cb2-2"><a></a>df_train <span class="ot">&lt;-</span> <span class="fu">training</span>(df_split) <span class="co"># obtain training set</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="model-specification" class="slide level2">
+<h2>Model Specification</h2>
+<ul>
+<li><strong>Model type</strong>
+<ul>
+<li><code>survival_reg()</code>: parametric AFT models</li>
+<li><code>proportional_hazards(penalty = tune())</code>: (regularized) Cox PH models</li>
+<li><code>decision_tree(complexity = tune())</code>: decision trees</li>
+<li><code>rand_forest(mtry = tune())</code>: random forests</li>
+</ul></li>
+<li><strong>Set engine and mode</strong>
+<ul>
+<li><code>set_engine("survival")</code>: for AFT models</li>
+<li><code>set_engine("glmnet")</code>: for Cox PH models</li>
+<li><code>set_engine("aorsf")</code>: for random forests</li>
+<li><code>set_mode("censored regression")</code>: for survival models</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a>model_spec <span class="ot">&lt;-</span> <span class="fu">proportional_hazards</span>(<span class="at">penalty =</span> <span class="fu">tune</span>()) <span class="sc">|&gt;</span>  <span class="co"># regularized Cox model (tune lambda)</span></span>
+<span id="cb3-2"><a></a>  <span class="fu">set_engine</span>(<span class="st">"glmnet"</span>) <span class="sc">|&gt;</span>  <span class="co"># set engine to glmnet</span></span>
+<span id="cb3-3"><a></a>  <span class="fu">set_mode</span>(<span class="st">"censored regression"</span>) <span class="co"># set mode to censored regression</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="recipe-and-workflow" class="slide level2">
+<h2>Recipe and Workflow</h2>
+<ul>
+<li><strong>Recipe</strong>: a series of preprocessing steps for the data
+<ul>
+<li><code>recipe(response ~ ., data = df)</code>: specify response and predictors</li>
+<li><code>step_mutate()</code>: standardize numeric predictors <!-- -  `step_unknown()`: handle unknown levels in categorical variables --> <!-- -  `step_other()`: group low-frequency levels into "other" --></li>
+<li><code>step_dummy()</code>: convert categorical variables to dummy variables <!-- -  `step_zv()`: remove zero-variance predictors --></li>
+</ul></li>
+<li><strong>Workflow</strong>: combines model specification and recipe
+<ul>
+<li><code>workflow() |&gt; add_model(model_spec) |&gt; add_recipe(recipe)</code></li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a><span class="co"># Create a recipe</span></span>
+<span id="cb4-2"><a></a>model_recipe <span class="ot">&lt;-</span> <span class="fu">recipe</span>(surv_obj <span class="sc">~</span> ., <span class="at">data =</span> df_train) <span class="sc">|&gt;</span> <span class="co"># specify formula</span></span>
+<span id="cb4-3"><a></a>  <span class="fu">step_mutate</span>(<span class="at">z1 =</span> z1 <span class="sc">/</span> <span class="dv">1000</span>) <span class="sc">|&gt;</span>  <span class="co"># standardize z1  </span></span>
+<span id="cb4-4"><a></a>  <span class="fu">step_other</span>(z2, z3, <span class="at">threshold =</span> <span class="fl">0.02</span>) <span class="sc">|&gt;</span> <span class="co"># group levels with prop &lt; .02 into "other"</span></span>
+<span id="cb4-5"><a></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>())  <span class="co"># convert categorical variables to dummy variables</span></span>
+<span id="cb4-6"><a></a><span class="co"># Create a workflow by combining model and recipe</span></span>
+<span id="cb4-7"><a></a>model_wflow <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb4-8"><a></a>  <span class="fu">add_model</span>(model_spec) <span class="sc">|&gt;</span>   <span class="co"># add model specification</span></span>
+<span id="cb4-9"><a></a>  <span class="fu">add_recipe</span>(model_recipe)   <span class="co"># add recipe</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="tune-hyperparameters" class="slide level2">
+<h2>Tune Hyperparameters</h2>
+<ul>
+<li><strong>Cross-validation</strong>
+<ul>
+<li><code>df_train_folds &lt;- vfold_cv(df_train, v = k)</code>: create <em>k</em>-folds on training data (default 10)</li>
+<li><code>tune_grid(model_wflow, resamples = df_train_folds)</code>: tune hyperparameters using cross-validation</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a><span class="co"># k-fold cross-validation</span></span>
+<span id="cb5-2"><a></a>df_train_folds <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(df_train, <span class="at">v =</span> <span class="dv">10</span>) <span class="co"># 10-fold cross-validation</span></span>
+<span id="cb5-3"><a></a><span class="co"># Tune hyperparameters</span></span>
+<span id="cb5-4"><a></a>model_res <span class="ot">&lt;-</span> <span class="fu">tune_grid</span>(</span>
+<span id="cb5-5"><a></a>  model_wflow, </span>
+<span id="cb5-6"><a></a>  <span class="at">resamples =</span> df_train_folds, </span>
+<span id="cb5-7"><a></a>  <span class="at">grid =</span> <span class="dv">10</span>, <span class="co"># number of hyperparameter combinations to try</span></span>
+<span id="cb5-8"><a></a>  <span class="at">metrics =</span> <span class="fu">metric_set</span>(brier_survival, brier_survival_integrated,  <span class="co"># specify metrics</span></span>
+<span id="cb5-9"><a></a>                       roc_auc_survival, concordance_survival), </span>
+<span id="cb5-10"><a></a>  <span class="at">eval_time =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">84</span>, <span class="at">by =</span> <span class="dv">12</span>) <span class="co"># evaluation time points</span></span>
+<span id="cb5-11"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="finalize-workflow" class="slide level2">
+<h2>Finalize Workflow</h2>
+<ul>
+<li><strong>Examine validation results</strong>
+<ul>
+<li><code>collect_metrics(model_res)</code>: collect metrics from tuning results</li>
+<li><code>show_best(model_res, metric = "brier_survival_integrated", n = 5)</code>: show top 5 models based on Brier score</li>
+</ul></li>
+<li><strong>Workflow for best model</strong>
+<ul>
+<li><code>param_best &lt;- select_best(model_res, metric = "brier_survival_integrated")</code>: select best hyperparameters based on Brier score</li>
+<li><code>final_wl &lt;- finalize_workflow(model_wflow, param_best)</code>: finalize workflow with best hyperparameters</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a><span class="co"># Extract the best hyperparameters based on Brier score</span></span>
+<span id="cb6-2"><a></a>param_best <span class="ot">&lt;-</span> <span class="fu">select_best</span>(model_res, <span class="at">metric =</span> <span class="st">"brier_survival_integrated"</span>)</span>
+<span id="cb6-3"><a></a><span class="co"># Finalize the workflow with the best hyperparameters</span></span>
+<span id="cb6-4"><a></a>final_wl <span class="ot">&lt;-</span> model_wflow <span class="sc">|&gt;</span> <span class="fu">finalize_workflow</span>(param_best)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="fit-final-model" class="slide level2">
+<h2>Fit Final Model</h2>
+<ul>
+<li><strong>Fit the finalized workflow</strong>
+<ul>
+<li><code>final_mod &lt;- last_fit(final_wl, split = df_split)</code>: fit the finalized workflow on the testing set</li>
+<li><code>collect_metrics(final_mod)</code>: collect metrics of final model on test data</li>
+</ul></li>
+<li><strong>Make predictions</strong>
+<ul>
+<li><code>predict(final_mod, new_data = new_data, type = "time")</code>: predict survival times on new data</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a><span class="co"># Fit the finalized workflow on the testing set</span></span>
+<span id="cb7-2"><a></a>final_mod <span class="ot">&lt;-</span> <span class="fu">last_fit</span>(final_wl, <span class="at">split =</span> df_split)</span>
+<span id="cb7-3"><a></a><span class="co"># Collect metrics of final model on test data</span></span>
+<span id="cb7-4"><a></a><span class="fu">collect_metrics</span>(final_mod) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-5"><a></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"brier_survival_integrated"</span>)</span>
+<span id="cb7-6"><a></a><span class="co"># Make predictions on new data</span></span>
+<span id="cb7-7"><a></a>new_data <span class="ot">&lt;-</span> <span class="fu">testing</span>(df_split) <span class="sc">|&gt;</span>  <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) <span class="co"># take first 5 rows of test data</span></span>
+<span id="cb7-8"><a></a><span class="fu">predict</span>(final_mod, <span class="at">new_data =</span> new_data, <span class="at">type =</span> <span class="st">"time"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section></section>
-<section id="basic-workflow" class="title-slide slide level1 center">
-<h1>Basic Workflow</h1>
-
-</section>
-
+<section>
 <section id="a-case-study" class="title-slide slide level1 center">
 <h1>A Case Study</h1>
 
 </section>
-
+<section id="gbc-relapse-free-survival" class="slide level2">
+<h2>GBC: Relapse-Free Survival</h2>
+</section></section>
 <section>
 <section id="summary" class="title-slide slide level1 center">
 <h1>Summary</h1>

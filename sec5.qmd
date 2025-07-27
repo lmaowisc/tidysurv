@@ -57,15 +57,213 @@ include-in-header:
     \ell(\beta) = -\mbox{log-partial-likelihood}(\beta) + \lambda\sum_{j=1}^p\left\{\alpha|\beta_j|+2^{-1}(1-\alpha)\beta_j^2\right\}
     $$
     - $\lambda$: tuning parameter that controls the strength of penalty
-        - Determined by cross-validation
+        - Determined by *cross-validation*
     - $\alpha$: controls the type of penalty
         - $\alpha = 0$ $\to$ ridge regression: handles correlated predictors better
         - $\alpha = 1$ $\to$ lasso regression: performs variable selection
 
+    -  **Implementation**: `glmnet` package
 
-<!-- # Overview of `tidymodels` and `censored` -->
+## Survival Trees 
+
+-   **Decision trees**
+    -   *Classification and Regression Trees* (CART; Breiman et al., 1984)
+    -   Root node (all sample) $\stackrel{\rm covariates}{\rightarrow}$ split into (more homogeneous) daughter nodes $\stackrel{\rm covariates}{\rightarrow}$ split recursively
+
+-   **Growing the tree**
+    -   Starting with root node, search partition criteria $$Z_{\cdot j}\leq z \,\,\,(j=1,\ldots, p; z \in\mathbb R)$$ for one that minimizes "impurity"
+    (e.g., mean squared deviance residuals) within daughter nodes \begin{equation}\label{eq:tree:nodes}
+        A=\{i=1,\ldots, n: Z_{ij}\leq z\} \mbox{ and } 
+        B=\{i=1,\ldots, n: Z_{ij}> z\}
+        \end{equation}
+    -   Recursive splitting until terminal nodes sufficiently "pure" in outcome
+
+## Complexity Control and Prediction
+
+-   **Pruning the tree**
+    -   Cut overgrown branches to prevent overfitting
+    -   Penalize number of terminal nodes
+    -   Tune complexity parameter (or minimum size of terminal node)
+
+-   **Prediction**
+    -   New $z$ $\rightarrow$ terminal node $\rightarrow$ KM estimates (or median survival)
+
+-   **Implementation**: `rpart` package
+
+## Random Forests
+
+-   **Limitation of a single tree**
+    -   High variance: small changes in data can lead to large changes in predictions
+
+-   **Random forests**
+    -   Bootstrap samples from training data
+    -   Take a random subset of covariates to split on (decorrelate the trees)
+    -   Tune the number of covariates to split on
+
+-   **Implementation**: `aorsf` package
+
+## Model Evaluation
+
+- **Brier score**
+    -  Mean squared error between observed survival status and predicted survival probability
+    -  Inverse probability censoring weighting (IPCW) to account for censoring
+    -  Integrated Brier score: average Brier score over a time interval
+
+- **ROC AUC**
+    -  Area under the receiver operating characteristic (ROC) curve for survival status
+    -  IPCW to handle censoring
+    -  Concordance index: overall AUC over time
+    
+    
+
+
+# `tidymodels` Workflows
+
+## Overview of `tidymodels` and `censored`
+
+-  **`tidymodels`**: a collection of packages for modeling and machine learning in R
+    -   Provides a *consistent interface* for model training, tuning, and evaluation
+        - Key package `parsnip`
+    -   Supports various model types, including regression, classification, and survival analysis
+    
+- **`censored`**: a `parsnip` extension package for survival data
+    -  Implements parametric, semiparametric, and tree-based survival models
+
+## Data Preparation and Splitting
+
+-   **Create a `Surv` object** as response 
+    -  `Surv(time, event)` 
+    
+```{r}
+library(tidymodels)
+library(censored)
+df <- df |>  
+  mutate(
+    surv_obj = Surv(time, event), # create the Surv object as response variable
+    .keep = "unused"              # discard original time and event columns
+  )
+```
+    
+-   **Data splitting**
+    - `initial_split()`: splits data into training and testing sets
+```{r}
+df_split <- initial_split(flight_data, prop = 3/4) # default ratio 3:1
+df_train <- training(df_split) # obtain training set
+```
+
+## Model Specification
+
+- **Model type**
+    - `survival_reg()`: parametric AFT models
+    - `proportional_hazards(penalty = tune())`: (regularized) Cox PH models
+    - `decision_tree(complexity = tune()) `: decision trees
+    - `rand_forest(mtry = tune())`: random forests 
+- **Set engine and mode**
+    - `set_engine("survival")`: for AFT models
+    - `set_engine("glmnet")`: for Cox PH models
+    - `set_engine("aorsf")`: for random forests
+    - `set_mode("censored regression")`: for survival models
+    
+```{r}
+model_spec <- proportional_hazards(penalty = tune()) |>  # regularized Cox model (tune lambda)
+  set_engine("glmnet") |>  # set engine to glmnet
+  set_mode("censored regression") # set mode to censored regression
+```
+
+## Recipe and Workflow
+
+- **Recipe**: a series of preprocessing steps for the data
+    -  `recipe(response ~ ., data = df)`: specify response and predictors
+    -  `step_mutate()`: standardize numeric predictors
+    <!-- -  `step_unknown()`: handle unknown levels in categorical variables -->
+    <!-- -  `step_other()`: group low-frequency levels into "other" -->
+    -  `step_dummy()`: convert categorical variables to dummy variables
+    <!-- -  `step_zv()`: remove zero-variance predictors -->
+
+- **Workflow**: combines model specification and recipe
+    -  `workflow() |> add_model(model_spec) |> add_recipe(recipe)`
 
 ```{r}
+# Create a recipe
+model_recipe <- recipe(surv_obj ~ ., data = df_train) |> # specify formula
+  step_mutate(z1 = z1 / 1000) |>  # standardize z1  
+  step_other(z2, z3, threshold = 0.02) |> # group levels with prop < .02 into "other"
+  step_dummy(all_nominal_predictors())  # convert categorical variables to dummy variables
+# Create a workflow by combining model and recipe
+model_wflow <- workflow() |> 
+  add_model(model_spec) |>   # add model specification
+  add_recipe(model_recipe)   # add recipe
+```
+
+## Tune Hyperparameters
+
+- **Cross-validation**
+    - `df_train_folds <- vfold_cv(df_train, v = k)`: create *k*-folds on training data (default 10)
+    -  `tune_grid(model_wflow, resamples = df_train_folds)`: tune hyperparameters using cross-validation
+
+```{r}
+# k-fold cross-validation
+df_train_folds <- vfold_cv(df_train, v = 10) # 10-fold cross-validation
+# Tune hyperparameters
+model_res <- tune_grid(
+  model_wflow, 
+  resamples = df_train_folds, 
+  grid = 10, # number of hyperparameter combinations to try
+  metrics = metric_set(brier_survival, brier_survival_integrated,  # specify metrics
+                       roc_auc_survival, concordance_survival), 
+  eval_time = seq(0, 84, by = 12) # evaluation time points
+)
+```
+
+## Finalize Workflow
+
+- **Examine validation results**
+    - `collect_metrics(model_res)`: collect metrics from tuning results
+    - `show_best(model_res, metric = "brier_survival_integrated", n = 5)`: show top 5 models based on Brier score
+
+- **Workflow for best model**
+    - `param_best <- select_best(model_res, metric = "brier_survival_integrated")`: select best hyperparameters based on Brier score
+    - `final_wl <- finalize_workflow(model_wflow, param_best)`: finalize workflow with best hyperparameters
+
+```{r}
+# Extract the best hyperparameters based on Brier score
+param_best <- select_best(model_res, metric = "brier_survival_integrated")
+# Finalize the workflow with the best hyperparameters
+final_wl <- model_wflow |> finalize_workflow(param_best)
+```
+
+## Fit Final Model
+
+- **Fit the finalized workflow**
+    - `final_mod <- last_fit(final_wl, split = df_split)`: fit the finalized workflow on the testing set
+    - `collect_metrics(final_mod)`: collect metrics of final model on test data
+
+- **Make predictions**
+    - `predict(final_mod, new_data = new_data, type = "time")`: predict survival times on new data
+
+```{r}
+
+# Fit the finalized workflow on the testing set
+final_mod <- last_fit(final_wl, split = df_split)
+# Collect metrics of final model on test data
+collect_metrics(final_mod) %>% 
+  filter(.metric == "brier_survival_integrated")
+# Make predictions on new data
+new_data <- testing(df_split) |>  slice(1:5) # take first 5 rows of test data
+predict(final_mod, new_data = new_data, type = "time")
+```
+
+
+
+# A Case Study
+
+## GBC: Relapse-Free Survival 
+
+
+
+
+```{r}
+#| echo: false
 
 library(tidymodels)
 library(censored)
@@ -87,13 +285,191 @@ building_complaints <- building_complaints %>%
 set.seed(403)
 complaints_split <- initial_validation_split(building_complaints)
 
+# Pull out training data and graph
+complaints_train <- training(complaints_split)
+survfit(disposition_surv ~ 1, data = complaints_train) %>% plot()
+
+#--------------------------
+# Weibull AFT regression
+#--------------------------
+
+
+#  The censored package includes parametric, semi-parametric, and tree-based models for this type of analysis. To start, we are fitting a parametric survival model with the default of assuming a Weibull distribution on the time to disposition.
+
+survreg_spec <- survival_reg() |> 
+  set_engine("survival") |>  
+  set_mode("censored regression")
+
+# Recipe for the model
+rec_other <- recipe(
+  disposition_surv ~ ., data = complaints_train) |> # formula 
+  step_unknown(complaint_priority) |> # set missing complaint_priority to "unknown"
+  step_rm(complaint_category) |> # remove complaint_category
+  step_novel(community_board, unit) |>  # set new levels of community_board and unit to "other"
+  step_other(community_board, unit, threshold = 0.02) # set low frequency levels of community_board and unit to "other"
+
+
+# We combine the recipe and the model into a workflow. This allows us to easily resample the model because all preprocessing steps are applied to the training set and the validation set for us.
+
+# Create a workflow
+survreg_wflow <- workflow() |>  
+  add_model(survreg_spec) |> 
+    add_recipe(rec_other) 
+
+# Fit the model to the training data
+# k-fold cross-validation
+complaints_train_folds <- vfold_cv(complaints_train)
+
+# Validation
+complaints_rset <- validation_set(complaints_split)
+
+
+survival_metrics <- metric_set(brier_survival_integrated, brier_survival,
+                               roc_auc_survival, concordance_survival)
+# survival_metrics <- metric_set(roc_auc_survival)
+# survival_metrics <- metric_set(brier_survival_integrated, brier_survival,
+#                                roc_auc_survival)
+
+evaluation_time_points <- seq(0, 300, 30)
+
+set.seed(1)
+survreg_res <- fit_resamples(
+  survreg_wflow,
+  # resamples = complaints_rset,
+  resamples = complaints_train_folds,
+  metrics = survival_metrics,
+  eval_time = evaluation_time_points, 
+  control = control_resamples(save_pred = TRUE)
+)
+
+# Collect the results
+preds <- collect_predictions(survreg_res)
+preds
+
+preds$.pred[[1]]
+
+collect_metrics(survreg_res) %>% 
+  filter(.metric == "roc_auc_survival") %>% 
+  ggplot(aes(.eval_time, mean)) + 
+  geom_line() + 
+  labs(x = "Evaluation Time", y = "Area Under the ROC Curve")
+
+
+collect_metrics(survreg_res) %>% 
+  filter(.metric == "brier_survival_integrated")
+
+collect_metrics(survreg_res) %>% 
+  filter(.metric == "concordance_survival")
+
+
+## Other models
+
+# create the model specifications and tag several hyperparameters for tuning. For the random forest, we are using the "aorsf" engine for accelerated oblique random survival forests. An oblique tree can split on linear combinations of the predictors, i.e., it provides more flexibility in the splits than a tree which splits on a single predictor. For the regularized model, we are using the "glmnet" engine for a semi-parametric Cox proportional hazards model.
+
+rec_unknown <- recipe(disposition_surv ~ ., data = complaints_train) %>% 
+  step_unknown(complaint_priority) 
+
+rec_dummies <- rec_unknown %>% 
+  step_novel(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors()) %>% 
+  step_zv(all_predictors()) %>% 
+  step_normalize(all_numeric_predictors())
+
+
+oblique_spec <- rand_forest(mtry = tune(), min_n = tune()) %>% 
+  set_engine("aorsf") %>% 
+  set_mode("censored regression")
+
+oblique_wflow <- workflow() %>% 
+  add_recipe(rec_unknown) %>% 
+  add_model(oblique_spec)
+
+coxnet_spec <- proportional_hazards(penalty = tune()) %>% 
+  set_engine("glmnet") %>% 
+  set_mode("censored regression")
+
+coxnet_wflow <- workflow() %>% 
+  add_recipe(rec_dummies) %>% 
+  add_model(coxnet_spec)
+
+## Tune parameters
+
+set.seed(1)
+oblique_res <- tune_grid(
+  oblique_wflow,
+  resamples = complaints_rset,
+  grid = 10,
+  metrics = survival_metrics,
+  eval_time = evaluation_time_points, 
+  control = control_grid(save_workflow = TRUE)
+)
+#> i Creating pre-processing data to finalize unknown parameter: mtry
+
+set.seed(1)
+coxnet_res <- tune_grid(
+  coxnet_wflow,
+  resamples = complaints_train_folds,
+  grid = 10,
+  metrics = survival_metrics,
+  eval_time = evaluation_time_points, 
+  control = control_grid(save_workflow = TRUE)
+)
+
+# do any of these models perform better than the parametric survival model?
+
+show_best(oblique_res, metric = "brier_survival_integrated", n = 5)
+
+show_best(coxnet_res, metric = "brier_survival_integrated", n = 5)
+
+
+# We chose the random forest model as the final model. So let’s finalize the workflow by replacing the tune() placeholders with the best hyperparameters.
+
+param_best <- select_best(oblique_res, metric = "brier_survival_integrated")
+
+last_oblique_wflow <- finalize_workflow(oblique_wflow, param_best)
+
+
+set.seed(2)
+last_oblique_fit <- last_fit(
+  last_oblique_wflow, 
+  split = complaints_split,
+  metrics = survival_metrics,
+  eval_time = evaluation_time_points, 
+)
+
+collect_metrics(last_oblique_fit) %>% 
+  filter(.metric == "brier_survival_integrated")
+#> # A tibble: 1 × 5
+#>   .metric                   .estimator .estimate .eval_time .config             
+#>   <chr>                     <chr>          <dbl>      <dbl> <chr>               
+#> 1 brier_survival_integrated standard      0.0431         NA Preprocessor1_Model1
+
+# Plot model performance on test data
+
+brier_test <- collect_metrics(last_oblique_fit) %>% 
+  filter(.metric == "brier_survival") %>% 
+  mutate(Data = "Testing") %>% 
+  rename(mean = .estimate)
+
+
+brier_test <- collect_metrics(last_oblique_fit) %>% 
+  filter(.metric == "roc_auc_survival") %>% 
+  rename(mean = .estimate)
+
+brier_test %>% 
+  ggplot(aes(.eval_time, mean)) + 
+  geom_line() + 
+  labs(x = "Evaluation Time", y = "Brier Score")
+
+
+# To finish, we can extract the fitted workflow to either predict directly on new data or deploy the model.
+
+complaints_model <- extract_workflow(last_oblique_fit)
+
+complaints_5 <- testing(complaints_split) %>% slice(1:5)
+predict(complaints_model, new_data = complaints_5, type = "time")
+
 ```
-
-
-
-# Basic Workflow
-
-# A Case Study
 
 
 # Summary

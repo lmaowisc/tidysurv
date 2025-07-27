@@ -1443,6 +1443,118 @@
     "href": "sec5.html#regularized-cox-regression",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Regularized Cox Regression",
-    "text": "Regularized Cox Regression\n\nIdea\n\nPenalize the magnitude of coefficients (\\(L^q\\)-norm) to avoid overfitting\n\nElastic net: minimize objective function \\[\n\\ell(\\beta) = -\\mbox{log-partial-likelihood}(\\beta) + \\lambda\\sum_{j=1}^p\\left\\{\\alpha|\\beta_j|+2^{-1}(1-\\alpha)\\beta_j^2\\right\\}\n\\]\n\n\\(\\lambda\\): tuning parameter that controls the strength of penalty\n\nDetermined by cross-validation\n\n\\(\\alpha\\): controls the type of penalty\n\n\\(\\alpha = 0\\) \\(\\to\\) ridge regression: handles correlated predictors better\n\\(\\alpha = 1\\) \\(\\to\\) lasso regression: performs variable selection\n\n\n\n\n\nlibrary(tidymodels)\nlibrary(censored)\n\n# Load the data\nbuilding_complaints &lt;- modeldatatoo::data_building_complaints()\nglimpse(building_complaints)\n\n# The standard form for time-to-event data are Surv objects which capture the time as well as the event status. As with all transformations of the response, it is advisable to do this before heading into the model fitting process with tidymodels.\n\nbuilding_complaints &lt;- building_complaints %&gt;% \n  mutate(\n    disposition_surv = Surv(days_to_disposition, status == \"CLOSED\"), \n    .keep = \"unused\"\n  )\n\n\n# Data splitting and resampling\nset.seed(403)\ncomplaints_split &lt;- initial_validation_split(building_complaints)"
+    "text": "Regularized Cox Regression\n\nIdea\n\nPenalize the magnitude of coefficients (\\(L^q\\)-norm) to avoid overfitting\n\nElastic net: minimize objective function \\[\n\\ell(\\beta) = -\\mbox{log-partial-likelihood}(\\beta) + \\lambda\\sum_{j=1}^p\\left\\{\\alpha|\\beta_j|+2^{-1}(1-\\alpha)\\beta_j^2\\right\\}\n\\]\n\n\\(\\lambda\\): tuning parameter that controls the strength of penalty\n\nDetermined by cross-validation\n\n\\(\\alpha\\): controls the type of penalty\n\n\\(\\alpha = 0\\) \\(\\to\\) ridge regression: handles correlated predictors better\n\\(\\alpha = 1\\) \\(\\to\\) lasso regression: performs variable selection\n\nImplementation: glmnet package"
+  },
+  {
+    "objectID": "sec5.html#survival-trees",
+    "href": "sec5.html#survival-trees",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Survival Trees",
+    "text": "Survival Trees\n\nDecision trees\n\nClassification and Regression Trees (CART; Breiman et al., 1984)\nRoot node (all sample) \\(\\stackrel{\\rm covariates}{\\rightarrow}\\) split into (more homogeneous) daughter nodes \\(\\stackrel{\\rm covariates}{\\rightarrow}\\) split recursively\n\nGrowing the tree\n\nStarting with root node, search partition criteria \\[Z_{\\cdot j}\\leq z \\,\\,\\,(j=1,\\ldots, p; z \\in\\mathbb R)\\] for one that minimizes “impurity” (e.g., mean squared deviance residuals) within daughter nodes \\[\\begin{equation}\\label{eq:tree:nodes}\nA=\\{i=1,\\ldots, n: Z_{ij}\\leq z\\} \\mbox{ and }\nB=\\{i=1,\\ldots, n: Z_{ij}&gt; z\\}\n\\end{equation}\\]\nRecursive splitting until terminal nodes sufficiently “pure” in outcome"
+  },
+  {
+    "objectID": "sec5.html#splitting-criterion",
+    "href": "sec5.html#splitting-criterion",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Splitting Criterion",
+    "text": "Splitting Criterion\n\nObjective function\n\nChoose partition \\(A|B\\) to minimize \\[\nR(A\\mid\\mid B)=\\hat P(A)\\hat{\\mathcal G}(A)+\\hat P(B)\\hat{\\mathcal G}(B)\n\\]\n\n\\(\\hat P(A)\\), \\(\\hat P(B)\\): proportions of observations in daughter nodes\n\\(\\hat{\\mathcal G}(A)\\), \\(\\hat{\\mathcal G}(B)\\): impurity measures within daughter nodes\n\n\nImpurity measure\n\nCategorical \\(Y \\in\\{1,\\ldots, K\\}\\): Gini index \\(\\pr(Y_i\\neq Y_j) = 1-\\sum_{k=1}^K \\pi_k^2\\)\nContinuous: mean squared error\nSurvival: mean squared deviance residuals (Cox model with binary node) \\[\\begin{equation}\\label{eq:tree:deviance}\nR(A\\mid\\mid B)=n^{-1}\\sum_{i \\in A}d_{i}^2 +n^{-1}\\sum_{i \\in B}d_{i}^2\n\\end{equation}\\]"
+  },
+  {
+    "objectID": "sec5.html#pruning-the-tree",
+    "href": "sec5.html#pruning-the-tree",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Pruning the Tree",
+    "text": "Pruning the Tree\n\nPenalize complexity\n\nCut overgrown branches \\(\\to\\) prevent overfitting \\(\\to\\) generalizability\n\nMinimize \\(R(\\mathcal T;\\lambda)=R(\\mathcal T)+\\lambda|\\mathcal T|\\)\n\n\\(R(\\mathcal T)\\): mean squared (deviance) residuals for terminal nodes of tree \\(\\mathcal T\\)\n\\(|\\mathcal T|\\): number of terminal nodes\n\\(\\lambda\\geq 0\\): complexity parameter determined by cross-validation\n\n\nFinal tree\n\n\\(\\mathcal T^{\\rm opt} = \\arg\\min_{\\mathcal T}R(\\mathcal T;\\lambda_{\\rm opt})\\)\n\\(\\mathcal T^{\\rm opt}(z)\\): terminal node for new covariate vector \\(z\\)\n\\(\\hat S(t\\mid z)\\): KM estimates in node \\(\\mathcal T^{\\rm opt}(z)\\)\n\nImpurity measure\n\nCategorical \\(Y \\in\\{1,\\ldots, K\\}\\): Gini index \\(\\pr(Y_i\\neq Y_j) = 1-\\sum_{k=1}^K \\pi_k^2\\)\nContinuous: mean squared error\nSurvival: mean squared deviance residuals (Cox model with binary node) \\[\\begin{equation}\\label{eq:tree:deviance}\nR(A\\mid\\mid B)=n^{-1}\\sum_{i \\in A}d_{i}^2 +n^{-1}\\sum_{i \\in B}d_{i}^2\n\\end{equation}\\]"
+  },
+  {
+    "objectID": "sec5.html#complexity-control-and-prediction",
+    "href": "sec5.html#complexity-control-and-prediction",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Complexity Control and Prediction",
+    "text": "Complexity Control and Prediction\n\nPruning the tree\n\nCut overgrown branches to prevent overfitting\nPenalize number of terminal nodes\nTune complexity parameter (or minimum size of terminal node)\n\nPrediction\n\nNew \\(z\\) \\(\\rightarrow\\) terminal node \\(\\rightarrow\\) KM estimates (or median survival)\n\nImplementation: rpart package"
+  },
+  {
+    "objectID": "sec5.html#random-forests",
+    "href": "sec5.html#random-forests",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Random Forests",
+    "text": "Random Forests\n\nLimitation of a single tree\n\nHigh variance: small changes in data can lead to large changes in predictions\n\nRandom forests\n\nBootstrap samples from training data\nTake a random subset of covariates to split on (decorrelate the trees)\nTune the number of covariates to split on\n\nImplementation: aorsf package"
+  },
+  {
+    "objectID": "sec5.html#model-evaluation",
+    "href": "sec5.html#model-evaluation",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Model Evaluation",
+    "text": "Model Evaluation\n\nBrier score\n\nMean squared error between observed survival status and predicted survival probability\nInverse probability censoring weighting (IPCW) to account for censoring\nIntegrated Brier score: average Brier score over a time interval\n\nROC AUC\n\nArea under the receiver operating characteristic (ROC) curve for survival status\nIPCW to handle censoring\nConcordance index: overall AUC over time"
+  },
+  {
+    "objectID": "sec5.html#overview-of-tidymodels-and-censored",
+    "href": "sec5.html#overview-of-tidymodels-and-censored",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Overview of tidymodels and censored",
+    "text": "Overview of tidymodels and censored\n\ntidymodels: a collection of packages for modeling and machine learning in R\n\nProvides a consistent interface for model training, tuning, and evaluation\n\nKey package parsnip\n\nSupports various model types, including regression, classification, and survival analysis\n\ncensored: a parsnip extension package for survival data\n\nImplements parametric, semiparametric, and tree-based survival models"
+  },
+  {
+    "objectID": "sec5.html#data-preparation",
+    "href": "sec5.html#data-preparation",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Data Preparation",
+    "text": "Data Preparation\n\nCreate a Surv object as response variable\n\nSurv(time, event)\n\n\n\ndf &lt;- df |&gt;  \n  mutate(\n    surv_obj = Surv(time, event), \n    .keep = \"unused\"\n  )"
+  },
+  {
+    "objectID": "sec5.html#data-preparation-and-splitting",
+    "href": "sec5.html#data-preparation-and-splitting",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Data Preparation and Splitting",
+    "text": "Data Preparation and Splitting\n\nCreate a Surv object as response\n\nSurv(time, event)\n\n\n\nlibrary(tidymodels)\nlibrary(censored)\ndf &lt;- df |&gt;  \n  mutate(\n    surv_obj = Surv(time, event), # create the Surv object as response variable\n    .keep = \"unused\"              # discard original time and event columns\n  )\n\n\nData splitting\n\ninitial_split(): splits data into training and testing sets\n\n\n\ndf_split &lt;- initial_split(flight_data, prop = 3/4) # default ratio 3:1\ndf_train &lt;- training(df_split) # obtain training set"
+  },
+  {
+    "objectID": "sec5.html#model-specification",
+    "href": "sec5.html#model-specification",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Model Specification",
+    "text": "Model Specification\n\nModel type\n\nsurvival_reg(): parametric AFT models\nproportional_hazards(penalty = tune()): (regularized) Cox PH models\ndecision_tree(complexity = tune()): decision trees\nrand_forest(mtry = tune()): random forests\n\nSet engine and mode\n\nset_engine(\"survival\"): for AFT models\nset_engine(\"glmnet\"): for Cox PH models\nset_engine(\"aorsf\"): for random forests\nset_mode(\"censored regression\"): for survival models\n\n\n\nmodel_spec &lt;- proportional_hazards(penalty = tune()) |&gt;  # regularized Cox model (tune lambda)\n  set_engine(\"glmnet\") |&gt;  # set engine to glmnet\n  set_mode(\"censored regression\") # set mode to censored regression"
+  },
+  {
+    "objectID": "sec5.html#recipe-and-workflow",
+    "href": "sec5.html#recipe-and-workflow",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Recipe and Workflow",
+    "text": "Recipe and Workflow\n\nRecipe: a series of preprocessing steps for the data\n\nrecipe(response ~ ., data = df): specify response and predictors\nstep_mutate(): standardize numeric predictors  \nstep_dummy(): convert categorical variables to dummy variables \n\nWorkflow: combines model specification and recipe\n\nworkflow() |&gt; add_model(model_spec) |&gt; add_recipe(recipe)\n\n\n\n# Create a recipe\nmodel_recipe &lt;- recipe(surv_obj ~ ., data = df_train) |&gt; # specify formula\n  step_mutate(z1 = z1 / 1000) |&gt;  # standardize z1  \n  step_other(z2, z3, threshold = 0.02) |&gt; # group levels with prop &lt; .02 into \"other\"\n  step_dummy(all_nominal_predictors())  # convert categorical variables to dummy variables\n# Create a workflow by combining model and recipe\nmodel_wflow &lt;- workflow() |&gt; \n  add_model(model_spec) |&gt;   # add model specification\n  add_recipe(model_recipe)   # add recipe"
+  },
+  {
+    "objectID": "sec5.html#tune-hyperparameters",
+    "href": "sec5.html#tune-hyperparameters",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Tune Hyperparameters",
+    "text": "Tune Hyperparameters\n\nCross-validation\n\ndf_train_folds &lt;- vfold_cv(df_train, v = k): create k-folds on training data (default 10)\ntune_grid(model_wflow, resamples = df_train_folds): tune hyperparameters using cross-validation\n\n\n\n# k-fold cross-validation\ndf_train_folds &lt;- vfold_cv(df_train, v = 10) # 10-fold cross-validation\n# Tune hyperparameters\nmodel_res &lt;- tune_grid(\n  model_wflow, \n  resamples = df_train_folds, \n  grid = 10, # number of hyperparameter combinations to try\n  metrics = metric_set(brier_survival, brier_survival_integrated,  # specify metrics\n                       roc_auc_survival, concordance_survival), \n  eval_time = seq(0, 84, by = 12) # evaluation time points\n)"
+  },
+  {
+    "objectID": "sec5.html#validation-metrics",
+    "href": "sec5.html#validation-metrics",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Validation Metrics",
+    "text": "Validation Metrics\n\nExamine validation results\n\ncollect_metrics(model_res): collect metrics from tuning results\nshow_best(oblique_res, metric = \"brier_survival_integrated\", n = 5): show top 5 models based on Brier score\n\nSelect best model\n\nselect_best(model_res, metric = \"brier_survival_integrated\"): select best hyperparameters based on Brier score\n\n\n\n# Collect the results"
+  },
+  {
+    "objectID": "sec5.html#finalize-workflow",
+    "href": "sec5.html#finalize-workflow",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Finalize Workflow",
+    "text": "Finalize Workflow\n\nExamine validation results\n\ncollect_metrics(model_res): collect metrics from tuning results\nshow_best(model_res, metric = \"brier_survival_integrated\", n = 5): show top 5 models based on Brier score\n\nWorkflow for best model\n\nparam_best &lt;- select_best(model_res, metric = \"brier_survival_integrated\"): select best hyperparameters based on Brier score\nfinal_wl &lt;- finalize_workflow(model_wflow, param_best): finalize workflow with best hyperparameters\n\n\n\n# Extract the best hyperparameters based on Brier score\nparam_best &lt;- select_best(model_res, metric = \"brier_survival_integrated\")\n# Finalize the workflow with the best hyperparameters\nfinal_wl &lt;- model_wflow |&gt; finalize_workflow(param_best)"
+  },
+  {
+    "objectID": "sec5.html#fit-final-model",
+    "href": "sec5.html#fit-final-model",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Fit Final Model",
+    "text": "Fit Final Model\n\nFit the finalized workflow\n\nfinal_mod &lt;- last_fit(final_wl, split = df_split): fit the finalized workflow on the testing set\ncollect_metrics(final_mod): collect metrics of final model on test data\n\nMake predictions\n\npredict(final_mod, new_data = new_data, type = \"time\"): predict survival times on new data\n\n\n\n# Fit the finalized workflow on the testing set\nfinal_mod &lt;- last_fit(final_wl, split = df_split)\n# Collect metrics of final model on test data\ncollect_metrics(final_mod) %&gt;% \n  filter(.metric == \"brier_survival_integrated\")\n# Make predictions on new data\nnew_data &lt;- testing(df_split) |&gt;  slice(1:5) # take first 5 rows of test data\npredict(final_mod, new_data = new_data, type = \"time\")"
+  },
+  {
+    "objectID": "sec5.html#gbc-relapse-free-survival",
+    "href": "sec5.html#gbc-relapse-free-survival",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "GBC: Relapse-Free Survival",
+    "text": "GBC: Relapse-Free Survival"
   }
 ]
