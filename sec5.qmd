@@ -22,7 +22,7 @@ editor: visual
 execute: 
   eval: false
   echo: true
-  cache: true
+  # cache: true
 include-in-header:
   - text: |
       <style type="text/css">
@@ -297,7 +297,7 @@ gbc_split <- initial_split(df) # split data into training and testing sets
 gbc_split 
 ```
 
-## **Models to be Trained**
+## Models to be Trained
 
 - **Regularized Cox model**
     - `proportional_hazards(penalty = tune())`
@@ -336,7 +336,7 @@ gbc_recipe <- recipe(surv_obj ~ ., data = gbc_train) |> # specify formula
   ) |> 
   step_dummy(grade) |> 
   step_rm(id) # remove id
-gbc_recipe # print recipe information
+# gbc_recipe # print recipe information
 ```
 
 
@@ -648,13 +648,14 @@ tidy(gbc_cox) # tidy the coefficients
 ```
 
 
-# Survival Tree Exercise
+## Survival Tree Exercise
 
 - **Task**: fit a survival tree model to the GBC data
     - Use `decision_tree()` with `set_engine("rpart")`
     - Tune complexity parameter `cp` using `tune()`
     - Use the same recipe as for Cox and RF models
     - Evaluate performance using Brier score and ROC AUC
+
 
 
 # Summary

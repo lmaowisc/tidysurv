@@ -8,7 +8,7 @@ author:
   affiliations: 
     - name: Department of Biostatistics & Medical Informatics
     - University of Wisconsin-Madison
-    - Aug 2, 2025
+    - Aug 3, 2025
   email: lmao@biostat.wisc.edu
 format: 
   revealjs:
@@ -356,9 +356,9 @@ km_fig + add_quantile(
 ## `tidycmprsk` Package
 
 -   **Analysis of CIF** implemented in `cmprsk` package
-    - A "tidy" version is available in`tidycmprsk`package
-    - Simple interface, plays nicely with `gtsummary` and `ggsurvfit`
-    - Input data: `status`: must be a factor, with the first level indicating censoring and subsequent levels the competing risks
+    -   A "tidy" version is available in`tidycmprsk`package
+    -   Simple interface, plays nicely with `gtsummary` and `ggsurvfit`
+    -   Input data: `status`: must be a factor, with the first level indicating censoring and subsequent levels the competing risks
 
 ```{r}
 #| eval: true
