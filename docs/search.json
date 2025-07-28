@@ -1396,7 +1396,7 @@
     "href": "sec5.html#key-takeaways",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Key Takeaways",
-    "text": "Key Takeaways"
+    "text": "Key Takeaways\n\nMachine learning: powerful tools for survival analysis with many covariates\n\nRegularized Cox regression, survival trees, and random forests\n\ntidymodels: a consistent interface for modeling and machine learning\n\nparsnip for model specification and tuning\ncensored packages for survival data\nModel evaluation: Brier score and ROC AUC for survival models"
   },
   {
     "objectID": "ml.html",
@@ -1499,7 +1499,7 @@
     "href": "sec5.html#data-preparation",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Data Preparation",
-    "text": "Data Preparation\n\nCreate a Surv object as response variable\n\nSurv(time, event)\n\n\n\ndf &lt;- df |&gt;  \n  mutate(\n    surv_obj = Surv(time, event), \n    .keep = \"unused\"\n  )"
+    "text": "Data Preparation\n\nAnalysis dataset\n\n\nhead(df) # show the first few rows of the dataset\n\n# A tibble: 6 × 10\n     id   surv_obj hormone   age  meno  size grade nodes  prog estrg\n  &lt;int&gt;     &lt;Surv&gt;   &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;\n1     1 43.836066        1    38     1    18     3     5   141   105\n2     2 46.557377        1    52     1    20     1     1    78    14\n3     3 41.934426        1    47     1    30     2     1   422    89\n4     4  4.852459+       1    40     1    24     1     3    25    11\n5     5 61.081967+       2    64     2    19     2     1    19     9\n6     6 63.377049+       2    49     2    56     1     3   356    64\n\n\n\nData splitting\n\n\nset.seed(123) # set seed for reproducibility\ngbc_split &lt;- initial_split(df) # split data into training and testing sets\ngbc_split \n\n&lt;Training/Testing/Total&gt;\n&lt;514/172/686&gt;"
   },
   {
     "objectID": "sec5.html#data-preparation-and-splitting",
@@ -1555,6 +1555,174 @@
     "href": "sec5.html#gbc-relapse-free-survival",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "GBC: Relapse-Free Survival",
-    "text": "GBC: Relapse-Free Survival"
+    "text": "GBC: Relapse-Free Survival\n\nTime to first event\n\n\nlibrary(tidymodels) # load tidymodels\nlibrary(censored)\ngbc &lt;- read.table(\"data/gbc.txt\", header = TRUE) # Load GBC dataset\ndf &lt;- gbc |&gt;  # calculate time to first event (relapse or death)\n  group_by(id) |&gt; # group by id\n  arrange(time) |&gt; # sort rows by time\n  slice(1) |&gt;      # get the first row within each id\n  ungroup() |&gt; \n  mutate(\n    surv_obj = Surv(time, status), # create the Surv object as response variable\n    .after = id, # keep id column after surv_obj\n    .keep = \"unused\" # discard original time and status columns\n  )"
+  },
+  {
+    "objectID": "sec5.html#models-to-be-trained",
+    "href": "sec5.html#models-to-be-trained",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Models to be Trained",
+    "text": "Models to be Trained\n\nRegularized Cox model\n\nproportional_hazards(penalty = tune())\nDefault: \\(\\alpha = 1\\) (lasso)\nTune penalty parameter \\(\\lambda\\)\nUse glmnet engine for fitting\n\nRandom forest\n\nrand_forest(mtry = tune(), min_n = tune())\nTune number of predictors to split on and minimum size of terminal node\nUse aorsf engine for fitting\n\n\n\n# Training data\ngbc_train &lt;- training(gbc_split) # obtain training set"
+  },
+  {
+    "objectID": "sec5.html#common-recipe",
+    "href": "sec5.html#common-recipe",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Common Recipe",
+    "text": "Common Recipe\n\nRecipe for both models   \n\n\ngbc_recipe &lt;- recipe(surv_obj ~ ., data = gbc_train) |&gt; # specify formula\n  step_mutate(\n    grade = factor(grade),\n    age40 = as.numeric(age &gt;= 40), # create a binary variable for age &gt;= 40\n    prog = prog / 100, # rescale prog\n    estrg = estrg / 100 # rescale estrg\n  ) |&gt; \n  step_dummy(grade) |&gt; \n  step_rm(id) # remove id\ngbc_recipe # print recipe information\n\n\n\n\n── Recipe ──────────────────────────────────────────────────────────────────────\n\n\n\n\n\n── Inputs \n\n\nNumber of variables by role\n\n\noutcome:   1\npredictor: 9\n\n\n\n\n\n── Operations \n\n\n• Variable mutation for: factor(grade) and as.numeric(age &gt;= 40), ...\n\n\n• Dummy variables from: grade\n\n\n• Variables removed: id"
+  },
+  {
+    "objectID": "sec5.html#cox-model",
+    "href": "sec5.html#cox-model",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox model",
+    "text": "Cox model\n\ncox_spec &lt;- proportional_hazards(penalty = tune()) |&gt;  # regularized Cox model\n  set_engine(\"glmnet\") |&gt;  # set engine to glmnet\n  set_mode(\"censored regression\") # set mode to censored regression"
+  },
+  {
+    "objectID": "sec5.html#regularized-cox-model",
+    "href": "sec5.html#regularized-cox-model",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Regularized Cox Model",
+    "text": "Regularized Cox Model\n\nCox model specification and workflow\n\n\n# Regularized Cox model specification\ncox_spec &lt;- proportional_hazards(penalty = tune()) |&gt;  # tune lambda\n  set_engine(\"glmnet\") |&gt;  # set engine to glmnet\n  set_mode(\"censored regression\") # set mode to censored regression\ncox_spec # print model specification\n\nProportional Hazards Model Specification (censored regression)\n\nMain Arguments:\n  penalty = tune()\n\nComputational engine: glmnet \n\n# Create a workflow by combining model and recipe\ncox_wflow &lt;- workflow() |&gt; \n  add_model(cox_spec) |&gt;   # add model specification\n  add_recipe(gbc_recipe)   # add recipe"
+  },
+  {
+    "objectID": "sec5.html#model-tuning",
+    "href": "sec5.html#model-tuning",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Model Tuning",
+    "text": "Model Tuning\n\nCross-validation set-up\n\nFor both models\n\n\n\nset.seed(123) # set seed for reproducibility\ngbc_folds &lt;- vfold_cv(gbc_train, v = 10) # 10-fold cross-validation\n# Set evaulation metrics\ngbc_metrics &lt;- metric_set(brier_survival, brier_survival_integrated, \n                          roc_auc_survival, concordance_survival)\ngbc_metrics # evaluation metrics info\n\nA metric set, consisting of:\n- `brier_survival()`, a dynamic survival metric               | direction:\nminimize\n- `brier_survival_integrated()`, a integrated survival metric | direction:\nminimize\n- `roc_auc_survival()`, a dynamic survival metric             | direction:\nmaximize\n- `concordance_survival()`, a static survival metric          | direction:\nmaximize\n\n# Set evaluation time points\ntime_points &lt;- seq(0, 84, by = 12) # evaluation time points"
+  },
+  {
+    "objectID": "sec5.html#cox-model-tuning",
+    "href": "sec5.html#cox-model-tuning",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model Tuning",
+    "text": "Cox Model Tuning\n\nTune the regularized Cox model\n\nUse tune_grid() to perform hyperparameter tuning\nEvaluate performance using Brier score and ROC AUC\n\n\n\nset.seed(123) # set seed for reproducibility\n# Tune the regularized Cox model (this will take some time)\ncox_res &lt;- tune_grid(\n  cox_wflow, \n  resamples = gbc_folds, \n  grid = 10, # number of hyperparameter combinations to try\n  metrics = gbc_metrics, # evaluation metrics\n  eval_time = time_points, # evaluation time points\n  control = control_grid(save_workflow = TRUE) # save workflow\n)"
+  },
+  {
+    "objectID": "sec5.html#cox-model-tuning-results",
+    "href": "sec5.html#cox-model-tuning-results",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model Tuning Results",
+    "text": "Cox Model Tuning Results\n\nPlot Brier score as function of \\(\\log\\lambda\\)\n\n\ncollect_metrics(cox_res) |&gt;  # collect metrics from tuning results\n  filter(.metric == \"brier_survival_integrated\") |&gt;  # filter for Brier score\n  ggplot(aes(log(penalty), mean)) + # plot log-lambda vs Brier score\n  geom_line() +  # plot line\n  labs(x = \"Log-lambda\", y = \"Overall Brier Score\") + # labels\n  theme_classic() # classic theme"
+  },
+  {
+    "objectID": "sec5.html#cox-model-tuning-results-i",
+    "href": "sec5.html#cox-model-tuning-results-i",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model Tuning Results (I)",
+    "text": "Cox Model Tuning Results (I)\n\nPlot Brier score as function of \\(\\log\\lambda\\)\n\n\ncollect_metrics(cox_res) |&gt;  # collect metrics from tuning results\n  filter(.metric == \"brier_survival_integrated\") |&gt;  # filter for Brier score\n  ggplot(aes(log(penalty), mean)) + # plot log-lambda vs Brier score\n  geom_line() +  # plot line\n  labs(x = \"Log-lambda\", y = \"Overall Brier Score\") + # labels\n  theme_classic() # classic theme"
+  },
+  {
+    "objectID": "sec5.html#cox-model-selected",
+    "href": "sec5.html#cox-model-selected",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model Selected",
+    "text": "Cox Model Selected\n\nshow_best(cox_res, metric = \"brier_survival_integrated\", n = 10) # show top 5 models based on Brier score\nshow_best(cox_res, metric = \"concordance_survival\", n = 10) # show top 5 models based on ROC AUC\n\n\ncollect_metrics(cox_res) %&gt;% \n  filter(.metric == \"brier_survival_integrated\") %&gt;% \n  ggplot(aes(log(penalty), mean)) + \n  geom_line() + \n  labs(x = \"Log-lambda\", y = \"Area Under the ROC Curve\") +\n  theme_classic()"
+  },
+  {
+    "objectID": "sec5.html#cox-model-finalized",
+    "href": "sec5.html#cox-model-finalized",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model Finalized",
+    "text": "Cox Model Finalized\n\nSelect best hyperparameters and finalize model\n\nBased on Brier score\n\n\n\nshow_best(cox_res, metric = \"brier_survival_integrated\", n = 3) # top 3 models\n\n# A tibble: 3 × 8\n    penalty .metric            .estimator .eval_time  mean     n std_err .config\n      &lt;dbl&gt; &lt;chr&gt;              &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;  \n1 0.0272    brier_survival_in… standard           NA 0.163    10 0.00767 Prepro…\n2 0.00147   brier_survival_in… standard           NA 0.164    10 0.00887 Prepro…\n3 0.0000127 brier_survival_in… standard           NA 0.164    10 0.00888 Prepro…"
+  },
+  {
+    "objectID": "sec5.html#best-cox-models",
+    "href": "sec5.html#best-cox-models",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Best Cox Models",
+    "text": "Best Cox Models\n\nShow best models\n\nBased on Brier score\n\n\n\nshow_best(cox_res, metric = \"brier_survival_integrated\", n = 5) # top 5 models\n\n# A tibble: 5 × 8\n       penalty .metric         .estimator .eval_time  mean     n std_err .config\n         &lt;dbl&gt; &lt;chr&gt;           &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;  \n1 0.0272       brier_survival… standard           NA 0.163    10 0.00767 Prepro…\n2 0.00147      brier_survival… standard           NA 0.164    10 0.00887 Prepro…\n3 0.0000127    brier_survival… standard           NA 0.164    10 0.00888 Prepro…\n4 0.0000000105 brier_survival… standard           NA 0.164    10 0.00888 Prepro…\n5 0.000754     brier_survival… standard           NA 0.164    10 0.00888 Prepro…"
+  },
+  {
+    "objectID": "sec5.html#random-forest-model",
+    "href": "sec5.html#random-forest-model",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Random Forest Model",
+    "text": "Random Forest Model\n\nRandom forest specification and workflow\n\n\n# Random forest model specification\nrf_spec &lt;- rand_forest(mtry = tune(), min_n = tune()) |&gt;  # tune mtry and min_n\n  set_engine(\"aorsf\") |&gt;  # set engine to aorsf\n  set_mode(\"censored regression\") # set mode to censored regression\nrf_spec # print model specification\n\nRandom Forest Model Specification (censored regression)\n\nMain Arguments:\n  mtry = tune()\n  min_n = tune()\n\nComputational engine: aorsf \n\n# Create a workflow by combining model and recipe\nrf_wflow &lt;- workflow() |&gt; \n  add_model(rf_spec) |&gt;   # add model specification\n  add_recipe(gbc_recipe)   # add recipe"
+  },
+  {
+    "objectID": "sec5.html#random-forest-tuning",
+    "href": "sec5.html#random-forest-tuning",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Random Forest Tuning",
+    "text": "Random Forest Tuning\n\nTune the random forest model\n\nSimilar to Cox model tuning\n\n\n\nset.seed(123) # set seed for reproducibility\n# Tune the random forest model (this will take some time)\nrf_res &lt;- tune_grid(\n  rf_wflow, \n  resamples = gbc_folds, \n  grid = 10, # number of hyperparameter combinations to try\n  metrics = gbc_metrics, # evaluation metrics\n  eval_time = time_points # evaluation time points\n)"
+  },
+  {
+    "objectID": "sec5.html#random-forest-tuning-results",
+    "href": "sec5.html#random-forest-tuning-results",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Random Forest Tuning Results",
+    "text": "Random Forest Tuning Results\n\nView validation results\n\n\ncollect_metrics(rf_res) |&gt; head()   # collect metrics from tuning results\n\n# A tibble: 6 × 9\n   mtry min_n .metric         .estimator .eval_time   mean     n std_err .config\n  &lt;int&gt; &lt;int&gt; &lt;chr&gt;           &lt;chr&gt;           &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;  \n1     3    30 brier_survival  standard            0 0         10 0       Prepro…\n2     3    30 roc_auc_surviv… standard            0 0.5       10 0       Prepro…\n3     3    30 brier_survival  standard           12 0.0637    10 0.00723 Prepro…\n4     3    30 roc_auc_surviv… standard           12 0.823     10 0.0323  Prepro…\n5     3    30 brier_survival  standard           24 0.164     10 0.0113  Prepro…\n6     3    30 roc_auc_surviv… standard           24 0.741     10 0.0480  Prepro…"
+  },
+  {
+    "objectID": "sec5.html#best-random-forest-models",
+    "href": "sec5.html#best-random-forest-models",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Best Random Forest Models",
+    "text": "Best Random Forest Models\n\nShow best models\n\nBased on Brier score\n\n\n\nshow_best(rf_res, metric = \"brier_survival_integrated\", n = 5) # top 5 models\n\n# A tibble: 5 × 9\n   mtry min_n .metric          .estimator .eval_time  mean     n std_err .config\n  &lt;int&gt; &lt;int&gt; &lt;chr&gt;            &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;  \n1     5    27 brier_survival_… standard           NA 0.157    10 0.00863 Prepro…\n2     5    20 brier_survival_… standard           NA 0.157    10 0.00869 Prepro…\n3     6    24 brier_survival_… standard           NA 0.157    10 0.00814 Prepro…\n4     2     7 brier_survival_… standard           NA 0.157    10 0.00868 Prepro…\n5    10    36 brier_survival_… standard           NA 0.157    10 0.00838 Prepro…\n\n\n\nConclusion\n\nBest RF model has lower Brier score than best Cox model"
+  },
+  {
+    "objectID": "sec5.html#finalize-and-fit-best-model",
+    "href": "sec5.html#finalize-and-fit-best-model",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Finalize and Fit Best Model",
+    "text": "Finalize and Fit Best Model\n\nFit final RF model\n\n\n# Select best RF hyperparameters (mtry, min_n) based on Brier score\nparam_best &lt;- select_best(rf_res, metric = \"brier_survival_integrated\") \nparam_best # view results\n\n# A tibble: 1 × 3\n   mtry min_n .config              \n  &lt;int&gt; &lt;int&gt; &lt;chr&gt;                \n1     5    27 Preprocessor1_Model04\n\n# Finalize the workflow with the best hyperparameters\nrf_final_wflow &lt;- finalize_workflow(rf_wflow, param_best) # finalize workflow\n# Fit the finalized workflow on the testing set\nset.seed(123) # set seed for reproducibility\nfinal_rf_fit &lt;- last_fit(\n  rf_final_wflow, \n  split = gbc_split, # use the original split\n  metrics = gbc_metrics, # evaluation metrics\n  eval_time = time_points # evaluation time points\n)"
+  },
+  {
+    "objectID": "sec5.html#test-performance",
+    "href": "sec5.html#test-performance",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Test Performance",
+    "text": "Test Performance\n\nCollect metrics on test data\n\n\ncollect_metrics(final_rf_fit) |&gt; # collect overall performance metrics\n  filter(.metric %in% c(\"concordance_survival\", \"brier_survival_integrated\")) \n\n# A tibble: 2 × 5\n  .metric                   .estimator .eval_time .estimate .config             \n  &lt;chr&gt;                     &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;               \n1 brier_survival_integrated standard           NA     0.234 Preprocessor1_Model1\n2 concordance_survival      standard           NA     0.656 Preprocessor1_Model1\n\n# Plot ROC AUC over time\nroc_test &lt;- collect_metrics(final_rf_fit) |&gt;  \n  filter(.metric == \"roc_auc_survival\") %&gt;% # filter for ROC AUC\n  rename(mean = .estimate) \n\nroc_test %&gt;% \n  ggplot(aes(.eval_time, mean)) + \n  geom_line() + \n  labs(x = \"Time (months)\", y = \"ROC AUC\")"
+  },
+  {
+    "objectID": "sec5.html#test-performance-i",
+    "href": "sec5.html#test-performance-i",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Test Performance (I)",
+    "text": "Test Performance (I)\n\nCollect metrics on test data\n\n\ncollect_metrics(final_rf_fit) |&gt; # collect overall performance metrics\n  filter(.metric %in% c(\"concordance_survival\", \"brier_survival_integrated\")) \n\n# A tibble: 2 × 5\n  .metric                   .estimator .eval_time .estimate .config             \n  &lt;chr&gt;                     &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;               \n1 brier_survival_integrated standard           NA     0.234 Preprocessor1_Model1\n2 concordance_survival      standard           NA     0.656 Preprocessor1_Model1\n\n# Extract test ROC AUC over time\nroc_test &lt;- collect_metrics(final_rf_fit) |&gt;  \n  filter(.metric == \"roc_auc_survival\") |&gt;  # filter for ROC AUC\n  rename(mean = .estimate) # rename mean column"
+  },
+  {
+    "objectID": "sec5.html#test-performance-i-1",
+    "href": "sec5.html#test-performance-i-1",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Test Performance (I)",
+    "text": "Test Performance (I)\n\nPlot test ROC AUC over time\n\n\nroc_test |&gt;  # pass the test ROC AUC data\n  ggplot(aes(.eval_time, mean)) +  # plot evaluation time vs mean ROC AUC\n  geom_line() + # plot line\n  labs(x = \"Time (months)\", y = \"ROC AUC\") + # labels\n  theme_classic()"
+  },
+  {
+    "objectID": "sec5.html#test-performance-ii",
+    "href": "sec5.html#test-performance-ii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Test Performance (II)",
+    "text": "Test Performance (II)\n\nPlot test ROC AUC over time\n\n\nroc_test |&gt;  # pass the test ROC AUC data\n  ggplot(aes(.eval_time, mean)) +  # plot evaluation time vs mean ROC AUC\n  geom_line() + # plot line\n  labs(x = \"Time (months)\", y = \"ROC AUC\") + # labels\n  theme_classic()"
+  },
+  {
+    "objectID": "sec5.html#prediction-by-final-rf-model",
+    "href": "sec5.html#prediction-by-final-rf-model",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Prediction by Final RF Model",
+    "text": "Prediction by Final RF Model\n\nExtract the fitted workflow\n\nUse extract_workflow() to get the final model\n\n\n\ngbc_rf &lt;- extract_workflow(final_rf_fit) # extract the fitted workflow\n# Predict on new data\ngbc_5 &lt;- testing(gbc_split) |&gt;  slice(1:5) # take first 5 rows of test data\npredict(gbc_rf, new_data = gbc_5, type = \"time\") # predict survival times\n\n# A tibble: 5 × 1\n  .pred_time\n       &lt;dbl&gt;\n1       45.1\n2       65.3\n3       67.0\n4       34.3\n5       51.5"
+  },
+  {
+    "objectID": "sec5.html#cox-model-exercise-i",
+    "href": "sec5.html#cox-model-exercise-i",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model Exercise (I)",
+    "text": "Cox Model Exercise (I)\n\nTask: extract the best Cox model from cox_res and fit it to test data\n\n\n\nSolution\n# Select best Cox hyperparameters (penalty) based on Brier score\nparam_best_cox &lt;- select_best(cox_res, metric = \"brier_survival_integrated\")\n# Finalize the workflow with the best hyperparameters\ncox_final_wflow &lt;- finalize_workflow(cox_wflow, param_best_cox) # finalize workflow\n# Fit finalized workflow on the testing set\nfinal_cox_fit &lt;- last_fit(\n  cox_final_wflow, \n  split = gbc_split, # use the original split\n  metrics = gbc_metrics, # evaluation metrics\n  eval_time = time_points # evaluation time points\n)\n# Collect metrics on test data\ncollect_metrics(final_cox_fit) |&gt; # collect overall performance metrics\n  filter(.metric %in% c(\"concordance_survival\", \"brier_survival_integrated\"))"
+  },
+  {
+    "objectID": "sec5.html#cox-model-exercise-ii",
+    "href": "sec5.html#cox-model-exercise-ii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model Exercise (II)",
+    "text": "Cox Model Exercise (II)\n\n\nSolution - continued\n# Extract test ROC AUC over time\nroc_test_cox &lt;- collect_metrics(final_cox_fit) |&gt;  \n  filter(.metric == \"roc_auc_survival\") |&gt;  # filter for ROC AUC\n  rename(mean = .estimate) # rename mean column\nroc_test_cox |&gt;  # pass the test ROC AUC data\n  ggplot(aes(.eval_time, mean)) +  # plot evaluation time vs mean ROC AUC\n  geom_line() + # plot line\n  labs(x = \"Time (months)\", y = \"ROC AUC\") + # labels\n  theme_classic()\n\n# Predict on new data\n# Extract fitted workflow\ngbc_cox &lt;- extract_workflow(final_cox_fit) # extract the fitted workflow\ngbc_5 &lt;- testing(gbc_split) |&gt;  slice(1:5) # take first 5 rows of test data\npredict(gbc_cox, new_data = gbc_5, type = \"time\") # predict survival times"
+  },
+  {
+    "objectID": "sec5.html#cox-model-exercise-iii",
+    "href": "sec5.html#cox-model-exercise-iii",
+    "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
+    "section": "Cox Model Exercise (III)",
+    "text": "Cox Model Exercise (III)\n\nTask: find the parameter estimates of final Cox model\n\nHint: use tidy() function from broom package\n\n\n\n\nSolution\ntidy(gbc_cox) # tidy the coefficients\n# # A tibble: 10 × 3\n#    term     estimate penalty\n#    &lt;chr&gt;       &lt;dbl&gt;   &lt;dbl&gt;\n#  1 hormone  -0.227   0.00147\n#  2 age       0.00908 0.00147\n#  3 meno     -0.00736 0.00147\n#  4 size      0.0127  0.00147\n#  5 nodes     0.0411  0.00147\n#  6 prog     -0.270   0.00147\n#  7 estrg     0.00771 0.00147\n#  8 age40    -0.540   0.00147\n#  9 grade_X2  0.573   0.00147\n# 10 grade_X3  0.624   0.00147"
   }
 ]
