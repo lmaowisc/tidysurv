@@ -2,25 +2,22 @@
 title: "Welcome to the workshop"
 ---
 
-This site presents materials for the short course 
-**Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data**
-to be taught at the 2025 Joint Statistical Meetings (JSM) in Nashville, TN.
+This site presents materials for the short course **Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data** to be taught at the 2025 Joint Statistical Meetings (JSM) in Nashville, TN.
 
 **This course** aims to equip participants with the skills to apply tidy principles to survival analysis, fostering a more organized and reproducible approach to data analysis in R.
 
 In a tidyverse approach, we apply consistent data workflows to survival analysis tasks. This means using tibble data frames and `dplyr` for data preparation, keeping outputs tidy (one row per observation or estimate), and leveraging `ggplot2` for visualization. For example, one might create the survival outcome as a new column using `Surv(time, status)` within a `dplyr` pipeline, fit models and then use broom to `tidy()` model outputs into data frames, and produce publication-quality plots with `ggplot2` or `ggsurvfit`. The goal is a reproducible workflow where raw data are transformed, analyzed, and visualized seamlessly.
 
-
 **Target Audience**: Statisticians, data analysts, researchers, and students interested in survival analysis who are familiar with R and the Tidyverse.
 
 ## Time and Place
 
--  Sunday, Aug 3: 8:30 AM - 12:30 PM
--  Music City Center | Room: CC-110A 
+-   Sunday, Aug 3: 8:30 AM - 12:30 PM
+-   Music City Center \| Room: CC-110A
 
 ## Instructor Profile
 
-##### [Lu Mao, PhD](https://lmaowisc.github.io/){target="_blank"} 
+##### [Lu Mao, PhD](https://lmaowisc.github.io/){target="_blank"}
 
 -   Associate Professor of Biostatistics at UW-Madison
 -   Methodologic research
@@ -36,38 +33,58 @@ In a tidyverse approach, we apply consistent data workflows to survival analysis
 
 ## Learning Outcomes
 
-1.	Understand the fundamentals of survival analysis, including key concepts such as censored data, survival functions, and hazard functions.
-2.	Utilize R’s Tidyverse packages to manipulate, visualize, and analyze survival data.
-3.	Fit and interpret survival models using the survival and survminer packages in conjunction with Tidyverse functions.
-4.	Create clear and informative visualizations of survival data, including Kaplan-Meier curves and survival distributions.
-5.	Communicate survival analysis results effectively using tidy principles.
+1.  Understand the fundamentals of survival analysis, including key concepts such as censored data, survival functions, and hazard functions.
+2.  Utilize R’s Tidyverse packages to manipulate, visualize, and analyze survival data.
+3.  Fit and interpret survival models using the survival and survminer packages in conjunction with Tidyverse functions.
+4.  Create clear and informative visualizations of survival data, including Kaplan-Meier curves and survival distributions.
+5.  Communicate survival analysis results effectively using tidy principles.
 
 ## Outline
 
 -   **1. Introduction to Survival Analysis** (30 min)
     -   1.1 Key concepts: survival functions, hazard functions, and censoring
-    -   1.2 German breast cancer study: a working example
+    -   1.2 German breast cancer (GBC) study: a working example
     -   1.3 Overview of survival analysis with `survival` package
-
 -   **2. Data Manipulation with Tidyverse** (45 min)
     -   2.1 Overview of Tidyverse
     -   2.2 Tidying survival data
     -   2.3 Visualizing Subject Follow-Up with `ggplot2`
     -   2.4 Creating “Table 1” with `gtsummary`
-    
 -   **3. Nonparametric Survival Analysis** (50 min)
     -   3.1 Tabulating survival estimates with `gtsummary`
     -   3.2 Visualizing Kaplan-Meier curves with `ggsurvfit` (or `survminer`)
     -   3.3 Tidy analysis of competing risks using `tidycmprsk`
-
--  **4. Cox proportional hazards regression** (40 min)
+-   **4. Cox proportional hazards regression** (40 min)
     -   4.1 Tabulating regression results with `gtsummary`
     -   4.2 Model diagnostics and residual plots with `survminer`
     -   4.3 Fine-Gray model for competing risks with `tidycmprsk`
-
 -   **5. Machine learning using `tidymodels`** (50 min)
     -   5.1 Modeling basics
-    -   5.2 Using the `censored` package for survival models
+    -   5.2 Tidymodels workflow for survival analysis
+    -   5.3 A case study with GBC data
+
+## R-Packages
+
+You will need the following R packages for this workshop:
+
+```{r}
+#| eval: false
+
+install.packages(c("survival",                   # Base R survival package
+                   "tidyverse", "lubridate" ,    # Tidyverse packages 
+                   "broom",                      # Tidy model outputs
+                   "gtsummary",                  # Tidy summary tables
+                   "ggsurvfit",                  # Survival visualization
+                   "survminer",                  # Cox model diagnostic graphics
+                   "tidycmprsk",                 # Competing risks analysis
+                   "tidymodels",                 # Machine learning
+                   "censored"                    # Censored data handling for tidymodels
+                   ))
+
+
+```
+
+
 
 
 ```{r}
@@ -88,4 +105,5 @@ file.copy(from = list.files(source_folder, full.names = TRUE),
 
 
 ```
+
 
