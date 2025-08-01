@@ -1095,7 +1095,7 @@
     "href": "sec4.html#key-takeaways",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Key Takeaways",
-    "text": "Key Takeaways\n\nCox proportional hazards regression\n\nTidy output with broom and gtsummary\nVisualize hazard ratios with forest plots with ggplot2\nModel-based prediction with survival::survfit() and ggsurvfit()\nModel diagnostics with survminer\n\nFine-Gray model for competing risks regression\n\nTidy output with broom and gtsummary\nVisualize sub-distribution hazard ratios with forest plots"
+    "text": "Key Takeaways\n\nCox proportional hazards regression\n\nTidy output with broom and gtsummary\nVisualize hazard ratios with forest plots with ggplot2\nModel-based prediction with survival::survfit() and ggsurvfit()\nModel diagnostics with survminer\n\nFine-Gray model for competing risks regression\n\nFit with cmprsk::crr()\nTidy output with broom and gtsummary\nVisualize sub-distribution hazard ratios with forest plots"
   },
   {
     "objectID": "sec4.html#cox-ph-regression",
@@ -1172,7 +1172,7 @@
     "href": "sec4.html#other-regression-models",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Other Regression Models",
-    "text": "Other Regression Models\n\nAccelerated failure time (AFT) models \\[\n  \\log T = \\beta_0 + \\beta_1 Z_1 + \\beta_2 Z_2 + \\ldots + \\beta_p Z_p + \\epsilon\n\\]\n\n\\(\\epsilon\\sim\\) Weibull, lognormal, etc. (parametric models)\n\\(\\exp(\\beta_j)\\): acceleration factor for covariate \\(Z_j\\)\nModel fitting: survival::survreg()\n\n\n\n# Fit a Weibull AFT model\naft_fit &lt;- survreg(Surv(time, status) ~ hormone + meno + age + grade + size + prog + estrg, \n                    data = df, dist = \"weibull\") # specify the Weibull model\n\n\n\n\nExercise\n\n\n\nTidy up the survreg object aft_fit using broom::tidy()\nCreate a regression table using gtsummary::tbl_regression()"
+    "text": "Other Regression Models\n\nAccelerated failure time (AFT) models \\[\n  \\log T = \\beta_1 Z_1 + \\beta_2 Z_2 + \\ldots + \\beta_p Z_p + \\epsilon\n\\]\n\n\\(\\epsilon\\sim\\) Weibull, lognormal, etc. (parametric models)\n\\(\\exp(\\beta_j)\\): acceleration factor for covariate \\(Z_j\\)\nModel fitting: survival::survreg()\n\n\n\n# Fit a Weibull AFT model\naft_fit &lt;- survreg(Surv(time, status) ~ hormone + meno + age + grade + size + prog + estrg, \n                    data = df, dist = \"weibull\") # specify the Weibull model\n\n\n\n\nExercise\n\n\n\nTidy up the survreg object aft_fit using broom::tidy()\nCreate a regression table using gtsummary::tbl_regression()"
   },
   {
     "objectID": "sec4.html#tabulating-aft-results",
@@ -1256,7 +1256,7 @@
     "href": "sec4.html#cox-model-diagnostics",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Cox Model Diagnostics",
-    "text": "Cox Model Diagnostics\n\nPh assumptions: Schoenfeld residuals\n\nDifference between observed and expected covariate values at each event time\nUse cox.zph() to test PH assumption\nUse survminer::ggcoxzph() on cox.zph object to visualize Schoenfeld residuals\n\nFunctional form of covariates\n\nPlot martingale residuals against (quantitative) covariates\nUse residuals(cox_fit, type = \"martingale\") to get martingale residuals`\n\nOther aspects\n\nAppropriateness of exponential link function\nInfluential points/outliers\nsurvminer::ggcoxdiagnostics()"
+    "text": "Cox Model Diagnostics\n\nPH assumptions: Schoenfeld residuals\n\nDifference between observed and expected covariate values at each event time\nUse cox.zph() to test PH assumption\nUse survminer::ggcoxzph() on cox.zph object to visualize Schoenfeld residuals\n\nFunctional form of covariates\n\nPlot martingale residuals against (quantitative) covariates\nUse residuals(cox_fit, type = \"martingale\") to get martingale residuals\n\nOther aspects\n\nAppropriateness of exponential link function\nInfluential points/outliers\nsurvminer::ggcoxdiagnostics()"
   },
   {
     "objectID": "sec4.html#example-schoenfeld-residuals",
@@ -1326,7 +1326,7 @@
     "href": "sec4.html#sub-distribution-hazard",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Sub-Distribution Hazard",
-    "text": "Sub-Distribution Hazard\n\nDefinition \\[\n\\Lambda_k(t\\mid Z) = -\\log\\left\\{1 - F_k(t\\mid Z)\\right\\}\n\\]\n\n\\(F_k(t \\mid Z)\\): cumulative incidence function (CIF) of the \\(k\\)-th cause\n\\(\\lambda_k(t \\mid Z)=\\Lambda_k'(t)\\): risk of the \\(k\\)-th cause in presence of other competing events in the whole population\n\nDifferent from cause-specific hazard\n\nCause-specific hazard \\[\\lambda^\\mathrm{c}_k(t \\mid Z) =  \\Pr(t\\leq T&lt; t+ \\mathrm{d}t\\mid T\\geq t, Z)/\\mathrm{d}t \\]\nRisk of the \\(k\\)-th cause in survivors"
+    "text": "Sub-Distribution Hazard\n\nDefinition \\[\n\\Lambda_k(t\\mid Z) = -\\log\\left\\{1 - F_k(t\\mid Z)\\right\\}\n\\]\n\n\\(F_k(t \\mid Z)\\): cumulative incidence function (CIF) of the \\(k\\)-th cause\n\\(\\lambda_k(t \\mid Z)=\\Lambda_k'(t\\mid Z)\\): risk of the \\(k\\)-th cause in presence of other competing events in the whole population\n\nDifferent from cause-specific hazard\n\nCause-specific hazard \\[\\lambda^\\mathrm{c}_k(t \\mid Z) =  \\Pr(t\\leq T&lt; t+ \\mathrm{d}t, \\Delta = k\\mid T\\geq t, Z)/\\mathrm{d}t \\]\nRisk of the \\(k\\)-th cause in survivors"
   },
   {
     "objectID": "sec4.html#fitting-fine-gray-model",

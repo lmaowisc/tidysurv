@@ -196,7 +196,7 @@ cox_tbl |> # Start with the regression table
 ## Other Regression Models
 
 -   **Accelerated failure time (AFT) models** $$
-      \log T = \beta_0 + \beta_1 Z_1 + \beta_2 Z_2 + \ldots + \beta_p Z_p + \epsilon
+      \log T = \beta_1 Z_1 + \beta_2 Z_2 + \ldots + \beta_p Z_p + \epsilon
     $$
     -   $\epsilon\sim$ Weibull, lognormal, etc. (parametric models)
     -   $\exp(\beta_j)$: acceleration factor for covariate $Z_j$
@@ -395,13 +395,13 @@ pred_fig + theme(panel.grid.major.y = element_line()) # Add horizontal grid line
 
 ## Cox Model Diagnostics
 
--   **Ph assumptions: Schoenfeld residuals**
+-   **PH assumptions: Schoenfeld residuals**
     -   Difference between observed and expected covariate values at each event time
     -   Use `cox.zph()` to test PH assumption
     -   Use `survminer::ggcoxzph()` on `cox.zph` object to visualize Schoenfeld residuals
 -   **Functional form of covariates**
     -   Plot martingale residuals against (quantitative) covariates
-    -   Use `residuals(cox_fit, type = "martingale")` to get martingale residuals\`
+    -   Use `residuals(cox_fit, type = "martingale")` to get martingale residuals
 -   **Other aspects**
     -   Appropriateness of exponential link function
     -   Influential points/outliers
@@ -464,9 +464,9 @@ ggcoxdiagnostics(cox_fit, type = "deviance",  # deviance on y-axis
     \Lambda_k(t\mid Z) = -\log\left\{1 - F_k(t\mid Z)\right\} 
     $$
     -   $F_k(t \mid Z)$: cumulative incidence function (CIF) of the $k$-th cause
-    -   $\lambda_k(t \mid Z)=\Lambda_k'(t)$: risk of the $k$-th cause in presence of other competing events in the whole population
+    -   $\lambda_k(t \mid Z)=\Lambda_k'(t\mid Z)$: risk of the $k$-th cause in presence of other competing events in the whole population
 -   **Different from cause-specific hazard**
-    -   Cause-specific hazard $$\lambda^\mathrm{c}_k(t \mid Z) =  \Pr(t\leq T< t+ \mathrm{d}t\mid T\geq t, Z)/\mathrm{d}t $$
+    -   Cause-specific hazard $$\lambda^\mathrm{c}_k(t \mid Z) =  \Pr(t\leq T< t+ \mathrm{d}t, \Delta = k\mid T\geq t, Z)/\mathrm{d}t $$
     -   Risk of the $k$-th cause in *survivors*
 
 ## Fine-Gray Model
@@ -587,6 +587,7 @@ fg_pred # Display the predicted CIF
     -   Model-based prediction with `survival::survfit()` and `ggsurvfit()`
     -   Model diagnostics with `survminer`
 -   **Fine-Gray model for competing risks regression**
+    -   Fit with `cmprsk::crr()`
     -   Tidy output with `broom` and `gtsummary`
     -   Visualize sub-distribution hazard ratios with forest plots
 
