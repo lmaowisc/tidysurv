@@ -4,7 +4,7 @@
     "href": "index.html",
     "title": "Welcome to the workshop",
     "section": "",
-    "text": "This site presents materials for the short course Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data to be taught at the 2025 Joint Statistical Meetings (JSM) in Nashville, TN.\nThis course aims to equip participants with the skills to apply tidy principles to survival analysis, fostering a more organized and reproducible approach to data analysis in R.\nIn a tidyverse approach, we apply consistent data workflows to survival analysis tasks. This means using tibble data frames and dplyr for data preparation, keeping outputs tidy (one row per observation or estimate), and leveraging ggplot2 for visualization. For example, one might create the survival outcome as a new column using Surv(time, status) within a dplyr pipeline, fit models and then use broom to tidy() model outputs into data frames, and produce publication-quality plots with ggplot2 or ggsurvfit. The goal is a reproducible workflow where raw data are transformed, analyzed, and visualized seamlessly.\nTarget Audience: Statisticians, data analysts, researchers, and students interested in survival analysis who are familiar with R and the Tidyverse."
+    "text": "This site presents materials for the short course Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data to be taught at the 2025 Joint Statistical Meetings (JSM) in Nashville, TN.\nThis course aims to equip participants with the skills to apply tidy principles to survival analysis, fostering a more organized and reproducible approach to data analysis in R.\nIn a tidyverse approach, we apply consistent data workflows to survival analysis tasks. This means using tibble data frames and dplyr for data preparation, keeping outputs tidy (one row per observation or estimate), and leveraging ggplot2 for visualization. For example, one might create the survival outcome as a new column using Surv(time, status) within a dplyr pipeline, fit models and then use broom to tidy() model outputs into data frames, and produce publication-quality tables and plots with gtsummary and ggplot2 or ggsurvfit. The goal is a reproducible workflow where raw data are transformed, analyzed, and visualized seamlessly.\nTarget Audience: Statisticians, data analysts, researchers, and students interested in survival analysis who are familiar with R and the Tidyverse."
   },
   {
     "objectID": "index.html#time-and-place",
@@ -85,8 +85,8 @@
     "objectID": "sec1.html#time-to-event-data",
     "href": "sec1.html#time-to-event-data",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
-    "section": "Time-to-Event Data",
-    "text": "Time-to-Event Data\n\nA common type of outcome in medical and clinical studies\n\nStarting point: Randomization, diagnosis, enrollment, birth, etc.\n\nEndpoint (Event of interest): Death, disease onset, hospitalization, etc.\n\nEngineering: Failure times of machines or components (reliability)\nSocial sciences: Time to job change, dropout, or event occurrence\n\n\nRight censoring:\n\nEvent not observed within the follow-up period\nDue to study ending, dropout, or loss to follow-up\nWe only know:\n\\[\nT &gt; C\n\\] where \\(T\\) is event time and \\(C\\) is censoring time"
+    "section": "",
+    "text": "A common type of outcome in medical and clinical studies\n\nStarting point: Randomization, diagnosis, enrollment, birth, etc.\n\nEndpoint (Event of interest): Death, disease onset, hospitalization, etc.\n\nEngineering: Failure times of machines or components (reliability)\nSocial sciences: Time to job change, dropout, or event occurrence\n\n\nRight censoring:\n\nEvent not observed within the follow-up period\nDue to study ending, dropout, or loss to follow-up\nWe only know:\n\\[\nT &gt; C\n\\] where \\(T\\) is event time and \\(C\\) is censoring time"
   },
   {
     "objectID": "sec1.html#censoring",
@@ -99,22 +99,22 @@
     "objectID": "sec1.html#follow-up-swimmer-plot",
     "href": "sec1.html#follow-up-swimmer-plot",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
-    "section": "Follow-up (Swimmer) Plot",
-    "text": "Follow-up (Swimmer) Plot\n\nA rat tumorigenicity study"
+    "section": "",
+    "text": "A rat tumorigenicity study"
   },
   {
     "objectID": "sec1.html#basic-estimands",
     "href": "sec1.html#basic-estimands",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
-    "section": "Basic Estimands",
-    "text": "Basic Estimands\n\nSurvival function: \\(S(t) = \\Pr(T &gt; t)\\)\n\nProbability subject survives beyond time \\(t\\)\n\nHazard function:\n\\[\n\\lambda(t) = \\lim_{\\Delta t \\to 0} \\frac{\\Pr(t \\leq T &lt; t + \\Delta t \\mid T \\geq t)}{\\Delta t}\n\\]\n\nInstantaneous risk of failure at time \\(t\\)\n\nRelationship \\[\nS(t) = \\exp\\left(-\\int_0^t \\lambda(u) \\mathrm{d}u\\right)\n\\]\n\nCumulative hazard function: \\(\\Lambda(t) = \\int_0^t \\lambda(u) \\mathrm{d}u\\)"
+    "section": "",
+    "text": "Survival function: \\(S(t) = \\Pr(T &gt; t)\\)\n\nProbability subject survives beyond time \\(t\\)\n\nHazard function:\n\\[\n\\lambda(t) = \\lim_{\\Delta t \\to 0} \\frac{\\Pr(t \\leq T &lt; t + \\Delta t \\mid T \\geq t)}{\\Delta t}\n\\]\n\nInstantaneous risk of failure at time \\(t\\)\n\nRelationship \\[\nS(t) = \\exp\\left(-\\int_0^t \\lambda(u) \\mathrm{d}u\\right)\n\\]\n\nCumulative hazard function: \\(\\Lambda(t) = \\int_0^t \\lambda(u) \\mathrm{d}u\\)"
   },
   {
     "objectID": "sec1.html#observed-censored-data",
     "href": "sec1.html#observed-censored-data",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
-    "section": "Observed (Censored) Data",
-    "text": "Observed (Censored) Data\n\nNotation: \\((X, \\delta)\\)\n\n\\(X=\\min(T, C)\\): observation time (event or censoring)\n\\(\\delta = I(T\\leq C)\\): event indicator (1 for event, 0 for censoring)\n\nData format\n\n# time = X, status = delta (tidy format)\n    id    time status\n1     1     5     1\n2     2     3     0\n3     3     8     1\n4     4     2     0\n5     5     6     1\n# Alternatively \n    id    time \n1     1     5   \n2     2     3+  \n3     3     8  \n4     4     2+  \n5     5     6"
+    "section": "",
+    "text": "Notation: \\((X, \\delta)\\)\n\n\\(X=\\min(T, C)\\): observation time (event or censoring)\n\\(\\delta = I(T\\leq C)\\): event indicator (1 for event, 0 for censoring)\n\nData format\n\n# time = X, status = delta (tidy format)\n    id    time status\n1     1     5     1\n2     2     3     0\n3     3     8     1\n4     4     2     0\n5     5     6     1\n# Alternatively \n    id    time \n1     1     5   \n2     2     3+  \n3     3     8  \n4     4     2+  \n5     5     6"
   },
   {
     "objectID": "sec1.html#s",
@@ -205,7 +205,7 @@
     "href": "sec1.html#log-rank-test",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Log-Rank Test",
-    "text": "Log-Rank Test\n\nCompare survival curves between groups\n\n\nlgr_obj &lt;- survdiff(Surv(time, status) ~ hormone, data = df)\nlgr_obj # Print log-rank test results\n\nCall:\nsurvdiff(formula = Surv(time, status) ~ hormone, data = df)\n\n            N Observed Expected (O-E)^2/E (O-E)^2/V\nhormone=1 440      205      180      3.37      8.56\nhormone=2 246       94      119      5.12      8.56\n\n Chisq= 8.6  on 1 degrees of freedom, p= 0.003 \n\nlgr_obj$pvalue # Extract p-value\n\n[1] 0.003427282\n\n\n\n\n\nExercise\n\n\nPerform a log-rank test on treatment stratified by patient menopausal status meno.\n\n\nSolution\nsurvdiff(Surv(time, status) ~ hormone + strata(meno), data = df)"
+    "text": "Log-Rank Test\n\nCompare survival curves between groups\n\n\nlgr_obj &lt;- survdiff(Surv(time, status) ~ hormone, data = df)\nlgr_obj # Print log-rank test results\n\nCall:\nsurvdiff(formula = Surv(time, status) ~ hormone, data = df)\n\n            N Observed Expected (O-E)^2/E (O-E)^2/V\nhormone=1 440      205      180      3.37      8.56\nhormone=2 246       94      119      5.12      8.56\n\n Chisq= 8.6  on 1 degrees of freedom, p= 0.003 \n\nlgr_obj$pvalue # Extract p-value\n\n[1] 0.003427282\n\n\n\n\n\n\n\n\nExercise\n\n\n\nPerform a log-rank test on treatment stratified by patient menopausal status meno.\n\n\nSolution\nsurvdiff(Surv(time, status) ~ hormone + strata(meno), data = df)"
   },
   {
     "objectID": "sec1.html#key-takeaways",
@@ -317,7 +317,7 @@
     "href": "sec1.html#coding-exercise",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Coding Exercise",
-    "text": "Coding Exercise\n\n\n\nExercise\n\n\nResidual analyses show that the proportional hazards assumption is violated for tumor grade, and that the effect of age is not linear.\nFit a different model to address these issues.\n\n\nSample solution\n# Dichotomize age at 40\ndf$age40 &lt;- ifelse(df$age &lt; 40, 0, 1)\n# Fit Cox model stratified by tumor grade and with binary age \ncox_fit2 &lt;- coxph(Surv(time, status) ~ hormone + meno + age40 + size + prog + estrg + \n                   strata(grade), data = df)\nsummary(cox_fit2) # Print model summary"
+    "text": "Coding Exercise\n\n\n\n\n\n\nExercise\n\n\n\nResidual analyses show that the proportional hazards assumption is violated for tumor grade, and that the effect of age is not linear.\nFit a different model to address these issues.\n\n\nSample solution\n# Dichotomize age at 40\ndf$age40 &lt;- ifelse(df$age &lt; 40, 0, 1)\n# Fit Cox model stratified by tumor grade and with binary age \ncox_fit2 &lt;- coxph(Surv(time, status) ~ hormone + meno + age40 + size + prog + estrg + \n                   strata(grade), data = df)\nsummary(cox_fit2) # Print model summary"
   },
   {
     "objectID": "sec1.html#open-questions",

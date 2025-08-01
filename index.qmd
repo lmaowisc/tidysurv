@@ -6,7 +6,8 @@ This site presents materials for the short course **Tidy Survival Analysis: Appl
 
 **This course** aims to equip participants with the skills to apply tidy principles to survival analysis, fostering a more organized and reproducible approach to data analysis in R.
 
-In a tidyverse approach, we apply consistent data workflows to survival analysis tasks. This means using tibble data frames and `dplyr` for data preparation, keeping outputs tidy (one row per observation or estimate), and leveraging `ggplot2` for visualization. For example, one might create the survival outcome as a new column using `Surv(time, status)` within a `dplyr` pipeline, fit models and then use broom to `tidy()` model outputs into data frames, and produce publication-quality plots with `ggplot2` or `ggsurvfit`. The goal is a reproducible workflow where raw data are transformed, analyzed, and visualized seamlessly.
+In a tidyverse approach, we apply consistent data workflows to survival analysis tasks. This means using tibble data frames and `dplyr` for data preparation, keeping outputs tidy (one row per observation or estimate), and leveraging `ggplot2` for visualization. For example, one might create the survival outcome as a new column using `Surv(time, status)` within a `dplyr` pipeline, fit models and then use broom to `tidy()` model outputs into data frames, and produce publication-quality tables and plots with `gtsummary` and `ggplot2` or `ggsurvfit`. 
+The goal is a reproducible workflow where raw data are transformed, analyzed, and visualized seamlessly.
 
 **Target Audience**: Statisticians, data analysts, researchers, and students interested in survival analysis who are familiar with R and the Tidyverse.
 
@@ -106,4 +107,5 @@ file.copy(from = list.files(source_folder, full.names = TRUE),
 
 ```
 
-
+<!-- insert image: "images/cover.png" -->
+![](images/tidy_meme.jpg){fig-align="center"}
