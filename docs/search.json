@@ -128,7 +128,7 @@
     "href": "sec1.html#german-breast-cancer-gbc-study",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "German Breast Cancer (GBC) Study",
-    "text": "German Breast Cancer (GBC) Study\n\nStudy Information\n\nPopulation: 686 patients with node-positive breast cancer\n\nObjective: Assess if tamoxifen + chemo reduces mortality/relapse\n\nBaseline info: Age, tumor size, hormone levels, menopausal status, etc.\n\nFollow-up: Median 44 months\n\n171 deaths \\(\\to\\) exact times known\n\n515 censored \\(\\to\\) survival time \\(&gt;\\) censoring time\n\n\nData sets:\n\nMortality data: https://lmaowisc.github.io/tidysurv/data/gbc_mort.txt\nMortality + relapse: https://lmaowisc.github.io/tidysurv/data/gbc.txt\nDownload and save in a data folder under your root directory"
+    "text": "German Breast Cancer (GBC) Study\n\nStudy Information\n\nPopulation: 686 patients with node-positive breast cancer\n\nObjective: Assess if hormone therapy tamoxifen + chemo reduces mortality/relapse\n\nBaseline info: Age, tumor size, hormone levels, menopausal status, etc.\n\nFollow-up: Median 44 months\n\n171 deaths \\(\\to\\) exact times known\n\n515 censored \\(\\to\\) survival time \\(&gt;\\) censoring time\n\n\nData sets:\n\nMortality data: https://lmaowisc.github.io/tidysurv/data/gbc_mort.txt\nMortality + relapse: https://lmaowisc.github.io/tidysurv/data/gbc.txt\nDownload and save in a data folder under your root directory"
   },
   {
     "objectID": "sec1.html#data-format",
@@ -385,7 +385,7 @@
     "href": "sec2.html#why-tidy-data",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Why Tidy Data?",
-    "text": "Why Tidy Data?\n\nTidy data principles\n\nEasy to reshape and transform\nCompatible with ggplot2, dplyr, tidyr, and modeling tools\nEncourages modular and reproducible code\n\nMessy data challenges:\n\nTime in rows, covariates in columns\nMultiple data types in one column\nSeparte randomization and event/censoring dates\nMissing/censored values inconsistently coded"
+    "text": "Why Tidy Data?\n\nTidy data principles\n\nEasy to reshape and transform\nCompatible with ggplot2, dplyr, tidyr, and modeling tools\nEncourages modular and reproducible code\n\nMessy data challenges\n\nTime in rows, covariates in columns\nMultiple data types in one column\nSeparate randomization and event/censoring dates\nMissing/censored values inconsistently coded"
   },
   {
     "objectID": "sec2.html",
@@ -546,7 +546,7 @@
     "href": "sec2.html#reshaping-data",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Reshaping Data",
-    "text": "Reshaping Data\n\nWhy reshape?\n\nMultiple events per subject\nWide format (multiple columns) \\(\\rightarrow\\) long format (one row per event)\n\n\n\n# Example: wide format with multiple events\ndf6 &lt;- tibble(\n  id = 1:3,\n  prog_time = c(10, 20, 30),\n  prog_status = c(1, 0, 1), # 1 = progression, 0 = censored\n  death_time = c(15, 20, 35),\n  death_status = c(0, 1, 1) # 1 = dead, 0 = censored\n)\n# 1: progression at 10, censored at 15\n# 2: dead at 20 without progression\n# 3: progression at 30, dead at 35\ndf6\n\n# A tibble: 3 × 5\n     id prog_time prog_status death_time death_status\n  &lt;int&gt;     &lt;dbl&gt;       &lt;dbl&gt;      &lt;dbl&gt;        &lt;dbl&gt;\n1     1        10           1         15            0\n2     2        20           0         20            1\n3     3        30           1         35            1"
+    "text": "Reshaping Data\n\nWhy reshape?\n\nMultiple events per subject\nWide format (multiple columns) \\(\\rightarrow\\) long format (one row per event)\n\n\n\n# Example: wide format with multiple events\ndf6 &lt;- tibble(\n  id = 1:3,\n  prog_time = c(10, 20, 30),\n  prog_status = c(1, 0, 1), # 1 = progression, 0 = censored\n  death_time = c(15, 20, 35),\n  death_status = c(0, 1, 1) # 1 = dead, 0 = censored\n)\ndf6\n\n# A tibble: 3 × 5\n     id prog_time prog_status death_time death_status\n  &lt;int&gt;     &lt;dbl&gt;       &lt;dbl&gt;      &lt;dbl&gt;        &lt;dbl&gt;\n1     1        10           1         15            0\n2     2        20           0         20            1\n3     3        30           1         35            1"
   },
   {
     "objectID": "sec2.html#wide-to-long",
@@ -679,7 +679,7 @@
     "href": "sec2.html#key-takeaways",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Key Takeaways",
-    "text": "Key Takeaways\n\nTidyverse provides powerful tools for data manipulation and visualization\nTidy data principles simplify analysis and visualization\nSurvival data may require pre-processing steps (dplyr, tidyr,lubridate)\nSwimmer plots effectively visualize subject follow-up (ggplot2)\nDescriptive statistics can be easily summarized using gtsummary::tbl_summary()"
+    "text": "Key Takeaways\n\nTidyverse provides powerful tools for data manipulation and visualization\nTidy data principles simplify analysis and visualization\nSurvival data may require pre-processing steps (dplyr, tidyr, lubridate)\nSwimmer plots effectively visualize subject follow-up (ggplot2)\nDescriptive statistics can be easily summarized using gtsummary::tbl_summary()"
   },
   {
     "objectID": "sec2.html#next-steps",

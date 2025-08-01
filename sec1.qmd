@@ -104,7 +104,7 @@ include-in-header:
 
 -   **Study Information**
     -   **Population**: 686 patients with node-positive breast cancer\
-    -   **Objective**: Assess if tamoxifen + chemo reduces mortality/relapse\
+    -   **Objective**: Assess if hormone therapy tamoxifen + chemo reduces mortality/relapse\
     -   **Baseline info**: Age, tumor size, hormone levels, menopausal status, etc.\
     -   **Follow-up**: Median 44 months
         -   171 deaths $\to$ exact times known\

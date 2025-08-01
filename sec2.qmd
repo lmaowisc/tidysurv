@@ -139,10 +139,10 @@ df1 |> # passes tibble data frame df1 to the next function
     -   Easy to reshape and transform
     -   Compatible with `ggplot2`, `dplyr`, `tidyr`, and modeling tools
     -   Encourages modular and reproducible code
--   **Messy data challenges:**
+-   **Messy data challenges**
     -   Time in rows, covariates in columns
     -   Multiple data types in one column
-    -   Separte randomization and event/censoring dates
+    -   Separate randomization and event/censoring dates
     -   Missing/censored values inconsistently coded
 
 ## Tidy Survival Data
@@ -302,9 +302,6 @@ df6 <- tibble(
   death_time = c(15, 20, 35),
   death_status = c(0, 1, 1) # 1 = dead, 0 = censored
 )
-# 1: progression at 10, censored at 15
-# 2: dead at 20 without progression
-# 3: progression at 30, dead at 35
 df6
 ```
 
@@ -670,7 +667,7 @@ gbc |>
 
 -   **Tidyverse** provides powerful tools for data manipulation and visualization
 -   **Tidy data** principles simplify analysis and visualization
--   **Survival data** may require pre-processing steps (`dplyr`, `tidyr`,`lubridate`)
+-   **Survival data** may require pre-processing steps (`dplyr`, `tidyr`, `lubridate`)
 -   **Swimmer plots** effectively visualize subject follow-up (`ggplot2`)
 -   **Descriptive statistics** can be easily summarized using `gtsummary::tbl_summary()`
 
