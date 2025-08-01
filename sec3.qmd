@@ -185,7 +185,7 @@ df |>                                       # Use raw data
         -   `statistic = "{estimate} ({conf.low}, {conf.high})"` for confidence intervals
 -   More about `gtsummary`
     -   [gtsummary](https://www.danieldsjoberg.com/gtsummary/) website
-    -   [tbl_survfit documentation](https://www.danieldsjoberg.com/gtsummary/articles/tbl_survfit.html)
+    -   [tbl_survfit documentation](https://www.danieldsjoberg.com/gtsummary/reference/tbl_survfit.html)
 
 # Visualizing Kaplan-Meier Curves
 
@@ -348,7 +348,7 @@ km_fig + add_quantile(
     -   $T$: time to event
     -   $\Delta$: event type indicator (e.g., 1 for relapse, 2 for death)
 -   **Quantity of interest**
-    -   cumulative incidence function (CIF), or sub-distribution $$
+    -   Cumulative incidence function (CIF), or sub-distribution $$
           F_k(t) = P(T \leq t, \Delta = k)
           $$
         -   Cumulative probability of event type $k$ by time $t$
@@ -356,9 +356,9 @@ km_fig + add_quantile(
 ## `tidycmprsk` Package
 
 -   **Analysis of CIF** implemented in `cmprsk` package
-    -   A "tidy" version is available in`tidycmprsk`package
+    -   A "tidy" version is available in `tidycmprsk` package
     -   Simple interface, plays nicely with `gtsummary` and `ggsurvfit`
-    -   Input data: `status`: must be a factor, with the first level indicating censoring and subsequent levels the competing risks
+    -   Input data: `status` must be a factor, with the first level indicating censoring and subsequent levels the competing risks
 
 ```{r}
 #| eval: true
@@ -575,7 +575,7 @@ cif_trial <- cif_cancer_plot + cif_other_plot + plot_layout(guides = "collect") 
 ```
 
 -   More about `tidycmprsk`
-    -   [tidycmprsk](https://www.danieldsjoberg.com/tidycmprsk/) website
+    -   [tidycmprsk](https://mskcc-epi-bio.github.io/tidycmprsk/) website
 
 # Summary
 
