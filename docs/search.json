@@ -1506,14 +1506,14 @@
     "href": "sec5.html#data-preparation-and-splitting",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Data Preparation and Splitting",
-    "text": "Data Preparation and Splitting\n\nCreate a Surv object as response\n\nSurv(time, event)\n\n\n\nlibrary(tidymodels)\nlibrary(censored)\ndf &lt;- df |&gt;  \n  mutate(\n    surv_obj = Surv(time, event), # create the Surv object as response variable\n    .keep = \"unused\"              # discard original time and event columns\n  )\n\n\nData splitting\n\ninitial_split(): splits data into training and testing sets\n\n\n\ndf_split &lt;- initial_split(flight_data, prop = 3/4) # default ratio 3:1\ndf_train &lt;- training(df_split) # obtain training set"
+    "text": "Data Preparation and Splitting\n\nCreate a Surv object as response\n\nSurv(time, event)\n\n\n\nlibrary(tidymodels)\nlibrary(censored)\ndf &lt;- df |&gt;  \n  mutate(\n    surv_obj = Surv(time, event), # create the Surv object as response variable\n    .keep = \"unused\"              # discard original time and event columns\n  )\n\n\nData splitting\n\ninitial_split(): splits data into training and testing sets\n\n\ndf_split &lt;- initial_split(flight_data, prop = 3/4) # default ratio 3:1\ndf_train &lt;- training(df_split) # obtain training set"
   },
   {
     "objectID": "sec5.html#model-specification",
     "href": "sec5.html#model-specification",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Model Specification",
-    "text": "Model Specification\n\nModel type\n\nsurvival_reg(): parametric AFT models\nproportional_hazards(penalty = tune()): (regularized) Cox PH models\ndecision_tree(complexity = tune()): decision trees\nrand_forest(mtry = tune()): random forests\n\nSet engine and mode\n\nset_engine(\"survival\"): for AFT models\nset_engine(\"glmnet\"): for Cox PH models\nset_engine(\"aorsf\"): for random forests\nset_mode(\"censored regression\"): for survival models\n\n\n\nmodel_spec &lt;- proportional_hazards(penalty = tune()) |&gt;  # regularized Cox model (tune lambda)\n  set_engine(\"glmnet\") |&gt;  # set engine to glmnet\n  set_mode(\"censored regression\") # set mode to censored regression"
+    "text": "Model Specification\n\nModel type\n\nsurvival_reg(): parametric AFT models\nproportional_hazards(penalty = tune()): (regularized) Cox PH models\ndecision_tree(cost_complexity = tune()): decision trees\nrand_forest(mtry = tune()): random forests\n\nSet engine and mode\n\nset_engine(\"survival\"): for AFT models\nset_engine(\"glmnet\"): for Cox PH models\nset_engine(\"aorsf\"): for random forests\nset_mode(\"censored regression\"): for survival models\n\n\n\nmodel_spec &lt;- proportional_hazards(penalty = tune()) |&gt;  # regularized Cox model (tune lambda)\n  set_engine(\"glmnet\") |&gt;  # set engine to glmnet\n  set_mode(\"censored regression\") # set mode to censored regression"
   },
   {
     "objectID": "sec5.html#recipe-and-workflow",
@@ -1632,7 +1632,7 @@
     "href": "sec5.html#best-cox-models",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Best Cox Models",
-    "text": "Best Cox Models\n\nShow best models\n\nBased on Brier score\n\n\n\nshow_best(cox_res, metric = \"brier_survival_integrated\", n = 5) # top 5 models\n\n# A tibble: 5 × 8\n       penalty .metric         .estimator .eval_time  mean     n std_err .config\n         &lt;dbl&gt; &lt;chr&gt;           &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;  \n1 0.00147      brier_survival… standard           NA 0.160    10 0.00775 Prepro…\n2 0.0000127    brier_survival… standard           NA 0.160    10 0.00775 Prepro…\n3 0.0000000105 brier_survival… standard           NA 0.160    10 0.00775 Prepro…\n4 0.000754     brier_survival… standard           NA 0.160    10 0.00775 Prepro…\n5 0.00000409   brier_survival… standard           NA 0.160    10 0.00775 Prepro…"
+    "text": "Best Cox Models\n\nShow best models\n\nBased on Brier score\n\n\nshow_best(cox_res, metric = \"brier_survival_integrated\", n = 5) # top 5 models\n\n# A tibble: 5 × 8\n       penalty .metric         .estimator .eval_time  mean     n std_err .config\n         &lt;dbl&gt; &lt;chr&gt;           &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;  \n1 0.00147      brier_survival… standard           NA 0.160    10 0.00775 Prepro…\n2 0.0000127    brier_survival… standard           NA 0.160    10 0.00775 Prepro…\n3 0.0000000105 brier_survival… standard           NA 0.160    10 0.00775 Prepro…\n4 0.000754     brier_survival… standard           NA 0.160    10 0.00775 Prepro…\n5 0.00000409   brier_survival… standard           NA 0.160    10 0.00775 Prepro…"
   },
   {
     "objectID": "sec5.html#random-forest-model",
@@ -1737,7 +1737,7 @@
     "href": "sec5.html#survival-tree-exercise",
     "title": "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data",
     "section": "Survival Tree Exercise",
-    "text": "Survival Tree Exercise\n\nTask: fit a survival tree model to the GBC data\n\nUse decision_tree() with set_engine(\"rpart\")\nTune complexity parameter cp using tune()\nUse the same recipe as for Cox and RF models\nEvaluate performance using Brier score and ROC AUC"
+    "text": "Survival Tree Exercise\n\nTask: fit a survival tree model to the GBC data\n\nUse decision_tree() with set_engine(\"rpart\")\nTune complexity parameter cost_complexity using tune()\nUse the same recipe as for Cox and RF models\nEvaluate performance using Brier score and ROC AUC"
   },
   {
     "objectID": "index.html#r-packages",

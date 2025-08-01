@@ -384,15 +384,15 @@ B=\{i=1,\ldots, n: Z_{ij}&gt; z\}
 <span id="cb1-7"><a></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <ul>
-<li><strong>Data splitting</strong>
+<li><p><strong>Data splitting</strong></p>
 <ul>
 <li><code>initial_split()</code>: splits data into training and testing sets</li>
-</ul></li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a>df_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(flight_data, <span class="at">prop =</span> <span class="dv">3</span><span class="sc">/</span><span class="dv">4</span>) <span class="co"># default ratio 3:1</span></span>
 <span id="cb2-2"><a></a>df_train <span class="ot">&lt;-</span> <span class="fu">training</span>(df_split) <span class="co"># obtain training set</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
+</div></li>
+</ul>
 </section>
 <section id="model-specification" class="slide level2">
 <h2>Model Specification</h2>
@@ -401,7 +401,7 @@ B=\{i=1,\ldots, n: Z_{ij}&gt; z\}
 <ul>
 <li><code>survival_reg()</code>: parametric AFT models</li>
 <li><code>proportional_hazards(penalty = tune())</code>: (regularized) Cox PH models</li>
-<li><code>decision_tree(complexity = tune())</code>: decision trees</li>
+<li><code>decision_tree(cost_complexity = tune())</code>: decision trees</li>
 <li><code>rand_forest(mtry = tune())</code>: random forests</li>
 </ul></li>
 <li><strong>Set engine and mode</strong>
@@ -705,10 +705,9 @@ maximize</code></pre>
 <section id="best-cox-models" class="slide level2">
 <h2>Best Cox Models</h2>
 <ul>
-<li><strong>Show best models</strong>
+<li><p><strong>Show best models</strong></p>
 <ul>
 <li>Based on Brier score</li>
-</ul></li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a></a><span class="fu">show_best</span>(cox_res, <span class="at">metric =</span> <span class="st">"brier_survival_integrated"</span>, <span class="at">n =</span> <span class="dv">5</span>) <span class="co"># top 5 models</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -722,7 +721,8 @@ maximize</code></pre>
 4 0.000754     brier_survival… standard           NA 0.160    10 0.00775 Prepro…
 5 0.00000409   brier_survival… standard           NA 0.160    10 0.00775 Prepro…</code></pre>
 </div>
-</div>
+</div></li>
+</ul>
 </section>
 <section id="random-forest-model" class="slide level2">
 <h2>Random Forest Model</h2>
@@ -987,7 +987,7 @@ Computational engine: aorsf </code></pre>
 <li><strong>Task</strong>: fit a survival tree model to the GBC data
 <ul>
 <li>Use <code>decision_tree()</code> with <code>set_engine("rpart")</code></li>
-<li>Tune complexity parameter <code>cp</code> using <code>tune()</code></li>
+<li>Tune complexity parameter <code>cost_complexity</code> using <code>tune()</code></li>
 <li>Use the same recipe as for Cox and RF models</li>
 <li>Evaluate performance using Brier score and ROC AUC</li>
 </ul></li>
