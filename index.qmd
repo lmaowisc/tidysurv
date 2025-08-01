@@ -49,7 +49,7 @@ The goal is a reproducible workflow where raw data are transformed, analyzed, an
 -   **2. Data Manipulation with Tidyverse** (45 min)
     -   2.1 Overview of Tidyverse
     -   2.2 Tidying survival data
-    -   2.3 Visualizing Subject Follow-Up with `ggplot2`
+    -   2.3 Visualizing subject follow-Up with `ggplot2`
     -   2.4 Creating “Table 1” with `gtsummary`
 -   **3. Nonparametric Survival Analysis** (50 min)
     -   3.1 Tabulating survival estimates with `gtsummary`
@@ -108,4 +108,4 @@ file.copy(from = list.files(source_folder, full.names = TRUE),
 ```
 
 <!-- insert image: "images/cover.png" -->
-![](images/tidy_meme.jpg){fig-align="center"}
+![](images/tidy_meme.png){fig-align="center"}
