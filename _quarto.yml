@@ -1,38 +1,84 @@
 project:
   type: website
-  output-dir: docs
+  output-dir: _site
+  render:
+    - index.qmd
+    - intro.qmd
+    - tidy.qmd
+    - np.qmd
+    - reg.qmd
+    - ml.qmd
+    - resources.qmd
+  resources:
+    - slides/**
+    - data/*.txt
+    - data/*.rds
+    - code/**
+    - images/**
+    - favicon.svg
 
 website:
-  title: "Tidy Survival Analysis --- A Workshop"
-  # subtitle: "Applying R’s Tidyverse to Survival Data"
-  twitter-card: true
-  site-url: https://lmaowisc.github.io/tidysurv/
-  navbar:
-    left:
-      - href: index.qmd
-        text: Home
-
+  site-url: "https://lmaowisc.github.io/tidysurv/"
+  title: "Tidy Survival Analysis"
+  description: "An applied guide to survival analysis in R, from standard methods to tidy workflows."
+  favicon: favicon.svg
+  page-navigation: true
   sidebar:
-    style: "docked"
+    title: "Tidy Survival Analysis"
+    subtitle: "An applied guide in R"
+    style: docked
+    background: "#172d49"
+    foreground: "#ffffff"
     search: true
+    collapse-level: 2
     contents:
-      - intro.qmd
-      - tidy.qmd
-      - np.qmd
-      - reg.qmd
-      - ml.qmd
-csl: apa.csl
+      - text: "About this book"
+        href: index.qmd
+      - section: "THE CHAPTERS"
+        contents:
+          - text: "01  Survival analysis in R"
+            href: intro.qmd
+          - text: "02  Working with tidy data"
+            href: tidy.qmd
+          - text: "03  Nonparametric methods"
+            href: np.qmd
+          - text: "04  Regression models"
+            href: reg.qmd
+          - text: "05  Machine learning"
+            href: ml.qmd
+      - text: "Code, data & slides"
+        href: resources.qmd
+    footer: |
+      [Lu Mao](https://lmaowisc.github.io/){target="_blank" rel="noopener noreferrer"}, PhD<br>University of Wisconsin–Madison
+  page-footer:
+    left: "Tidy Survival Analysis · Lu Mao"
+    right: "From standard methods to tidy workflows."
+
 format:
   html:
-    theme: cosmo
+    theme: [cosmo, theme.scss]
     css: styles.css
     toc: true
-    toc-depth: 4
-    toc-expand: true
-    linkcolor: "#C5050C"
-    backgroundcolor: "#FFFFFF"
-    math: mathjax
+    toc-depth: 2
+    toc-title: "IN THIS CHAPTER"
+    title-block-style: default
+    code-copy: true
+    code-overflow: scroll
+    code-line-numbers: false
+    highlight-style: github
+    link-external-newwindow: true
+    fig-cap-location: bottom
+    include-after-body: enhancements.html
+    grid:
+      sidebar-width: 260px
+      body-width: 850px
+      margin-width: 210px
+      gutter-width: 2rem
 
+execute:
+  warning: false
+  message: false
+  freeze: auto
 
-editor: visual
-
+editor: source
+keep-md: true

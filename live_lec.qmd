@@ -1,0 +1,749 @@
+---
+title: "Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data"
+author: "Lu Mao"
+date: today
+execute: 
+  eval: false
+---
+
+
+## Module 1
+
+```{r}
+# -------------------------------------------
+# Survival Analysis: Module 1 Code
+# -------------------------------------------
+
+# Load necessary package
+library(survival)
+
+# ---------------------------
+# 1. Load Datasets
+# ---------------------------
+
+# Load mortality-only data
+gbc_mort <- read.table("data/gbc_mort.txt", header = TRUE)
+head(gbc_mort)
+
+# Load mortality + relapse data
+gbc <- read.table("data/gbc.txt", header = TRUE)
+head(gbc)
+
+# ---------------------------
+# 2. Prepare Dataset for Relapse-Free Survival
+# ---------------------------
+
+# Sort by subject ID and event time
+gbc <- gbc[order(gbc$id, gbc$time), ]
+
+# Keep first event per subject
+df <- gbc[!duplicated(gbc$id), ]
+
+# Collapse relapse/death to single composite outcome
+df$status <- ifelse(df$status > 0, 1, 0)
+head(df)
+
+# ---------------------------
+# 3. Kaplan-Meier Estimation
+# ---------------------------
+
+# Fit Kaplan-Meier curves by hormone treatment
+km_fit <- survfit(Surv(time, status) ~ hormone, data = df)
+
+# Print KM summary
+summary(km_fit, times = c(6, 12, 24, 36))
+
+# Plot KM curves with CI
+plot(km_fit, ylim = c(0, 1), xlab = "Time (months)",
+     ylab = "Relapse-free survival probability",
+     col = c("red", "blue"), conf.int = TRUE)
+legend("bottomleft", col = c("red", "blue"), lty = 1,
+       legend = c("No hormone", "Hormone"))
+
+# ---------------------------
+# 4. Log-Rank Test
+# ---------------------------
+
+# Compare survival curves by treatment
+lgr_obj <- survdiff(Surv(time, status) ~ hormone, data = df)
+lgr_obj
+
+# Stratified test by menopausal status
+survdiff(Surv(time, status) ~ hormone + strata(meno), data = df)
+
+# ---------------------------
+# 5. Cox Proportional Hazards Model
+# ---------------------------
+
+# Fit Cox PH model with multiple covariates
+cox_fit <- coxph(Surv(time, status) ~ hormone + meno + age + grade +
+                   size + prog + estrg, data = df)
+summary(cox_fit)
+
+# Extract estimates and covariance matrix
+beta <- cox_fit$coefficients
+vbeta <- vcov(cox_fit)
+coef(summary(cox_fit))
+
+# ---------------------------
+# 6. Survival Prediction
+# ---------------------------
+
+# Define new subject's covariates
+new_data <- data.frame(hormone = 1, meno = 1, 
+                       age = 45, grade = 2,
+                       size = 20, prog = 100,
+                       estrg = 100)
+
+# Predict survival probabilities
+predicted_survival <- survfit(cox_fit, newdata = new_data,
+                              times = c(6, 12, 24, 36))
+summary(predicted_survival)
+
+# Plot predicted survival function
+plot(predicted_survival, ylim = c(0, 1), xlab = "Time (months)",
+     ylab = "Predicted survival probability", conf.int = TRUE)
+
+# ---------------------------
+# 7. Model Diagnostics
+# ---------------------------
+
+# Test proportional hazards assumption
+ph_test <- cox.zph(cox_fit)
+ph_test
+
+# Plot Schoenfeld residuals
+par(mfrow = c(2, 4))  # 2 rows, 4 columns
+plot(ph_test, se = TRUE, col = "blue", lwd = 2)
+
+# ---------------------------
+# 8. Check Functional Form of Covariates
+# ---------------------------
+
+# Extract martingale residuals
+mart_resid <- residuals(cox_fit, type = "martingale")
+
+# Plot residuals vs quantitative covariates
+par(mfrow = c(1, 4))  # 1 row, 4 plots
+
+plot(df$age, mart_resid, xlab = "Age", ylab = "Martingale Residuals",
+     main = "Age")
+lines(lowess(df$age, mart_resid), col = "blue", lwd = 2)
+abline(h = 0, lty = 2, col = "red")
+
+plot(df$size, mart_resid, xlab = "Tumor Size", ylab = "Martingale Residuals",
+     main = "Tumor Size")
+lines(lowess(df$size, mart_resid), col = "blue", lwd = 2)
+abline(h = 0, lty = 2, col = "red")
+
+plot(df$prog, mart_resid, xlab = "Progesterone", ylab = "Martingale Residuals",
+     main = "Progesterone")
+lines(lowess(df$prog, mart_resid), col = "blue", lwd = 2)
+abline(h = 0, lty = 2, col = "red")
+
+plot(df$estrg, mart_resid, xlab = "Estrogen", ylab = "Martingale Residuals",
+     main = "Estrogen")
+lines(lowess(df$estrg, mart_resid), col = "blue", lwd = 2)
+abline(h = 0, lty = 2, col = "red")
+
+# ---------------------------
+# 9. Addressing Violations
+# ---------------------------
+
+# Dichotomize age at 40, stratify on grade
+df$age40 <- ifelse(df$age < 40, 0, 1)
+
+cox_fit2 <- coxph(Surv(time, status) ~ hormone + meno + age40 +
+                    size + prog + estrg + strata(grade), data = df)
+summary(cox_fit2)
+
+
+```
+
+## Module 2
+
+```{r}
+# -------------------------------------------
+# Tidy Survival Analysis: Module 2 Code
+# -------------------------------------------
+
+# ---------------------------
+# 1. Load Required Packages
+# ---------------------------
+
+library(tidyverse)
+
+# ---------------------------
+# 2. Simulated Trial Dataset
+# ---------------------------
+
+# Create a toy dataset with treatment assignment, age, follow-up time, and status
+df1 <- tibble(
+  id = 1:6,
+  trt = c("A", "A", "B", "B", "A", "B"),
+  age = c(65, 70, 58, 60, 64, 59),
+  time = c(5, 8, 12, 3, 2, 6),
+  status = c(1, 0, 1, 1, 0, 0)  # 1 = event, 0 = censored
+)
+df1
+
+# ---------------------------
+# 3. Pipe Operator and Basic Manipulation
+# ---------------------------
+
+# Use native pipe |> to add new variable, filter, and sort
+df1 |>
+  mutate(age_group = if_else(age >= 65, "older", "younger")) |>  # categorize age
+  filter(trt == "A") |>                                           # subset treatment A
+  arrange(time)                                                   # sort by time
+
+# ---------------------------
+# 4. Grouped Summary by Treatment Arm
+# ---------------------------
+
+# Grouped summary: number of subjects, number of events, median follow-up
+df1 |> 
+  group_by(trt) |> 
+  summarize(
+    n = n(),                         # total subjects
+    events = sum(status),           # count of events
+    median_time = median(time)      # median survival time
+  )
+
+# ---------------------------
+# 5. Load GBC Dataset
+# ---------------------------
+
+# Load long-format data from the German Breast Cancer study
+gbc <- read.table("data/gbc.txt", header = TRUE)
+head(gbc)
+
+# ---------------------------
+# 6. Raw Date Variables as Strings
+# ---------------------------
+
+# Create small example dataset with character date fields
+df2 <- tibble(
+  id = 1:3,
+  rand_date = c("2022-01-01", "2022-01-15", "2022-01-20"),
+  end_date = c("2022-04-01", "2022-06-01", "2022-03-15"),
+  status = c("dead", "censored", "dead")
+)
+df2
+
+# ---------------------------
+# 7. Parse Dates and Calculate Survival Time
+# ---------------------------
+
+# Convert character dates to Date format and compute time and status
+df2 |>
+  mutate(
+    rand_date = ymd(rand_date),                 # convert randomization date
+    end_date = ymd(end_date),                   # convert event/censoring date
+    time = as.numeric(end_date - rand_date),    # survival time in days
+    status = if_else(status == "dead", 1, 0)    # binary status indicator
+  )
+
+# ---------------------------
+# 8. Censored Strings Parsing
+# ---------------------------
+
+# Handle messy strings like "32+" using stringr functions
+MP <- c(10, "32+", 23, "25+")
+df4 <- tibble(
+  MP = MP,
+  time = parse_number(MP),                # extract numeric portion
+  status = 1 - str_detect(MP, "\\+")      # 0 if "+" present (censored)
+)
+df4
+
+# ---------------------------
+# 9. Reshape Wide to Long Format
+# ---------------------------
+
+# Convert multiple event times to long format using pivot_longer
+df6 <- tibble(
+  id = 1:3,
+  prog_time = c(10, 20, 30),
+  prog_status = c(1, 0, 1),
+  death_time = c(15, 20, 35),
+  death_status = c(0, 1, 1)
+)
+
+df7 <- df6 |> 
+  pivot_longer(
+    cols = c(prog_time, prog_status, death_time, death_status),
+    names_to = c("event", ".value"),
+    names_pattern = "(.*)_(.*)"
+  )
+df7
+
+# ---------------------------
+# 10. Clean Long-Format Event Data
+# ---------------------------
+
+# Remove non-events and recode death status
+df7 |> 
+  filter(!(event == "prog" & status == 0)) |>        # drop non-events
+  mutate(status = if_else(event == "death" & status == 1, 2, status))  # 2 = death
+
+# ---------------------------
+# 11. Construct a Swimmer Plot
+# ---------------------------
+
+# Create subject-level survival data
+df8 <- tibble(
+  time = c(101, 55, 67, 23, 45, 98, 34, 77, 91, 104, 88),
+  status = c(0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1),
+  group = c("A", "A", "A", "B", "B", "B", "A", "B", "B", "A", "B")
+) |> 
+  mutate(
+    id = row_number(),  # assign subject IDs
+    .before = 1
+  )
+
+# Build swimmer plot using ggplot2
+fig8 <- df8 |> 
+  ggplot(aes(x = time, y = reorder(id, time))) +
+  geom_linerange(aes(xmin = 0, xmax = time)) +
+  geom_point(aes(shape = factor(status)), size = 2.5, fill = "white") +
+  geom_vline(xintercept = 0, linewidth = 1) +
+  theme_minimal() +
+  scale_y_discrete(name = "Rats") +
+  scale_x_continuous(name = "Time (days)", breaks = seq(0, 100, 20),
+                     expand = expansion(c(0, 0.05))) +
+  scale_shape_manual(values = c(23, 19),
+                     labels = c("Censoring", "Tumor development")) +
+  theme(
+    legend.position = "top",
+    legend.title = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    panel.grid.major.y = element_blank(),
+    legend.text = element_text(size = 11)
+  )
+
+# ---------------------------
+# 12. Create Summary Table with gtsummary
+# ---------------------------
+
+# Create example dataset for table
+df9 <- tibble(
+  id = 1:10,
+  time = c(101, 55, 67, 23, 45, 98, 34, 77, 91, 104),
+  status = c(0, 1, 1, 0, 1, 0, 1, 0, 1, 0),
+  trt = c("A", "A", "B", "B", "A", "B", "A", "B", "A", "B"),
+  sex = c("M", "F", "M", "F", "M", "F", "M", "F", "M", "F"),
+  age = c(65, 70, 58, 60, 64, 59, 66, 62, 68, 61)
+)
+
+# Summarize variables by treatment arm
+library(gtsummary)
+
+df9 |> 
+  tbl_summary(
+    by = trt,
+    include = c(sex, age, time, status),
+    label = list(
+      time = "Follow-up time (months)",
+      status = "Events"
+    )
+  )
+```
+
+## Module 3
+
+```{r}
+# -------------------------------------------
+# Survival Analysis: Module 3 Code
+# -------------------------------------------
+
+# Load necessary packages
+library(tidyverse)     # For data manipulation
+library(survival)      # For survival analysis functions
+library(broom)         # For tidying model output
+library(gtsummary)     # For tabulating survival estimates
+library(ggsurvfit)     # For tidy survival plotting
+library(tidycmprsk)    # For competing risks analysis
+library(patchwork)     # For combining ggplots
+
+# ---------------------------
+# 1. Load and Prepare Data
+# ---------------------------
+
+# Load mortality + relapse data
+gbc <- read.table("data/gbc.txt", header = TRUE)
+
+# Prepare dataset: collapse to time-to-first event
+df <- gbc |>                # Start with raw dataset
+  group_by(id) |>           # Group by subject ID
+  arrange(time) |>          # Sort by time
+  slice(1) |>               # Keep the first event per subject
+  ungroup()                 # Remove grouping
+
+# ---------------------------
+# 2. Kaplan-Meier Estimation
+# ---------------------------
+
+# Fit Kaplan-Meier curves by hormone therapy group
+km_fit <- survfit(Surv(time, status > 0) ~ hormone, data = df)
+
+# Summarize KM estimates at specific time points
+summary(km_fit, times = c(6, 12, 24, 36))
+
+# ---------------------------
+# 3. Tabulate Survival Estimates
+# ---------------------------
+
+# Create summary table of survival estimates
+tbl_survfit(
+  km_fit,                          # survfit object
+  label = "Hormone",              # Row label
+  times = c(6, 12, 24, 36),       # Time points
+  label_header = "Month {time}"   # Column label
+)
+
+# Tabulate estimates grouped by menopause and tumor grade
+df |> 
+  tbl_survfit(
+    y = Surv(time, status),                     # Survival object
+    include = c(meno, grade),                   # Grouping variables
+    label = list(meno = "Menopause", 
+                grade = "Tumor grade"),         # Row labels
+    times = c(6, 12, 24, 36),                   # Time points
+    label_header = "Month {time}"              # Column label
+  )
+
+# Tabulate quantiles (median, quartiles)
+tbl_survfit(
+  km_fit,                                      # survfit object
+  label = "Hormone",                           # Row label
+  probs = c(0.25, 0.5, 0.75),                  # Quantiles
+  label_header = "{100 * prob}% quantile"      # Column label
+)
+
+# ---------------------------
+# 4. Visualize KM Curves (Base R)
+# ---------------------------
+
+# Plot KM curves with confidence intervals
+plot(km_fit, ylim = c(0, 1),
+     xlab = "Time (months)",                   # x-axis label
+     ylab = "Relapse-free survival probability", # y-axis label
+     col = c("red", "blue"),                   # Line colors
+     conf.int = TRUE)                          # Show confidence intervals
+
+# Add legend to the plot
+legend("bottomleft", col = c("red", "blue"), lty = 1,
+       legend = c("No hormone", "Hormone"))
+
+# ---------------------------
+# 5. Enhanced KM Plot with ggsurvfit
+# ---------------------------
+
+# Fit KM curves with relabeled hormone variable
+km_fit2 <- survfit2(Surv(time, status > 0) ~ hormone,
+                    data = df |> 
+                      mutate(hormone = if_else(hormone == 1, "No hormone", "Hormone")))
+
+# Customize and plot KM curves
+km_fig <- km_fit2 |> 
+  ggsurvfit() +                                 # Base plot
+  add_risktable() +                             # Add risk table
+  add_confidence_interval() +                   # Add confidence bands
+  add_pvalue(caption = "Log-rank {p.value}") +  # Add log-rank p-value
+  scale_x_continuous("Time (months)", breaks = seq(0, 84, 12)) +  # x-axis
+  scale_y_continuous("Relapse-free survival probability", limits = c(0, 1)) +  # y-axis
+  theme_classic() +                             # Classic ggplot theme
+  theme(legend.position = "top")                # Move legend to top
+
+# Save KM plot to file
+ggsave("images/km_fig.png", km_fig, width = 7.5, height = 5)
+
+# ---------------------------
+# 6. Competing Risks Analysis
+# ---------------------------
+
+# Load sample trial data from tidycmprsk package
+data("trial", package = "tidycmprsk")
+
+# Fit CIF using Gray's estimator for competing risks
+cif_fit <- cuminc(Surv(ttdeath, death_cr) ~ trt, trial)
+
+# ---------------------------
+# 7. Tabulate CIF Estimates
+# ---------------------------
+
+# Tabulate CIF estimates with confidence intervals and p-values
+tbl_cuminc(
+  cif_fit,                                            # cuminc object
+  outcomes = c("death from cancer", "death other causes"), # Outcomes
+  times = c(10, 15, 20),                              # Time points
+  label_header = "Month {time}"                       # Column label
+) |>
+  add_p()                                             # Add Gray's test p-values
+
+# ---------------------------
+# 8. Plot CIF Curves
+# ---------------------------
+
+# Plot CIF for cancer-related death with customization
+cif_fit |> 
+  ggcuminc(outcome = "death from cancer") +           # Specify outcome
+  add_confidence_interval() +                         # Confidence bands
+  add_risktable() +                                   # Risk table
+  add_pvalue(caption = "Gray's test {p.value}") +     # P-value annotation
+  scale_x_continuous("Time (months)", breaks = seq(0, 24, 6)) + # x-axis
+  scale_y_continuous("Cumulative incidence function", limits = c(0, 0.5)) + # y-axis
+  ggtitle("Death from cancer") +                      # Title
+  theme_classic() +                                   # Theme
+  theme(legend.position = "top")                      # Legend at top
+
+# Save CIF plot to file
+# ggsave("images/cif_fig.png", width = 7.5, height = 5)
+
+# ---------------------------
+# 9. Combine CIF Plots by Outcome
+# ---------------------------
+
+# Define helper function to generate CIF plots
+cif_plot <- function(cif_fit, outcome){
+  cif_fit |> 
+    ggcuminc(outcome = outcome) +
+    add_confidence_interval() +
+    scale_x_continuous("Time (months)", breaks = seq(0, 24, 6)) +
+    scale_y_continuous("Cumulative incidence function", limits = c(0, 0.5)) +
+    ggtitle(str_to_sentence(outcome)) +
+    theme_classic() +
+    theme(legend.position = "top")
+}
+
+# Create plots for each event type
+cif_cancer_plot <- cif_plot(cif_fit, "death from cancer")
+cif_other_plot  <- cif_plot(cif_fit, "death other causes")
+
+# Combine plots into single display
+cif_trial <- cif_cancer_plot + cif_other_plot + 
+  plot_layout(guides = "collect") & theme(legend.position = "top")
+
+# Save combined plot to file
+# ggsave("images/cif_combined_fig.png", cif_trial, width = 8, height = 4)
+```
+
+
+## Module 4
+
+```{r}
+
+# -------------------------------------------
+# Survival Analysis: Module 4 Code
+# -------------------------------------------
+
+# Load necessary packages
+library(tidyverse) # Load tidyverse packages
+library(survival) # Load survival package
+library(broom) # Load broom package
+library(gtsummary) # Load gtsummary package
+library(ggsurvfit) # Load ggsurvfit package
+library(survminer) # Load survminer package
+library(tidycmprsk) # Load tidycmprsk package
+
+# ---------------------------
+# 1. Load and Prepare Data
+# ---------------------------
+
+# Load GBC dataset
+gbc <- read.table("data/gbc.txt", header = TRUE) # Load GBC dataset
+
+# Reformat the data
+df <- gbc |>  # calculate time to first event (relapse or death)
+  group_by(id) |> # group by id
+  arrange(time) |> # sort rows by time
+  slice(1) |>      # get the first row within each id
+  ungroup() |>     # remove grouping
+  mutate(
+    age40 = ifelse(age >= 40, 1, 0), # create binary variable for age >= 40
+    grade = factor(grade), # convert grade to factor
+    prog = prog / 100, # rescale progesterone receptor
+    estrg = estrg / 100 # rescale estrogen receptor
+    ) 
+
+# ---------------------------
+# 2. Fit Cox PH Model
+# ---------------------------
+
+# Model fitting: survival::coxph()
+cox_fit <- coxph(Surv(time, status) ~ hormone + meno + age40 + grade + size + prog + estrg, 
+                 data = df)
+summary(cox_fit) # Print model summary
+
+# ---------------------------
+# 3. Tidy Output with broom
+# ---------------------------
+
+tidy_cox <- tidy(cox_fit) # Tidy the coxph output
+tidy_cox # Display the tidy output
+
+# ---------------------------
+# 4. Tabulate Results with gtsummary
+# ---------------------------
+
+cox_tbl <- cox_fit |> tbl_regression( # Create a regression table
+                exponentiate = TRUE, # Exponentiate coefficients to get hazard ratios
+                label = list(hormone ~ "Hormone Therapy", # Custom labels
+                             meno ~ "Menopausal", 
+                             age40 ~ "Older than 40", 
+                             grade ~ "Tumor Grade", 
+                             size ~ "Tumor Size (mm)", 
+                             prog ~ "Progesterone Receptor (100 fmol/ml)", 
+                             estrg ~ "Estrogen Receptor  (100 fmol/ml)")
+               ) |> 
+          add_global_p() # Add global p-value for categorical variables
+cox_tbl # Display the regression table
+
+# ---------------------------
+# 5. Customize the Regression Table
+# ---------------------------
+
+cox_tbl |> # Start with the regression table
+  modify_caption("Cox regression analysis of the German breast cancer study") |> # Add caption
+  bold_p() |> # Bold significant p-values
+  italicize_levels() # Italicize variable levels
+
+# ---------------------------
+# 6. Fit Accelerated Failure Time (AFT) Model
+# ---------------------------
+
+# Fit a Weibull AFT model
+aft_fit <- survreg(Surv(time, status) ~ hormone + meno + age + grade + size + prog + estrg, 
+                    data = df, dist = "weibull") # specify the Weibull model
+
+# ---------------------------
+# 7. Forest Plot of Hazard Ratios
+# ---------------------------
+
+# Tidy with exponentiated coeffs (HR) and CI
+tidy_cox <- tidy(cox_fit, exponentiate = TRUE, conf.int = TRUE) 
+tidy_cox$term <- recode(tidy_cox$term,           # Relabel the variables
+                hormone = "Hormone Therapy", 
+                meno = "Menopausal", 
+                age40 = "Older than 40", 
+                grade2 = "Tumor Grade II vs I",
+                grade3 = "Tumor Grade III vs I",
+                size = "Tumor Size (mm)", 
+                prog = "Progesterone (100 fmol/ml)", 
+                estrg = "Estrogen (100 fmol/ml)")
+
+tidy_cox |>  # plot of hazard ratios and 95% CIs
+  ggplot(aes(y=term, x=estimate, xmin=conf.low, xmax=conf.high)) + 
+  geom_pointrange(shape = 15) +  # plots center point (x) in square and range (xmin, xmax)
+  geom_vline(xintercept=1, linetype = 2) + # vertical line at HR=1
+  scale_x_log10("Hazard ratio (95% CI)",    # log scale for x-axis
+                breaks = c(0.5, 1, 2, 4)) + # log scale for x-axis
+  ggtitle("Cox Regression Results for GBC Data") + # Add title
+  theme_classic() + # classic theme for clean look
+  theme(
+    axis.line.y = element_blank(),          # remove y-axis line
+    axis.ticks.y = element_blank(),         # remove y-axis ticks
+    axis.text.y = element_text(size = 11),  # set variable label size
+    axis.title.y = element_blank()          # remove y-axis title
+  )
+
+# ---------------------------
+# 8. Prediction and Visualization
+# ---------------------------
+
+# Create new data for prediction
+new_data <- data.frame(hormone = 2, meno = 2, age40 = 1, grade = factor(2), 
+                            size = 20, prog = 1, estrg = 1)
+
+# Predict survival probabilities for `newdata`
+pred_surv <- survfit(cox_fit, newdata = new_data[1, ])
+tidy_pred_surv <- tidy(pred_surv) # Tidy the survival prediction output
+head(tidy_pred_surv) # Display the first few rows of the tidy output
+
+# Visualize predicted survival
+pred_fig <- pred_surv |>  # Pass the survfit object
+  ggsurvfit() + # Main function
+  add_confidence_interval() + # Add confidence interval
+  scale_x_continuous("Time (months)", breaks = seq(0, 84, by = 12)) + # x-axis format
+  scale_y_continuous("Relapse-free survival probability", limits = c(0, 1)) + # y-axis format
+  ggtitle("Predicted Relapse-Free Survival for a GBC Patient") + # Add title
+  theme_classic() # Classic theme for clean look
+
+# Add horizontal grid lines
+pred_fig + theme(panel.grid.major.y = element_line()) # Add horizontal grid lines
+
+# ---------------------------
+# 9. Cox Model Diagnostics
+# ---------------------------
+
+# PH assumption: Schoenfeld residuals
+ph_test <- cox.zph(cox_fit) # Test proportional hazards assumption
+ggcoxzph(ph_test) # Visualize Schoenfeld residuals
+
+# Functional form: Martingale residuals vs linear predictor
+ggcoxdiagnostics(cox_fit, type = "martingale",    # martingale on y-axi
+                 ox.scale = "linear.predictions") # linear predictor on x-axis
+
+# Influential points: Deviance residuals
+ggcoxdiagnostics(cox_fit, type = "deviance",  # deviance on y-axis
+                 ox.scale = "observation.id", # observation ID on x-axis
+                 sline = FALSE)               # no smoothed line
+
+# ---------------------------
+# 10. Fine-Gray Model (Competing Risks)
+# ---------------------------
+
+# Load trial dataset
+data("trial", package = "tidycmprsk") # Load trial data from tidycmprsk package
+head(trial) # Display the first few rows of the data
+
+# Fit Fine-Gray model
+fg_fit <- crr(Surv(ttdeath, death_cr) ~ trt + age + marker + stage, # fit FG model
+              failcode = "death from cancer", trial) # for death from cancer
+fg_fit # print the Fine-Gray model fit summary
+
+# Extract coefficients and variance
+coef(fg_fit) # Extract coefficients
+vcov(fg_fit) |> head() # Extract variance-covariance matrix
+
+# Tidy FG model output
+tidy_fg <- tidy(fg_fit, exponentiate = TRUE, conf.int = TRUE) # Tidy model output
+tidy_fg # Display the tidy output
+
+# Forest plot for sub-distribution hazard ratios
+tidy_fg |>  # plot of sub-distribution hazard ratios and 95% CIs
+  ggplot(aes(y=term, x=estimate, xmin=conf.low, xmax=conf.high)) + 
+  geom_pointrange() +  # plots center point (x) and range (xmin, xmax)
+  geom_vline(xintercept=1, linetype = 2) + # vertical line at HR=1
+  scale_x_log10("Sub-distribution hazard ratio (95% CI)") + # log scale for x-axis
+  theme_classic() + # classic theme for clean look
+  theme(
+    axis.line.y = element_blank(),          # remove y-axis line
+    axis.ticks.y = element_blank(),         # remove y-axis ticks
+    axis.text.y = element_text(size = 11),  # set variable label size
+    axis.title.y = element_blank()          # remove y-axis title
+  )
+
+# FG regression table
+fg_tbl <- fg_fit |> tbl_regression(exponentiate = TRUE) |>  # Create a regression table 
+          add_global_p() # Add global p-value for categorical variables
+fg_tbl # display the regression table
+
+# Model-based prediction for CIF
+fg_pred <- predict(fg_fit, newdata= trial[1:10, ], times = c(6, 12, 18)) # Predict CIF
+fg_pred # Display the predicted CIF
+
+```
+
+## Module 5
+
+```{r}
+
+
+
+
+```
+
+

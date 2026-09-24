@@ -1,111 +1,183 @@
 ---
-title: "Welcome to the workshop"
+title: "Tidy Survival Analysis"
+pagetitle: "Tidy Survival Analysis — An applied guide in R"
+title-block-banner: false
+title-block-style: none
+toc: false
+page-layout: full
 ---
 
-This site presents materials for the short course **Tidy Survival Analysis: Applying R’s Tidyverse to Survival Data** to be taught at the 2025 Joint Statistical Meetings (JSM) in Nashville, TN.
+::::: {.home-hero}
+:::: hero-copy
+::: eyebrow
+An applied guide in R
+:::
 
-**This course** aims to equip participants with the skills to apply tidy principles to survival analysis, fostering a more organized and reproducible approach to data analysis in R.
+# Tidy Survival Analysis {.unnumbered}
 
-In a tidyverse approach, we apply consistent data workflows to survival analysis tasks. This means using tibble data frames and `dplyr` for data preparation, keeping outputs tidy (one row per observation or estimate), and leveraging `ggplot2` for visualization. For example, one might create the survival outcome as a new column using `Surv(time, status)` within a `dplyr` pipeline, fit models and then use broom to `tidy()` model outputs into data frames, and produce publication-quality tables and plots with `gtsummary` and `ggplot2` or `ggsurvfit`. 
-The goal is a reproducible workflow where raw data are transformed, analyzed, and visualized seamlessly.
+::: intro
+Learn survival analysis in R—and turn your results into clear figures and polished tables with tidy tools. Follow a reproducible workflow from data preparation and modeling to reporting.
+:::
 
-**Target Audience**: Statisticians, data analysts, researchers, and students interested in survival analysis who are familiar with R and the Tidyverse.
+::: byline
+[Lu Mao](https://lmaowisc.github.io/){target="_blank" rel="noopener noreferrer"}, PhD\
+[University of Wisconsin–Madison]{.affiliation}
+:::
 
-## Time and Place
+::: hero-actions
+[Start reading →](intro.qmd){.button}
+[Explore the chapters](#chapters){.button .button-secondary}
+:::
+::::
 
--   Sunday, Aug 3: 8:30 AM - 12:30 PM
--   Music City Center \| Room: CC-110A
+:::: hero-figure
+::: figure-label
+ONE DATASET. CLEAR FIGURES AND TABLES.
+:::
 
-## Instructor Profile
+<img src="images/cover-survival.svg" alt="Kaplan–Meier estimates of relapse-free survival by hormone therapy in the German breast cancer data." width="499" height="394">
 
-##### [Lu Mao, PhD](https://lmaowisc.github.io/){target="_blank"}
+::: figure-caption
+Survival curves show the pattern over time. Regression tables make the model's estimates easy to read.
+:::
 
--   Associate Professor of Biostatistics at UW-Madison
--   Methodologic research
-    -   [R01HL149875](https://reporter.nih.gov/search/9aSu5u3xlE26GrjbF_4cBg/project-details/10734551){target="_blank"}: *Novel Statistical Methods for Complex Time-to-Event Data in Cardiovascular Clinical Trials* (12/01/2019 – 07/31/2028)
-    -   [DMS2015526](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2015526){target="_blank"}: *Randomized Trials with Non-Compliance* (07/01/2020 – 06/30/2024)
--   Collaborative research
-    -   Cardiovascular disease, cancer, radiology, behavioral health interventions
--   Teaching
-    -   [Survival Analysis: Theory and Methods](https://lmaowisc.github.io/BMI741){target="_blank"} (UW; 2020 - 2025)
--   Editorial service
-    -   [Statistical Editor](https://www.jacc.org/journal/heart-failure/editorial-board){target="_blank"}, *JACC Journals*
-    -   [Associate Editor](https://www.tandfonline.com/action/journalInformation?show=editorialBoard&journalCode=usbr20){target="_blank"}, *Statistics for Biopharmaceutical Research*
-
-## Learning Outcomes
-
-1.  Understand the fundamentals of survival analysis, including key concepts such as censored data, survival functions, and hazard functions.
-2.  Utilize R’s Tidyverse packages to manipulate, visualize, and analyze survival data.
-3.  Fit and interpret survival models using the survival and survminer packages in conjunction with Tidyverse functions.
-4.  Create clear and informative visualizations of survival data, including Kaplan-Meier curves and survival distributions.
-5.  Communicate survival analysis results effectively using tidy principles.
-
-## Outline
-
--   **1. Introduction to Survival Analysis** (30 min)
-    -   1.1 Key concepts: survival functions, hazard functions, and censoring
-    -   1.2 German breast cancer (GBC) study: a working example
-    -   1.3 Overview of survival analysis with `survival` package
--   **2. Data Manipulation with Tidyverse** (45 min)
-    -   2.1 Overview of Tidyverse
-    -   2.2 Tidying survival data
-    -   2.3 Visualizing subject follow-Up with `ggplot2`
-    -   2.4 Creating “Table 1” with `gtsummary`
--   **3. Nonparametric Survival Analysis** (50 min)
-    -   3.1 Tabulating survival estimates with `gtsummary`
-    -   3.2 Visualizing Kaplan-Meier curves with `ggsurvfit` (or `survminer`)
-    -   3.3 Tidy analysis of competing risks using `tidycmprsk`
--   **4. Cox proportional hazards regression** (40 min)
-    -   4.1 Tabulating regression results with `gtsummary`
-    -   4.2 Model diagnostics and residual plots with `survminer`
-    -   4.3 Fine-Gray model for competing risks with `tidycmprsk`
--   **5. Machine learning using `tidymodels`** (50 min)
-    -   5.1 Modeling basics
-    -   5.2 Tidymodels workflow for survival analysis
-    -   5.3 A case study with GBC data
-
-## R-Packages
-
-You will need the following R packages for this workshop:
+::: cover-results
+### A model, ready to report {.unnumbered}
 
 ```{r}
-#| eval: false
-
-install.packages(c("survival",                   # Base R survival package
-                   "tidyverse", "lubridate" ,    # Tidyverse packages 
-                   "broom",                      # Tidy model outputs
-                   "gtsummary",                  # Tidy summary tables
-                   "ggsurvfit",                  # Survival visualization
-                   "survminer",                  # Cox model diagnostic graphics
-                   "tidycmprsk",                 # Competing risks analysis
-                   "tidymodels",                 # Machine learning
-                   "censored"                    # Censored data handling for tidymodels
-                   ))
-
-
-```
-
-
-
-
-```{r}
+#| label: cover-cox-table
 #| echo: false
-#| output: false
-
-# Define source and destination
-source_folder <- "data"
-destination_folder <- "docs/data"
-
-# Create destination directory
-dir.create(destination_folder, recursive = TRUE, showWarnings = FALSE)
-
-# Copy all files and subfolders
-file.copy(from = list.files(source_folder, full.names = TRUE),
-          to   = destination_folder,
-          recursive = TRUE)
-
-
+#| results: asis
+library(survival)
+cover_data <- read.table("data/gbc.txt", header = TRUE)
+cover_data <- cover_data[order(cover_data$id, cover_data$time,
+                               cover_data$status == 0), ]
+cover_data <- cover_data[!duplicated(cover_data$id), ]
+cover_data$event <- as.integer(cover_data$status > 0)
+cover_data$hormone <- factor(cover_data$hormone, levels = c(1, 2),
+                              labels = c("No", "Yes"))
+cover_data$meno <- factor(cover_data$meno, levels = c(1, 2),
+                           labels = c("Pre", "Post"))
+cover_data$grade <- factor(cover_data$grade, levels = c(1, 2, 3),
+                            labels = c("I", "II", "III"))
+cover_fit <- coxph(
+  Surv(time, event) ~ hormone + meno + age + grade + size + prog + estrg,
+  data = cover_data
+)
+terms <- c("hormoneYes", "age", "size")
+units <- c(1, 10, 10)
+hr <- exp(coef(cover_fit)[terms] * units)
+ci <- exp(confint(cover_fit)[terms, ] * units)
+cover_table <- data.frame(
+  Characteristic = c("Hormone therapy: yes vs no", "Age: per 10 years",
+                     "Tumor size: per 10 mm"),
+  HR = sprintf("%.2f", hr),
+  `95% CI` = sprintf("%.2f&ndash;%.2f", ci[, 1], ci[, 2]),
+  check.names = FALSE
+)
+knitr::kable(cover_table, row.names = FALSE, align = c("l", "r", "r"))
 ```
 
-<!-- insert image: "images/cover.png" -->
-![](images/tidy_meme.png){fig-align="center"}
+::: table-note
+Selected adjusted Cox estimates · HR = hazard ratio; CI = confidence interval. From the [Chapter 1 example](intro.qmd#fit-and-interpret-a-cox-model), with 686 patients and 299 events; interpretation and model checks accompany the analysis.
+:::
+:::
+::::
+:::::
+
+::::: reader-note
+:::: reader-column
+## Where to begin {.unnumbered}
+
+A little R is enough to start. Survival concepts are introduced through examples, and the tidyverse is explained from the beginning.
+::::
+:::: reader-column
+## How to use this book {.unnumbered}
+
+Read alongside the R examples, try the exercises, and use the companion slides to revisit the main ideas. Code and data are available to download.
+::::
+:::::
+
+## The chapters {#chapters .unnumbered}
+
+::: chapter-list
+:::: chapter-row
+::: num
+01
+:::
+::: chapter-text
+### [Survival analysis in R](intro.qmd) {.unnumbered}
+
+Censoring, survival curves, regression, prediction, and diagnostics using the standard `survival` package.
+:::
+::: row-links
+[Read](intro.qmd) [Slides ↗](slides/Module%201.pdf){target="_blank"}
+:::
+::::
+
+:::: chapter-row
+::: num
+02
+:::
+::: chapter-text
+### [Working with tidy data](tidy.qmd) {.unnumbered}
+
+Meet the tidyverse. Prepare survival data, visualize follow-up, and build a descriptive table.
+:::
+::: row-links
+[Read](tidy.qmd) [Slides ↗](slides/Module%202.pdf){target="_blank"}
+:::
+::::
+
+:::: chapter-row
+::: num
+03
+:::
+::: chapter-text
+### [Nonparametric methods](np.qmd) {.unnumbered}
+
+Turn survival estimates and competing-risk analyses into clear tables and graphics.
+
+[Companion slides & code · narrative chapter forthcoming]{.stage}
+:::
+::: row-links
+[Explore](np.qmd) [Slides ↗](slides/Module%203.pdf){target="_blank"}
+:::
+::::
+
+:::: chapter-row
+::: num
+04
+:::
+::: chapter-text
+### [Regression models](reg.qmd) {.unnumbered}
+
+Tidy Cox and Fine–Gray model results, communicate associations, and examine model assumptions.
+
+[Companion slides & code · narrative chapter forthcoming]{.stage}
+:::
+::: row-links
+[Explore](reg.qmd) [Slides ↗](slides/Module%204.pdf){target="_blank"}
+:::
+::::
+
+:::: chapter-row
+::: num
+05
+:::
+::: chapter-text
+### [Machine learning](ml.qmd) {.unnumbered}
+
+Build and evaluate survival prediction models with `tidymodels` and `censored`.
+
+[Companion slides & code · narrative chapter forthcoming]{.stage}
+:::
+::: row-links
+[Explore](ml.qmd) [Slides ↗](slides/Module%205.pdf){target="_blank"}
+:::
+::::
+:::
+
+::: origin-note
+This book grows from the June 2025 short-course materials. The original slides remain available as companions to the developing text. [Find the code, data, and slides →](resources.qmd)
+:::

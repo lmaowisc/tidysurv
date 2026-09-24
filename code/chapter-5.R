@@ -1,28 +1,5 @@
----
-execute:
-  enabled: false
-title: "Machine learning"
-subtitle: "05 / Survival prediction with tidymodels"
----
-
-::: chapter-tools
-[Companion slides ↗](slides/Module%205.pdf){target="_blank"} · [Download R code](code/chapter-5.R){download="chapter-5.R"} · [Data & setup](resources.qmd)
-:::
-
-This chapter turns from explaining associations to predicting outcomes. The companion materials introduce regularized Cox models, survival trees, and random forests, then connect data preparation, tuning, and evaluation through `tidymodels` and `censored`.
-
-::: {.callout-note}
-## Under construction {.unnumbered}
-
-The narrative and worked explanations are under construction. The original slides and code are available for reference; the code collection has not yet received the same review as Chapters 1 and 2.
-:::
-
-## R code
-
-```{r}
-#| code-fold: true
-#| code-summary: "Show the code"
-#| eval: false
+# Tidy Survival Analysis - Chapter 5
+# Run from the project folder, with the data/ directory available.
 
 # -------------------------------------------
 # Survival Analysis: Module 5 Code
@@ -209,6 +186,3 @@ roc_test |>
 gbc_rf <- extract_workflow(final_rf_fit) # extract the fitted workflow
 gbc_5 <- testing(gbc_split) |>  slice(1:5) # take first 5 rows of test data
 predict(gbc_rf, new_data = gbc_5, type = "time") # predict survival times
-
-
-```

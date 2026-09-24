@@ -1,0 +1,14 @@
+<script>
+// Give keyboard users direct access to the manuscript.
+document.addEventListener('DOMContentLoaded', () => {
+  const main = document.querySelector('main');
+  if (!main) return;
+  if (!main.id) main.id = 'main-content';
+  const skip = document.createElement('a');
+  skip.href = '#' + main.id;
+  skip.textContent = 'Skip to content';
+  skip.className = 'book-skip';
+  document.body.prepend(skip);
+});
+</script>
+<style>.book-skip{position:fixed;top:-100px;left:1rem;z-index:10000;background:#fff;color:#172d49;padding:.6rem 1rem}.book-skip:focus{top:1rem}</style>

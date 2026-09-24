@@ -1,0 +1,58 @@
+---
+execute:
+  enabled: false
+title: "Code, data & slides"
+subtitle: "Everything you need to work through the examples."
+toc-title: "ON THIS PAGE"
+---
+
+## Set up R
+
+Use a current R release with RStudio. The examples are checked with R 4.5.3. Chapter 1 uses the `survival` package; Chapter 2 introduces the tidyverse, `gtsummary`, and `ggsurvfit`. Install packages once, then load them with `library()` in each new R session.
+
+```{r}
+#| eval: false
+install.packages(c("survival", "tidyverse", "gtsummary", "ggsurvfit",
+                   "broom.helpers", "gt"))
+```
+
+Later chapters use additional packages:
+
+```{r}
+#| eval: false
+install.packages(c("broom", "ggsurvfit", "survminer", "tidycmprsk",
+                   "tidymodels", "censored", "glmnet", "ranger"))
+```
+
+## Working data
+
+The German breast cancer study is the running example. Download the data into a folder called `data` inside your RStudio project. The scripts use paths such as `data/gbc.txt` relative to that project folder.
+
+| File | Contents |
+|:---|:---|
+| [gbc_mort.txt](data/gbc_mort.txt){download="gbc_mort.txt"} | Mortality follow-up, one record per patient |
+| [gbc.txt](data/gbc.txt){download="gbc.txt"} | Relapse and mortality records; patients can contribute multiple rows |
+| [gbc_ms.txt](data/gbc_ms.txt){download="gbc_ms.txt"} | Companion multistate data |
+| [Data dictionary](data/Readme_gbc.txt) | Study provenance, variable descriptions, and coding |
+
+Read the dictionary before choosing the outcome: mortality, relapse-free survival, and competing events answer different questions.
+
+## Chapter materials
+
+The scripts for Chapters 1 and 2 follow the book's worked examples and exercise solutions in order. The later scripts preserve the supplied chapter code and are provided for exploration as their narrative chapters develop.
+
+| Chapter | Slides | R script |
+|:---|:---|:---|
+| 01 · Survival analysis in R | [PDF](slides/Module%201.pdf){target="_blank"} | [Download](code/chapter-1.R){download="chapter-1.R"} |
+| 02 · Working with tidy data | [PDF](slides/Module%202.pdf){target="_blank"} | [Download](code/chapter-2.R){download="chapter-2.R"} |
+| 03 · Nonparametric methods | [PDF](slides/Module%203.pdf){target="_blank"} | [Download](code/chapter-3.R){download="chapter-3.R"} |
+| 04 · Regression models | [PDF](slides/Module%204.pdf){target="_blank"} | [Download](code/chapter-4.R){download="chapter-4.R"} |
+| 05 · Machine learning | [PDF](slides/Module%205.pdf){target="_blank"} | [Download](code/chapter-5.R){download="chapter-5.R"} |
+
+### Saved model fits
+
+The machine-learning examples include saved tuning results. Put these in the same `data` folder if you want to inspect the supplied results without rerunning the tuning steps: [Cox tuning results](data/cox_res.rds) · [Random-forest tuning results](data/rf_res.rds).
+
+## A note on the materials
+
+The slides preserve the original short-course content and formatting. This book is being developed chapter by chapter; the supplied examples will be reviewed as each narrative chapter is expanded.

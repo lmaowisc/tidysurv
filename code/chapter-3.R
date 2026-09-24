@@ -1,32 +1,5 @@
----
-execute:
-  enabled: false
-title: "Nonparametric methods"
-subtitle: "03 / Survival estimates, competing events, and clear communication"
----
-
-::: chapter-tools
-[Companion slides ↗](slides/Module%203.pdf){target="_blank"} · [Download R code](code/chapter-3.R){download="chapter-3.R"} · [Data & setup](resources.qmd)
-:::
-
-This chapter revisits survival estimation through tidy tools. The companion materials show how to extract estimates, produce tables with `gtsummary`, draw Kaplan–Meier curves with `ggsurvfit`, and analyze competing events with `tidycmprsk`.
-
-::: {.callout-note}
-## Under construction {.unnumbered}
-
-The narrative and worked explanations are under construction. The original slides and code are available for reference; the code collection has not yet received the same review as Chapters 1 and 2.
-:::
-
-## Further resources
-
-[ggsurvfit](https://www.danieldsjoberg.com/ggsurvfit/) documents survival curves, confidence intervals, and risk tables. For competing events, consult [tidycmprsk](https://mskcc-epi-bio.github.io/tidycmprsk/reference/cuminc.html): its event variable is a factor whose first level denotes censoring. Event-specific cumulative incidence requires distinguishing competing events rather than combining them into one binary endpoint.
-
-## R code
-
-```{r}
-#| code-fold: true
-#| code-summary: "Show the code"
-#| eval: false
+# Tidy Survival Analysis - Chapter 3
+# Run from the project folder, with the data/ directory available.
 
 # -------------------------------------------
 # Survival Analysis: Module 3 Code
@@ -202,6 +175,3 @@ cif_trial <- cif_cancer_plot + cif_other_plot +
 
 # Save combined plot to file
 ggsave("images/cif_combined_fig.png", cif_trial, width = 8, height = 4)
-
-
-```

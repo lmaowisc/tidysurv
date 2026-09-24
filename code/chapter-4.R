@@ -1,32 +1,5 @@
----
-execute:
-  enabled: false
-title: "Regression models"
-subtitle: "04 / Tidy inference, prediction, and model diagnostics"
----
-
-::: chapter-tools
-[Companion slides ↗](slides/Module%204.pdf){target="_blank"} · [Download R code](code/chapter-4.R){download="chapter-4.R"} · [Data & setup](resources.qmd)
-:::
-
-This chapter brings regression models into the tidy workflow. The companion materials cover Cox regression tables, forest plots, predicted survival, diagnostic graphics, and Fine–Gray regression for competing risks.
-
-::: {.callout-note}
-## Under construction {.unnumbered}
-
-The narrative and worked explanations are under construction. The original slides and code are available for reference; the code collection has not yet received the same review as Chapters 1 and 2.
-:::
-
-## Further resources
-
-The official [gtsummary regression tutorial](https://www.danieldsjoberg.com/gtsummary/articles/tbl_regression.html) covers model tables and their customization. The [tidycmprsk regression reference](https://mskcc-epi-bio.github.io/tidycmprsk/reference/crr.html) describes Fine–Gray models; their subdistribution hazard ratios have a different interpretation from Cox cause-specific hazard ratios.
-
-## R code
-
-```{r}
-#| code-fold: true
-#| code-summary: "Show the code"
-#| eval: false
+# Tidy Survival Analysis - Chapter 4
+# Run from the project folder, with the data/ directory available.
 
 # -------------------------------------------
 # Survival Analysis: Module 4 Code
@@ -227,5 +200,3 @@ fg_tbl # display the regression table
 # Model-based prediction for CIF
 fg_pred <- predict(fg_fit, newdata= trial[1:10, ], times = c(6, 12, 18)) # Predict CIF
 fg_pred # Display the predicted CIF
-
-```
