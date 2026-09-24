@@ -179,5 +179,5 @@ Build and evaluate survival prediction models with `tidymodels` and `censored`.
 :::
 
 ::: origin-note
-This book grows from the June 2025 short-course materials. The original slides remain available as companions to the developing text. [Find the code, data, and slides →](resources.qmd)
+These materials grew out of my short course taught at the 2025 Joint Statistical Meetings. The original slides remain available as companions to the developing text. [Find the code, data, and slides →](resources.qmd)
 :::
