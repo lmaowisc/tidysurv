@@ -8,12 +8,11 @@ toc-title: "ON THIS PAGE"
 
 ## Set up R
 
-Use a current R release with RStudio. The examples are checked with R 4.5.3. Chapter 1 uses the `survival` package; Chapter 2 introduces the tidyverse, `gtsummary`, and `ggsurvfit`. Install packages once, then load them with `library()` in each new R session.
+Use a current R release with RStudio. The examples are checked with R 4.5.3. Chapter 1 uses the `survival` package; Chapter 2 introduces the tidyverse and descriptive tables with `gtsummary`. Install packages once, then load them with `library()` in each new R session.
 
 ```{r}
 #| eval: false
-install.packages(c("survival", "tidyverse", "gtsummary", "ggsurvfit",
-                   "broom.helpers", "gt"))
+install.packages(c("survival", "tidyverse", "gtsummary", "gt"))
 ```
 
 Later chapters use additional packages:
@@ -21,7 +20,7 @@ Later chapters use additional packages:
 ```{r}
 #| eval: false
 install.packages(c("broom", "ggsurvfit", "survminer", "tidycmprsk",
-                   "tidymodels", "censored", "glmnet", "ranger"))
+                   "tidymodels", "censored", "glmnet", "ranger", "broom.helpers"))
 ```
 
 ## Working data

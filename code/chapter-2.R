@@ -165,19 +165,6 @@ ggsave("outputs/follow-up.png", plot = swimmer,
        width = 7, height = 4.5, units = "in", dpi = 300,
        bg = "white")
 
-library(ggsurvfit)
-km_tidy <- survfit2(survival::Surv(time, event) ~ hormone, data = rfs)
-km_plot <- km_tidy |>
-  ggsurvfit(linewidth = 0.8) +
-  add_confidence_interval() +
-  add_risktable(risktable_stats = "n.risk") +
-  scale_ggsurvfit(x_scales = list(breaks = seq(0, 84, 12))) +
-  scale_color_manual(values = c("#172d49", "#925415")) +
-  scale_fill_manual(values = c("#172d49", "#925415")) +
-  labs(x = "Months since study entry", y = "Relapse-free survival",
-       color = "Hormone therapy", fill = "Hormone therapy")
-km_plot
-
 patients <- as_tibble(read.table("data/gbc_mort.txt", header = TRUE)) |>
   mutate(
     hormone = factor(hormone, levels = c(1, 2), labels = c("No", "Yes")),
@@ -223,17 +210,3 @@ dir.create("outputs", showWarnings = FALSE)
 table1_report |>
   as_gt() |>
   gt::gtsave(filename = "outputs/baseline-table.html")
-
-cox_model <- survival::coxph(
-  survival::Surv(time, event) ~ hormone + meno + age + grade +
-    size + prog + estrg,
-  data = rfs
-)
-cox_table <- tbl_regression(
-  cox_model,
-  exponentiate = TRUE,
-  include = c(hormone, age, size),
-  label = list(hormone ~ "Hormone therapy", age ~ "Age (per year)",
-               size ~ "Tumor size (per mm)")
-)
-cox_table

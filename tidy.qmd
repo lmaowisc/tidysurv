@@ -456,35 +456,6 @@ ggsave("outputs/follow-up.png", plot = swimmer,
 
 This export example runs when you execute it yourself; rendering the chapter does not create personal output files. Examine the figure at its intended size before using it in a report. The [official export reference](https://ggplot2.tidyverse.org/reference/ggsave.html) describes further device and sizing options.
 
-### Apply the same plotting grammar to survival curves
-
-The `ggsurvfit` package connects fitted survival estimates to `ggplot2`. The prepared `rfs` data already contain the required time, event indicator, and group labels. The following fits the same unadjusted curves as the standard analysis, then adds presentation layers.
-
-```{r}
-#| label: fig-tidy-km-introduction
-#| fig-width: 8
-#| fig-height: 6
-#| fig-cap: "Relapse-free survival by hormone therapy, with confidence intervals and numbers at risk."
-library(ggsurvfit)
-km_tidy <- survfit2(survival::Surv(time, event) ~ hormone, data = rfs)
-km_plot <- km_tidy |>
-  ggsurvfit(linewidth = 0.8) +
-  add_confidence_interval() +
-  add_risktable(risktable_stats = "n.risk") +
-  scale_ggsurvfit(x_scales = list(breaks = seq(0, 84, 12))) +
-  scale_color_manual(values = c("#172d49", "#925415")) +
-  scale_fill_manual(values = c("#172d49", "#925415")) +
-  labs(x = "Months since study entry", y = "Relapse-free survival",
-       color = "Hormone therapy", fill = "Hormone therapy")
-km_plot
-```
-
-The pipe passes the fitted object into `ggsurvfit()`. The `+` operators then add graphical components. `survfit2()` retains information about the fitting environment that helps produce readable group labels. These functions and their relationship to `ggplot2` are described in the [package introduction](https://www.danieldsjoberg.com/ggsurvfit/).
-
-The shaded regions display confidence intervals. The risk table reports how many patients remain under observation and event-free at each displayed time. At the origin its counts are 440 and 246, matching the treatment-group totals. Smaller numbers later in follow-up help explain the greater uncertainty in late survival estimates.
-
-`risktable_stats = "n.risk"` requests only the number at risk. Other choices include cumulative events (`"cum.event"`) and interval event counts (`"n.event"`); these are different quantities and require appropriate labels. The [risk-table reference](https://www.danieldsjoberg.com/ggsurvfit/reference/add_risktable.html) explains the available summaries. The axis breaks above also determine the default risk-table times.
-
 ## Make a descriptive Table 1 {#creating-table-1}
 
 ### Begin with the right denominator
@@ -545,7 +516,7 @@ The pipe passes the selected data into `tbl_summary()`. Its main options each an
 
 Specifying the variable types prevents storage codes or the number of distinct numerical values from making the summary choice for us. Most importantly, these choices are recorded in the code, so the table can be regenerated after the data change.
 
-The `statistic` argument specifies what each cell should display. `{median}`, `{p25}`, and `{p75}` stand for the computed median and quartiles. For a category, `{n}` is its count and `{p}` its percentage within the treatment column. The expressions with `~` associate variable selections with display instructions; they are table specifications rather than regression models.
+The `statistic` argument specifies what each cell should display. `{median}`, `{p25}`, and `{p75}` stand for the computed median and quartiles. For a category, `{n}` is its count and `{p}` its percentage within the treatment column. The expressions with `~` associate variable selections with display instructions.
 
 Read the group sizes first: they should match the 440 and 246 patients counted earlier. Then interpret a continuous entry as a median followed by the 25th and 75th percentiles, not a confidence interval. For a categorical row, read the count together with its percentage within that group. Unequal group sizes make that percentage more informative than comparing counts alone.
 
@@ -601,42 +572,13 @@ table1_report |>
 
 The [conversion function](https://www.danieldsjoberg.com/gtsummary/reference/as_gt.html) changes the table object to the format used by `gt`; it does not refit a model or change the observations summarized. [`gtsave()`](https://gt.rstudio.com/reference/gtsave.html) selects the export format from the filename. Keep the R code and table object as the editable source, and regenerate the file after revisions to the analysis.
 
-### Report estimates from a fitted model
-
-The same approach extends to regression output. Fit a model first, then pass the fitted object to `tbl_regression()`. Using the specification from the standard Cox analysis allows a direct comparison of the estimates.
-
-```{r}
-#| label: tidy-cox-table
-cox_model <- survival::coxph(
-  survival::Surv(time, event) ~ hormone + meno + age + grade +
-    size + prog + estrg,
-  data = rfs
-)
-cox_table <- tbl_regression(
-  cox_model,
-  exponentiate = TRUE,
-  include = c(hormone, age, size),
-  label = list(hormone ~ "Hormone therapy", age ~ "Age (per year)",
-               size ~ "Tumor size (per mm)")
-)
-cox_table
-```
-
-- `exponentiate = TRUE` reports hazard ratios instead of log hazard coefficients for this Cox model.
-- `include` selects terms to display. It does not remove the other covariates from the fitted model: the displayed results remain adjusted for all terms in the formula.
-- `label` supplies readable descriptions and makes the units of continuous comparisons explicit.
-
-The hormone-therapy estimate remains about 0.70, with a 95% confidence interval of approximately 0.54 to 0.90. Improved formatting does not change the estimate or resolve the diagnostic concerns identified in the original fit. The [official regression-table tutorial](https://www.danieldsjoberg.com/gtsummary/articles/tbl_regression.html) describes supported models and additional reporting options.
-
 ## From prepared data to tidy survival analysis {#summary}
 
 `select()` chooses variables, `mutate()` creates or transforms them, `filter()` selects observations, and `arrange()` sets their order. Grouping applies operations within defined units; summarizing reduces the data to quantities about those units. Reshaping reorganizes measurements, while graphics and tables display the resulting records and summaries.
 
 These operations must preserve the meaning of the observations. Event indicators distinguish events from censoring, elapsed times retain explicit units, and the number of rows per participant reflects the analysis being performed. A change in data layout should not inadvertently change the outcome definition or the analysis population.
 
-For competing risks, retain distinct event types rather than reusing the binary composite `event`. `tidycmprsk::cuminc()` expects an event-status factor with censoring as its first level; `ggsurvfit::ggcuminc()` can then display the cumulative incidence estimates. The [event-coding reference](https://mskcc-epi-bio.github.io/tidycmprsk/reference/cuminc.html) is important because a formatting change cannot correct an incorrectly defined endpoint.
-
-Applying this approach to fitted survival models connects a prepared dataset to estimates, tables, and graphics in a reproducible sequence. [Chapter 3](np.qmd) develops this connection for nonparametric survival methods.
+The data preparation, plotting, and table-building skills developed here support more specialized reporting. [Chapter 3](np.qmd) applies them to survival curves and competing-risk cumulative incidence. [Chapter 4](reg.qmd) covers regression results, including Cox-model tables and competing-risk regression.
 
 The [chapter script](code/chapter-2.R) contains these examples in order. You can run it in a fresh session from the project folder; it reads the supplied data itself rather than relying on Chapter 1's workspace.
 
