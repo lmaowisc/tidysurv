@@ -1,7 +1,7 @@
 ---
 execute:
   enabled: false
-title: "Machine learning"
+title: "Machine Learning"
 subtitle: "05 / Survival prediction with tidymodels"
 ---
 

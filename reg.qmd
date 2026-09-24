@@ -1,7 +1,7 @@
 ---
 execute:
   enabled: false
-title: "Regression models"
+title: "Regression Models"
 subtitle: "04 / Tidy inference, prediction, and model diagnostics"
 ---
 

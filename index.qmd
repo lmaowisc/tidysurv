@@ -134,7 +134,7 @@ Meet the tidyverse. Prepare survival data, visualize follow-up, and build a desc
 03
 :::
 ::: chapter-text
-### [Nonparametric methods](np.qmd) {.unnumbered}
+### [Nonparametric Estimation and Graphics](np.qmd) {.unnumbered}
 
 Turn survival estimates and competing-risk analyses into clear tables and graphics.
 
@@ -150,7 +150,7 @@ Turn survival estimates and competing-risk analyses into clear tables and graphi
 04
 :::
 ::: chapter-text
-### [Regression models](reg.qmd) {.unnumbered}
+### [Regression Models](reg.qmd) {.unnumbered}
 
 Tidy Cox and Fine–Gray model results, communicate associations, and examine model assumptions.
 
@@ -166,7 +166,7 @@ Tidy Cox and Fine–Gray model results, communicate associations, and examine mo
 05
 :::
 ::: chapter-text
-### [Machine learning](ml.qmd) {.unnumbered}
+### [Machine Learning](ml.qmd) {.unnumbered}
 
 Build and evaluate survival prediction models with `tidymodels` and `censored`.
 

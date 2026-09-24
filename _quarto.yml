@@ -40,11 +40,11 @@ website:
             href: intro.qmd
           - text: "02  Working with Tidy Survival Data"
             href: tidy.qmd
-          - text: "03  Nonparametric methods"
+          - text: "03  Nonparametric Estimation and Graphics"
             href: np.qmd
-          - text: "04  Regression models"
+          - text: "04  Regression Models"
             href: reg.qmd
-          - text: "05  Machine learning"
+          - text: "05  Machine Learning"
             href: ml.qmd
       - text: "Code, data & slides"
         href: resources.qmd
