@@ -134,7 +134,7 @@ Meet the tidyverse. Prepare survival data, visualize follow-up, and build a desc
 03
 :::
 ::: chapter-text
-### [Nonparametric Estimation and Graphics](np.qmd) {.unnumbered}
+### [Nonparametric Estimation](np.qmd) {.unnumbered}
 
 Turn survival estimates and competing-risk analyses into clear tables and graphics.
 

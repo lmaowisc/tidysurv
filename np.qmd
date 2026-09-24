@@ -1,7 +1,7 @@
 ---
 execute:
   enabled: false
-title: "Nonparametric Estimation and Graphics"
+title: "Nonparametric Estimation"
 subtitle: "03 / Survival estimates, competing events, and clear communication"
 ---
 
