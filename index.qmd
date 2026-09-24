@@ -106,7 +106,7 @@ Read alongside the R examples, try the exercises, and use the companion slides t
 01
 :::
 ::: chapter-text
-### [Survival analysis in R](intro.qmd) {.unnumbered}
+### [Survival Analysis in Base R](intro.qmd) {.unnumbered}
 
 Censoring, survival curves, regression, prediction, and diagnostics using the standard `survival` package.
 :::
@@ -120,7 +120,7 @@ Censoring, survival curves, regression, prediction, and diagnostics using the st
 02
 :::
 ::: chapter-text
-### [Working with tidy data](tidy.qmd) {.unnumbered}
+### [Working with Tidy Survival Data](tidy.qmd) {.unnumbered}
 
 Meet the tidyverse. Prepare survival data, visualize follow-up, and build a descriptive table.
 :::

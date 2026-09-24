@@ -36,9 +36,9 @@ website:
         href: index.qmd
       - section: "THE CHAPTERS"
         contents:
-          - text: "01  Survival analysis in R"
+          - text: "01  Survival Analysis in Base R"
             href: intro.qmd
-          - text: "02  Working with tidy data"
+          - text: "02  Working with Tidy Survival Data"
             href: tidy.qmd
           - text: "03  Nonparametric methods"
             href: np.qmd

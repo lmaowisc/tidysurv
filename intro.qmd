@@ -1,5 +1,5 @@
 ---
-title: "Survival analysis in R"
+title: "Survival Analysis in Base R"
 subtitle: "01 / A practical introduction to standard survival analysis"
 number-sections: true
 number-depth: 3

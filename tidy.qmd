@@ -1,5 +1,5 @@
 ---
-title: "Working with tidy data"
+title: "Working with Tidy Survival Data"
 subtitle: "02 / From familiar R objects to a tidy workflow"
 number-sections: true
 number-depth: 3

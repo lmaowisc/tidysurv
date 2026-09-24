@@ -42,8 +42,8 @@ The scripts for Chapters 1 and 2 follow the book's worked examples and exercise 
 
 | Chapter | Slides | R script |
 |:---|:---|:---|
-| 01 · Survival analysis in R | [PDF](slides/Module%201.pdf){target="_blank"} | [Download](code/chapter-1.R){download="chapter-1.R"} |
-| 02 · Working with tidy data | [PDF](slides/Module%202.pdf){target="_blank"} | [Download](code/chapter-2.R){download="chapter-2.R"} |
+| 01 · Survival Analysis in Base R | [PDF](slides/Module%201.pdf){target="_blank"} | [Download](code/chapter-1.R){download="chapter-1.R"} |
+| 02 · Working with Tidy Survival Data | [PDF](slides/Module%202.pdf){target="_blank"} | [Download](code/chapter-2.R){download="chapter-2.R"} |
 | 03 · Nonparametric methods | [PDF](slides/Module%203.pdf){target="_blank"} | [Download](code/chapter-3.R){download="chapter-3.R"} |
 | 04 · Regression models | [PDF](slides/Module%204.pdf){target="_blank"} | [Download](code/chapter-4.R){download="chapter-4.R"} |
 | 05 · Machine learning | [PDF](slides/Module%205.pdf){target="_blank"} | [Download](code/chapter-5.R){download="chapter-5.R"} |
